@@ -1,0 +1,6 @@
+git config --global credential.helper store
+
+git add .
+git commit -m "New Structure"
+git push -u origin develop
+
