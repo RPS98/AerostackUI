@@ -1,0 +1,7 @@
+class ImageOVerlay
+{
+    constructor()
+    {
+
+    }
+}

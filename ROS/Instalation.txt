@@ -6,6 +6,9 @@ conda install -c anaconda django
 
 python -m pip install -U channels
 
+
+---------------------------------------------
 conda install -c conda-forge websockets
 conda install -c conda-forge websocket-client
 conda install -c anaconda redis
+---------------------------------------------

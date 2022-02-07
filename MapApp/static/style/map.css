@@ -1,0 +1,13 @@
+#mapid { 
+    height: 100vh; 
+    width: 100vw;
+}
+
+.leaflet-sidebar-content{
+    background-color: transparent;
+}
+
+.leaflet-sidebar-pane{
+    background-color:rgba(255, 255, 255, 0.5);
+    
+}
