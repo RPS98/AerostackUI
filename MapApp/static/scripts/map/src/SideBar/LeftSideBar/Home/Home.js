@@ -16,16 +16,17 @@ class Home
         let latLonBtnAttributes = {
             'class': 'btn btn-primary',
         }
-        let goToLat  = HTMLDicts.addInput('text',   'latitude',  'sideBar-left-home-content-goToLat', latLonAttributes);
-        let goToLong = HTMLDicts.addInput('input',  'longitude', 'sideBar-left-home-content-goToLon', latLonAttributes);
-        let goToBtn  = HTMLDicts.addButton('Go to', 'sideBar-left-home-content-goToBtn', latLonBtnAttributes);
-        let goToRow  = HTMLDicts.addRow([goToLat, goToLong, goToBtn]);
-        let gotoCollapse = HTMLDicts.addCollapse('Go to', [goToRow], 'sideBar-left-home-content-goToCollapse');
+
+        let goToLat = HTMLUtils.addDict('input', 'sideBar-left-home-content-goToLat', latLonAttributes, 'text', 'Latitude');
+        let goToLon = HTMLUtils.addDict('input', 'sideBar-left-home-content-goToLon', latLonAttributes, 'text', 'Longitude');
+        let goToBtn = HTMLUtils.addDict('button', 'sideBar-left-home-content-goToBtn', latLonBtnAttributes, 'Go to');
+        let goToRow = HTMLUtils.addDict('row', 'none', {}, [goToLat, goToLon, goToBtn]);
+        let gotoCollapse = HTMLUtils.addDict('collapse', 'sideBar-left-home-content-gotoCollapse', {}, 'Go to', [goToRow]);
+
+
         homeHtmlList.push(gotoCollapse);
 
-        let homeHtml = HTMLDicts.addExistingElement('sideBar-left-home-content', homeHtmlList);
-
-        HTMLBlocks.addDict(homeHtml);
+        HTMLUtils.addToExistingElement('sideBar-left-home-content', homeHtmlList);
     }
 
     addCallbacks() {

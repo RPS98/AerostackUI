@@ -15,7 +15,7 @@ window.onload = function()
         connectionString
     );
 
-    //home = new Home();
+    home = new Home();
     missionPlanner = new MissionPlanner();
 };
 
