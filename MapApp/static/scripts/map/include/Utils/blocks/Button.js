@@ -13,7 +13,7 @@ class Button extends HTMLUtilsPrototype
 
     static addHTML(content) {
         let button = document.createElement('button');
-        button.setAttribute('type', 'submit');
+        button.setAttribute('type', 'button');
         button.innerHTML = content.text;
         return button;
     }

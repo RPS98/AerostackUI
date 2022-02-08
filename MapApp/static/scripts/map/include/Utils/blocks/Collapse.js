@@ -8,7 +8,8 @@ class Collapse extends HTMLUtilsPrototype
             {
                 'id': id,
                 'text': args[0],
-                'list': args[1],
+                'show': args[1],
+                'list': args[2],
             }
         );
     }  
@@ -25,7 +26,11 @@ class Collapse extends HTMLUtilsPrototype
         btn.setAttribute('data-bs-target', '#collapsable' + content.id);
         btn.innerHTML = `${content.text} <i class="icon-collap-toggle fas fa-plus"></i>`;
 
-        div_collapse.setAttribute('class', 'collapse multi-collapse');
+        if (content.show) {
+            div_collapse.setAttribute('class', 'collapse multi-collapse show');
+        } else {
+            div_collapse.setAttribute('class', 'collapse multi-collapse');
+        }
         div_collapse.setAttribute('id', 'collapsable' + content.id);
         
         for (let i=0; i<content.list.length; i++) {

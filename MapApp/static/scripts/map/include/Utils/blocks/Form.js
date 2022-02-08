@@ -1,4 +1,4 @@
-class Div extends HTMLUtilsPrototype 
+class Form extends HTMLUtilsPrototype 
 {
     static addDict(type, id='none', attributes={}, ...args){
         return super.setDict(
@@ -12,7 +12,7 @@ class Div extends HTMLUtilsPrototype
     }   
 
     static addHTML(content) {
-        let div = document.createElement('DIV');
+        let div = document.createElement('div');
         for (let i = 0; i < content.list.length; i++) {
             HTMLUtils.addHTML(div, content.list[i]);
         }

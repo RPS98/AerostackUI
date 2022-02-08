@@ -57,13 +57,19 @@
 
             <script src="{% static 'scripts/map/include/Utils/HTMLUtilsPrototype.js' %}"></script>
             
-            <script src="{% static 'scripts/map/include/Utils/blocks/Div.js' %}"></script>
             <script src="{% static 'scripts/map/include/Utils/blocks/Button.js' %}"></script>
-            <script src="{% static 'scripts/map/include/Utils/blocks/Label.js' %}"></script>
             <script src="{% static 'scripts/map/include/Utils/blocks/Collapse.js' %}"></script>
-            <script src="{% static 'scripts/map/include/Utils/blocks/Row.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Div.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/DropDown.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Form.js' %}"></script>
             <script src="{% static 'scripts/map/include/Utils/blocks/Input.js' %}"></script>
-
+            <script src="{% static 'scripts/map/include/Utils/blocks/Label.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Li.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Row.js' %}"></script>
+            <!-- <script src="{% static 'scripts/map/include/Utils/blocks/RowForm.js' %}"></script> -->
+            <script src="{% static 'scripts/map/include/Utils/blocks/SplitDivs.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Ul.js' %}"></script>
+            
             <script src="{% static 'scripts/map/include/Utils/Utils.js' %}"></script>
 
             <script src="{% static 'scripts/map/include/MapManager/MapManager.js' %}"></script>
@@ -104,3 +110,24 @@
     </body>
 
 </html>
+
+<script>
+    function add_toggle_icon(icon, button) {
+        button.addEventListener("click", function (e) {
+        icon.classList.toggle("fa-minus");
+        icon.classList.toggle("fa-plus");
+        }, false);
+    }
+    
+    const icons   = document.querySelectorAll(".icon-collap-toggle");
+    const buttons = document.querySelectorAll(".btn-collap-toggle");
+
+    if (icons.length != buttons.length) {
+        throw "Missmatch icons.length and buttons.length"
+    }
+
+    for (var i = 0; i < icons.length; i++) {
+        add_toggle_icon(icons.item(i), buttons.item(i))
+    }
+</script>
+  

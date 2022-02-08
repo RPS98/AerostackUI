@@ -9,20 +9,12 @@ class Home
         let homeHtmlList = [];
 
         // Go to
-        let latLonAttributes = {
-            'class': 'form-control',
-            'required': 'required',
-        };
-        let latLonBtnAttributes = {
-            'class': 'btn btn-primary',
-        }
+        let goToLat  = HTMLUtils.addDict('input', 'sideBar-left-home-content-goToLat', {'class': 'form-control', 'required': 'required',}, 'text', 'Latitude');
+        let goToLon  = HTMLUtils.addDict('input', 'sideBar-left-home-content-goToLon', {'class': 'form-control', 'required': 'required',}, 'text', 'Longitude');
+        let goToBtn  = HTMLUtils.addDict('button', 'sideBar-left-home-content-goToBtn', {'class': 'btn btn-primary'}, 'Go to');
+        let goToRow  = HTMLUtils.addDict('splitDivs', 'none', {'class': 'row my-1 mx-1'}, [goToLat, goToLon, goToBtn], {'class': 'col-md-4'});
 
-        let goToLat = HTMLUtils.addDict('input', 'sideBar-left-home-content-goToLat', latLonAttributes, 'text', 'Latitude');
-        let goToLon = HTMLUtils.addDict('input', 'sideBar-left-home-content-goToLon', latLonAttributes, 'text', 'Longitude');
-        let goToBtn = HTMLUtils.addDict('button', 'sideBar-left-home-content-goToBtn', latLonBtnAttributes, 'Go to');
-        let goToRow = HTMLUtils.addDict('row', 'none', {}, [goToLat, goToLon, goToBtn]);
-        let gotoCollapse = HTMLUtils.addDict('collapse', 'sideBar-left-home-content-gotoCollapse', {}, 'Go to', [goToRow]);
-
+        let gotoCollapse = HTMLUtils.addDict('collapse', 'sideBar-left-home-content-gotoCollapse', {}, 'Go to', false, [goToRow]);
 
         homeHtmlList.push(gotoCollapse);
 

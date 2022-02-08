@@ -1,11 +1,17 @@
 // List class of [type, fileName]
 let blocksClassList = [
     ['button', Button],
-    ['label', Label],
     ['collapse', Collapse],
-    ['row', Row],
-    ['input', Input],
     ['div', Div],
+    ['dropDown', DropDown],
+    ['form', Form],
+    ['input', Input],
+    ['label', Label],
+    ['li', Li],
+    ['row', Row],
+    // ['rowForm', RowForm],
+    ['splitDivs', SplitDivs],
+    ['ul', Ul],
 ]
 
 class HTMLUtils
