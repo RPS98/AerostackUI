@@ -1,92 +1,171 @@
-class HTMLUtils
+// TODO: Separate in classes
+
+class HTMLDicts
 {
-
-    static addContent(htmlInfo) {
-        let id = htmlInfo['container_id'];
-        let content = htmlInfo['content'];
-
-        let container = document.getElementById(id);
-        
-        for (let i=0; i<content.length; i++) {
-            let htmlContent = null;
-            let element = content[i];
-
-            switch (element['type']) {
-                case 'collapse':
-                    break;
-                case 'row':
-                    break;
-                case 'input':
-                    break;
-                default:
-                    throw "Unknown type";
-            }
-
-            container.appendChild(content[i]);
-        }
-    }
-
-    static addCollapse(id, name, content) {
+    static addDict(type, content, id='none', attributes={}) {
         return {
-            'id': id,
-            'type': 'collapse',
-            'content': {
-                'name': name,
-                'content': content
-            }
-        }
-    }
-
-    static addRow(content) {
-        return {
-            'id': id,
-            'type': 'row',
-            'content': content
-        }
-    }
-
-    static addDict(id, type, content) {
-        return {
-            'id': id,
             'type': type,
-            'content': content
+            'content': content,
+            'id': id,
+            'attributes': attributes,
+            
         }
     }
 
-    static addInputDict(id, type, defaultValue, class_field='') {
-        return HTMLUtils.addDict(
+    static addExistingElement(id, content, attributes={}) {
+        return HTMLDicts.addDict(
+            'existing',
+            content,
             id,
-            'input',
-            {
-                'inputType': type,
-                'defaultValue': defaultValue,
-                'class_field': class_field
-            }
+            attributes
         );
     }
 
+    static addCollapse(name, content, id, attributes={}) {
+        return HTMLDicts.addDict(
+            'collapse',
+            {
+                'name': name,
+                'content': content
+            },
+            id,
+            attributes
+        );
+    }
+
+    static addRow(content, id='none', attributes={}) {
+        return HTMLDicts.addDict(
+            'row',
+            content,
+            id,
+            attributes
+        );
+    }
+
+    static addInput(type, defaultValue, id='none', attributes={}) {
+        return HTMLDicts.addDict(
+            'input',
+            {
+                'inputType': type,
+                'placeholder': defaultValue,
+            },
+            id,
+            attributes
+        );
+    }
+
+    static addButton(text, id='none', attributes={}) {
+        return HTMLDicts.addDict(
+            'button',
+            text,
+            id,
+            attributes
+        );
+    }
+
+    static addLabel(text, id='none', attributes={}) {
+        return HTMLDicts.addDict(
+            'label',
+            text,
+            id,
+            attributes
+        );
+    }
+
+    static addDiv(content, id='none', attributes={}) {
+        return HTMLDicts.addDict(
+            'div',
+            content,
+            id,
+            attributes
+        );
+    }
+
+    static addRowLines(content, id='none', attributes={}) {
+        return HTMLDicts.addDict(
+            'rowLines',
+            content,
+            id,
+            attributes
+        );
+    }
+}
+
+class HTMLBlocks
+{
+
+    static _addAttribute(element, id, attributes) {
+        if (id != 'none') {
+            element.setAttribute('id', id);
+        }
+        for (let key in attributes) {
+            element.setAttribute(key, attributes[key]);
+        }
+        return element;
+    }
+
+    static recursiveAddDicts(parent, htmlInfo) {
+
+        let id = htmlInfo.id;
+        let type = htmlInfo.type;
+        let attributes = htmlInfo.attributes;
+        let content = htmlInfo.content;
+
+        let child = null;
+        
+        switch (type) {
+            case 'collapse':
+                child = HTMLBlocks.addCollapseGroup(id, content.name, content.content);
+                break;
+            case 'row':
+                child = HTMLBlocks.addRow(content);
+                break;
+            case 'input':
+                child = HTMLBlocks.addInput(content);
+                break;
+            case 'button':
+                child = HTMLBlocks.addButton(content);
+                break;
+            case 'label':
+                child = HTMLBlocks.addLabel(content);
+                break;
+            case 'div':
+                child = HTMLBlocks.addDiv(content);
+                break;
+            case 'rowLines':
+                child = HTMLBlocks.addRowLines(content);
+                break;
+            case 'existing':
+                throw new Error('Can not exits existing element inside other existing element');
+                break;
+            default:
+                throw new Error(`Unknown type: ${type}`);
+                break;
+        }
+
+        HTMLBlocks._addAttribute(child, id, attributes);
+
+        parent.appendChild(child)
+    }
+
+    static addDict(htmlInfo)
+    {
+        let id = htmlInfo.id;
+        let type = htmlInfo.type;
+        let content = htmlInfo.content;
+
+        if (type != 'existing') {
+            throw new Error('First one must be existing');
+        }
+
+        let parent = document.getElementById(id);
+
+        for (let i=0; i<content.length; i++) {
+            HTMLBlocks.recursiveAddDicts(parent, content[i]);
+        }
+    }
+
     static addCollapseGroup(groupId, groupName, groupContent) {
-        /*
-        <div class="d-grid gap-2 m-2">
-            <button class="btn btn-secondary btn-collap-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
-                Go to
-                <i class="icon-collap-toggle fas fa-plus"></i>
-            </button>
-            <div class="collapse multi-collapse" id="collapse1">
-                <div class="row my-1 mx-1">
-                </form>
-                    <div class="col-4">
-                    <input type="text" class="form-control" placeholder="latitude" required="required" id="map-view-lat">
-                    </div>
-                    <div class="col-4">
-                    <input type="text" class="form-control" placeholder="longitude" required="required" id="map-view-long">
-                    </div>
-                    <button type="submit" class="col-4 btn btn-primary" id="map-view-btn">Go</button>
-                <form>
-                </div>
-            </div>
-        </div>
-        */
 
         let div = document.createElement('div');
         let btn = document.createElement('button');
@@ -100,11 +179,16 @@ class HTMLUtils
 
         div_collapse.setAttribute('class', 'collapse multi-collapse');
         div_collapse.setAttribute('id', groupId);
-        div_collapse.appendChild(groupContent);
+        
+        for (let i=0; i<groupContent.length; i++) {
+            HTMLBlocks.recursiveAddDicts(div_collapse, groupContent[i]);
+        }
 
         div.setAttribute('class', 'd-grid gap-2 m-2');
         div.appendChild(btn);
         div.appendChild(div_collapse);
+
+        return div;
     }
 
     static addRow(input = []) {
@@ -116,35 +200,48 @@ class HTMLUtils
 
         for (let i = 0; i < len; i++) {
             let div_col = document.createElement('div');
-            div_col.setAttribute('class', 'col-' + col);
-            div_col.appendChild(input[i]);
+            div_col.setAttribute('class', `col-md-${col}`);
+            HTMLBlocks.recursiveAddDicts(div_col, input[i]);
             div.appendChild(div_col);
         }
-    }
 
-    static addLabel(text) {
+        return div;
+    }
+    
+    static addLabel(content) {
         let label = document.createElement('label');
-        label.innerHTML = text;
+        label.innerHTML = content;
         return label;
     }
 
-    static addInput(type, id, defaultValue, class_field='') {
+    static addInput(content) {
         let input = document.createElement('input');
-        input.setAttribute('type', type);
-        input.setAttribute('id', id);
-        input.setAttribute('value', defaultValue);
-        input.setAttribute('class', class_field);
+        input.setAttribute('type', content.inputType);
+        input.setAttribute('placeholder', content.placeholder);
         return input;
     }
 
-    static addOneInputParam(name, defaultValue, paramType, paramId) {
-        let label = HTMLUtils.addLabel(name);
-        let input = HTMLUtils.addInput(paramType, paramId, defaultValue);
-        HTMLUtils.addRow([label, input]);
+    static addButton(content) {
+        let button = document.createElement('button');
+        button.setAttribute('type', 'submit');
+        button.innerHTML = content;
+        return button;
     }
+
+    static addDiv(content) {
+        let div = document.createElement('div');
+        for (let i = 0; i < content.length; i++) {
+            HTMLBlocks.recursiveAddDicts(div, content[i]);
+        }
+        return div;
+    }
+
+    // static addOneInputParam(name, defaultValue, paramType, paramId) {
+    //     let label = HTMLUtils.addLabel(name);
+    //     let input = HTMLUtils.addInput(paramType, paramId, defaultValue);
+    //     HTMLUtils.addRow([label, input]);
+    // }
 }
-
-
 
 class Utils 
 {

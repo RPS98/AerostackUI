@@ -1,17 +1,3 @@
-/* import Utils */
-
-/*
-import MapManager
-import WebSocketManager
-import DrawManager
-*/
-
-
-/*
-import point
-*/
-
-
 window.onload = function()
 {
     // TODO: Load parameters from a config file
@@ -29,9 +15,24 @@ window.onload = function()
         connectionString
     );
 
-    console.log("Creates");
-    console.log(webSocketManager);
+    //home = new Home();
+    missionPlanner = new MissionPlanner();
 };
+
+
+
+
+
+// import {Utils, HTMLBlocks, HTMLDicts} from '/static/scripts/map/include/Utils/Utils.js';
+// import {MapManager, UAV, Mission} from '/static/scripts/map/include/MapManager/MapManager.js';
+// import {WebSocketManager} from '/static/scripts/map/include/WebSocketManager/WebSocketManager.js';
+
+
+// /*
+// import point
+// */
+
+// import {Home} from '/static/scripts/map/src/SideBar/LeftSideBar/Home/Home.js';
 
 
 
