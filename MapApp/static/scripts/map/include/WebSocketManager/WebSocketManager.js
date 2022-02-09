@@ -264,7 +264,7 @@ class WebSocketConnection
      */
     onError(webSocket, error)
     {
-        webSocketManager.onError(webSocket, error);
+        WEB_SOCKET_MANAGER.onError(webSocket, error);
     }
 
     /**
@@ -275,7 +275,7 @@ class WebSocketConnection
      */
     onClose(webSocket, close_status_code, close_msg)
     {
-        webSocketManager.onClose(webSocket, close_status_code, close_msg);
+        WEB_SOCKET_MANAGER.onClose(webSocket, close_status_code, close_msg);
     }
 
     /**
@@ -284,7 +284,7 @@ class WebSocketConnection
      */
     onOpen(webSocket)
     {
-        webSocketManager.onOpen(webSocket);
+        WEB_SOCKET_MANAGER.onOpen(webSocket);
     }
 
     /**
@@ -293,6 +293,6 @@ class WebSocketConnection
      */
     onMessage(webSocket)
     {
-        webSocketManager.onMessage(JSON.parse(webSocket.data).message);
+        WEB_SOCKET_MANAGER.onMessage(JSON.parse(webSocket.data).message);
     }
 }

@@ -1,12 +1,27 @@
-class drawManager
+class DrawManager
 {
     constructor () {
 
     }
 
+    static codeDraw() {
+        throw new Error("Method not implemented.");
+    }
+
+    static userDraw() {
+        throw new Error("Method not implemented.");
+    }
+
+    static showInfo() {
+        throw new Error("Method not implemented.");
+    }
+
+    static sendInfo() {
+        throw new Error("Method not implemented.");
+    }
+
     codeDraw(type) {
-        type.addTo(mapManager.map);
-        return type;
+        
     }
 
     userDraw(type, options={}) {

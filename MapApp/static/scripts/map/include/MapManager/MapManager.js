@@ -1,91 +1,19 @@
-class UAV {
-    constructor(id, state, pose, odom, desiredPath, sensors) 
-    {
-        this.newState(id, state, pose, odom, desiredPath, sensors);
-    }
 
-    newState(id, state, pose, odom, desiredPath, sensors) 
-    {
-        this.landedMarker = null;
-        this.odomMarker = null;
-        this.poseMarker = null;
-        this.desiredPathMarker = null;
-
-        this.UAVId = id;
-        this.state = state;
-        this.pose = pose;
-        this.odom = odom;
-        this.desiredPath = desiredPath;
-        this.sensors = sensors;
-
-        this.drawUAVPose(this.pose, this.state);
-        this.drawUAVOdom(this.odom);
-        this.drawDesiredPath(this.desiredPath);
-        this.showSensor(this.sensors);
-    }
-
-    drawUAVLanded(pose)
-    {
-        if (this.landedMarker != null) {this.landedMarker.remove();}
-        this.landedMarker = UAVDrawing.drawUAVLanded(iApp.map, this.UAVId, pose);
-    }
-    
-    drawUAVOdom(odom)
-    {
-        if (this.odomMarker != null) {this.odomMarker.remove();}
-        this.odom = odom;
-        this.odomMarker = UAVDrawing.drawUAVOdom(iApp.map, this.UAVId, this.odom);
-    }
-
-    drawUAVPose(pose, state)
-    {
-        this.pose = pose;
-        this.state = state;
-
-        if (this.poseMarker != null) {this.poseMarker.remove();}
-        this.poseMarker =UAVDrawing.drawUAVPose(iApp.map, this.UAVId, this.pose);
-
-        if (this.state == 'landed') {
-            this.drawUAVLanded(this.pose);
-        } 
-    }
-
-    drawDesiredPath(desiredPath)
-    {
-        this.desiredPath = desiredPath;
-        if (this.desiredPathMarker != null) {this.desiredPathMarker.remove();}
-        this.desiredPathMarker = UAVDrawing.drawDesiredPath(iApp.map, this.UAVId, this.desiredPath);
-    }
-
-    showSensor(sensors)
-    {
-        this.sensors = sensors;
-        // console.log("Drawing Sensors");
-        // console.log(sensors);
-    }
-}
-
-class Mission
-{
-    constructor() {
-
-    }
-}
 
 class MapManager
 {
     constructor(map_center, zoom)
     {
-        map = new L.Map('mapid').setView(map_center, zoom);
+        MAP = new L.Map('mapid').setView(map_center, zoom);
 
-        this.uavTilesAll = {'All': L.featureGroup().addTo(map)};
+        this.uavTilesAll = {'All': L.featureGroup().addTo(MAP)};
         
         // add tile layers
         this.layer_control = L.control.layers({
             "hybrid": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
                 maxZoom: 22,
                 subdomains:['mt0','mt1','mt2','mt3']
-            }).addTo(map),
+            }).addTo(MAP),
             "streets": L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
                 maxZoom: 22,
                 subdomains:['mt0','mt1','mt2','mt3']
@@ -99,7 +27,7 @@ class MapManager
                 subdomains:['mt0','mt1','mt2','mt3']
             })
             
-        }, this.uavTilesAll, { position: 'topleft', collapsed: false }).addTo(map);
+        }, this.uavTilesAll, { position: 'topleft', collapsed: false }).addTo(MAP);
 
         // {% include 'include/SideBar/SideBar.html' %}
 
@@ -128,7 +56,7 @@ class MapManager
             closeButton: true,         // whether t add a close button to the panes
             container: 'sideBar-left', // the DOM container or #ID of a predefined sidebar container that should be used
             position: 'left',
-        }).addTo(map);
+        }).addTo(MAP);
     }
 
     initializeRightSideBar() {
@@ -137,7 +65,7 @@ class MapManager
             closeButton: true,
             container: 'sideBar-right',
             position: 'right',
-        }).addTo(map);
+        }).addTo(MAP);
     }
 
     /* UAV List */

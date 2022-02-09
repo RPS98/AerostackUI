@@ -7,47 +7,50 @@ class MissionPlanner
     }
 
     addHTML() {
+
+        this.htmlId = 'sideBar-left-missionPlanner-content';
+
         let missionPlannerHtmlList = [];
+        
+        // Mission Dropdown list
+        let missionList = ['New mission'];
+        let missionListTotal = missionList.concat(MISSION_LIST.getMissionList());
+        missionPlannerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
 
-        let missionPlannerDropDownList = [];
+        // UAV Dropdown list
+        missionPlannerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-UAVList`, UAV_LIST.getUavList(), UAV_LIST.getUavList()[0]));
 
-        let dropDownBtn = HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-DropDown-Btn', {'class': 'btn btn-info'}, 'New Mission');
-        let dropDownExpandBtn = HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-DropDown-Div-Btn', {'class': 'btn btn-secondary dropdown-MPMission-item w-75', 'style': "background: #dae8fc"}, 'New Mission');
-        let dropDownExpand = HTMLUtils.addDict('ul', 'none', {}, [dropDownExpandBtn]);
-
-        missionPlannerHtmlList.push(HTMLUtils.addDict('dropDown', 'sideBar-left-missionPlanner-content-missionPlannerDropDown', {'class': 'row m-1 gap-2'}, 'New Mission', dropDownBtn, dropDownExpand));
-
-        // let heightInput = HTMLUtils.addDict('input', 'sideBar-left-missionPlanner-content-heightInput', {'class': 'form-number', 'required': 'required',}, 'number', '1');
-        let heightInput = HTMLUtils.addDict('input', 'sideBar-left-missionPlanner-content-heightInput', {'class': 'form-control', 'required': 'required',}, 'text', '1');
-        let heightBtn   = HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-heighBtn', {'class': 'btn btn-primary'}, 'Set Height (m)');
+        // Heigh input
+        let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, {'class': 'form-control', 'required': 'required',}, 'text', '1');
+        let heightBtn   = HTMLUtils.addDict('button', `${this.htmlId}-heighBtn`, {'class': 'btn btn-primary'}, 'Set Height (m)');
         let heightRow  = HTMLUtils.addDict('splitDivs', 'none', {'class': 'row my-1 mx-1'}, [heightInput, heightBtn], {'class': 'col-md-6'});
-
         missionPlannerHtmlList.push(heightRow);
 
-        missionPlannerHtmlList.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-mouse',  {'class': 'btn btn-primary m-1',}, `<i class="fas fa-mouse-pointer"></i>`));
-        missionPlannerHtmlList.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-edit',   {'class': 'btn btn-primary m-1',}, `<i class="fas fa-edit"></i>`));
-        missionPlannerHtmlList.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-delete', {'class': 'btn btn-primary m-1',}, `<i class="fas fa-eraser"></i>`));
-        missionPlannerHtmlList.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-move',   {'class': 'btn btn-primary m-1',}, `<i class="fas fa-arrows-alt"></i>`));
-        missionPlannerHtmlList.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-rotate', {'class': 'btn btn-primary m-1',}, `<i class="fas fa-sync-alt"></i>`));
 
+        // Buttons for change draw mode
+        missionPlannerHtmlList.push(HTMLUtils.addDict('button', `${this.htmlId}-mouse`,  {'class': 'btn btn-primary m-1',}, `<i class="fas fa-mouse-pointer"></i>`));
+        missionPlannerHtmlList.push(HTMLUtils.addDict('button', `${this.htmlId}-edit`,   {'class': 'btn btn-primary m-1',}, `<i class="fas fa-edit"></i>`));
+        missionPlannerHtmlList.push(HTMLUtils.addDict('button', `${this.htmlId}-delete`, {'class': 'btn btn-primary m-1',}, `<i class="fas fa-eraser"></i>`));
+        missionPlannerHtmlList.push(HTMLUtils.addDict('button', `${this.htmlId}-move`,   {'class': 'btn btn-primary m-1',}, `<i class="fas fa-arrows-alt"></i>`));
+        missionPlannerHtmlList.push(HTMLUtils.addDict('button', `${this.htmlId}-rotate`, {'class': 'btn btn-primary m-1',}, `<i class="fas fa-sync-alt"></i>`));
+
+        // Buttons for draw mission
         let splitBtn = [];
-        splitBtn.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-PoI',     {'class': 'btn btn-primary',}, `Point of interest  <i class="fas fa-map-marker-alt"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-path',    {'class': 'btn btn-primary',}, `Path <i class="fas fa-long-arrow-alt-up"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-area',    {'class': 'btn btn-primary',}, `Area <i class="fas fa-draw-polygon"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-cArea',   {'class': 'btn btn-primary',}, `Circular area <i class="far fa-circle"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-land',    {'class': 'btn btn-primary',}, `Land point <i class="fas fa-h-square"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-remove',  {'class': 'btn btn-warning'},  'Remove all points'));
-        splitBtn.push(HTMLUtils.addDict('button', 'sideBar-left-missionPlanner-content-confirm', {'class': 'btn btn-success'},  'Confirm mission'));
-
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-PoI`,     {'class': 'btn btn-primary',}, `Point of interest  <i class="fas fa-map-marker-alt"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-path`,    {'class': 'btn btn-primary',}, `Path <i class="fas fa-long-arrow-alt-up"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-area`,    {'class': 'btn btn-primary',}, `Area <i class="fas fa-draw-polygon"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-cArea`,   {'class': 'btn btn-primary',}, `Circular area <i class="far fa-circle"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-land`,    {'class': 'btn btn-primary',}, `Land point <i class="fas fa-h-square"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-remove`,  {'class': 'btn btn-warning'},  'Remove all points'));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, {'class': 'btn btn-success'},  'Confirm mission'));
         missionPlannerHtmlList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtn, {'class': 'row m-1'}));
 
-        let missionPlannerCollapse = HTMLUtils.addDict('collapse', 'sideBar-left-missionPlanner-content-addToMapCollapse', {}, 'Add to map', true, missionPlannerHtmlList);
-
-        HTMLUtils.addToExistingElement('sideBar-left-missionPlanner-content', [missionPlannerCollapse]);        
+        // Global collapse
+        let missionPlannerCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-addToMapCollapse`, {}, 'Planner', true, missionPlannerHtmlList);
+        HTMLUtils.addToExistingElement(`${this.htmlId}`, [missionPlannerCollapse]);
     }
 
     addCallbacks() {
-
+        
     }
-
 }

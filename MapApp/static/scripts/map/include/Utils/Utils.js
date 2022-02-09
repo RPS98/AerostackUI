@@ -4,6 +4,8 @@ let blocksClassList = [
     ['collapse', Collapse],
     ['div', Div],
     ['dropDown', DropDown],
+    ['dropDownBtn', DropDownBtn],
+    ['dropDownExpand', DropDownExpand],
     ['form', Form],
     ['input', Input],
     ['label', Label],
@@ -48,6 +50,8 @@ class HTMLUtils
             }
         }
         if (flag) {
+            console.log("Unknown type of HTML block");
+            console.log(childDict)
             throw new Error('Unknown type of HTML block');
         }
     }
@@ -60,6 +64,31 @@ class HTMLUtils
             HTMLUtils.addHTML(parent, blockList[i]);
         }
     }
+
+    static initDropDown(id, list, defaultValue) {
+        let dropDownBtn = HTMLUtils.addDict('dropDownBtn', `${id}-DropDown-Btn`, {'class': 'btn btn-info'}, defaultValue);
+        
+        let dropDownExpandList = [];
+        for (let i=0; i<list.length; i++) {
+            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, {'class': 'btn btn-secondary dropdown-MPMission-item w-75', 'style': "background: #dae8fc"}, list[i]));
+        }
+
+        let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
+        return HTMLUtils.addDict('dropDown', `${id}-DropDown`, {'class': 'row m-1 gap-2'}, dropDownBtn, dropDownExpand);
+    }
+
+    static updateDropDown(id, list) {
+        let expand = document.getElementById(`${id}-DropDown-Expand`);
+        expand.innerHTML = '';
+
+        let dropDownExpandList = [];
+        for (let i=0; i<list.length; i++) {
+            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, {'class': 'btn btn-secondary dropdown-MPMission-item w-75', 'style': "background: #dae8fc"}, list[i]));
+        }
+
+        let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
+        HTMLUtils.addToExistingElement(`${id}-DropDown-menu`, [dropDownExpand]);
+    }   
 }
 
 class Utils 

@@ -6,17 +6,18 @@ window.onload = function()
     let map_zoom=19;
     let connectionString = 'ws://127.0.0.1:8000/ws/user/';
 
-    mapManager = new MapManager(
+    MAP_MANAGER = new MapManager(
         map_center,
         map_zoom
     );
 
-    webSocketManager = new WebSocketManager(
+    WEB_SOCKET_MANAGER = new WebSocketManager(
         connectionString
     );
 
-    home = new Home();
-    missionPlanner = new MissionPlanner();
+    let home = new Home();
+    let missionPlanner = new MissionPlanner();
+    let missionController = new MissionController();
 };
 
 
