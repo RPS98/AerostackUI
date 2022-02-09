@@ -1,23 +1,25 @@
 // List class of [type, fileName]
-let blocksClassList = [
-    ['button', Button],
-    ['collapse', Collapse],
-    ['div', Div],
-    ['dropDown', DropDown],
-    ['dropDownBtn', DropDownBtn],
-    ['dropDownExpand', DropDownExpand],
-    ['form', Form],
-    ['input', Input],
-    ['label', Label],
-    ['li', Li],
-    ['row', Row],
-    // ['rowForm', RowForm],
-    ['splitDivs', SplitDivs],
-    ['ul', Ul],
-]
+var blocksClassList = []
 
 class HTMLUtils
 {
+
+    static setDict(type, id='none', attributes={}, content) {
+        return {
+            'type': type,
+            'id': id,
+            'attributes': attributes,
+            'content': content,
+        }
+    }
+
+    static addTypeDict(type, id='none', attributes={}, ...args) {
+        throw new Error('Not implemented');
+    }   
+
+    static addTypeHTML(content) {
+        throw new Error('Not implemented');
+    }
 
     static _addAttribute(element, id, attributes) {
         if (id != 'none') {
@@ -32,7 +34,7 @@ class HTMLUtils
     static addDict(type, id='none', attributes={}, ...args) {
         for (let i=0; i<blocksClassList.length; i++) {
             if (blocksClassList[i][0] == type) {
-                return blocksClassList[i][1].addDict(type, id, attributes, ...args);
+                return blocksClassList[i][1].addTypeDict(type, id, attributes, ...args);
             }
         }
     }
@@ -42,7 +44,7 @@ class HTMLUtils
         let flag = true;
         for (let i=0; i<blocksClassList.length; i++) {
             if (blocksClassList[i][0] == childDict.type) {
-                child = blocksClassList[i][1].addHTML(childDict.content);
+                child = blocksClassList[i][1].addTypeHTML(childDict.content);
                 HTMLUtils._addAttribute(child, childDict.id, childDict.attributes);
                 parent.appendChild(child);
                 flag = false;
@@ -90,6 +92,7 @@ class HTMLUtils
         HTMLUtils.addToExistingElement(`${id}-DropDown-menu`, [dropDownExpand]);
     }   
 }
+
 
 class Utils 
 {

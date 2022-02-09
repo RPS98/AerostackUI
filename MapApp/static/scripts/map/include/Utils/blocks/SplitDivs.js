@@ -1,6 +1,6 @@
-class SplitDivs extends HTMLUtilsPrototype 
+class SplitDivs extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -12,14 +12,14 @@ class SplitDivs extends HTMLUtilsPrototype
         );
     }   
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
         let div = document.createElement('div');
         for (let i = 0; i < content.list.length; i++) {
             let subDiv = document.createElement('div');
             for (let key in content.attributes) {
                 subDiv.setAttribute(key, content.attributes[key]);
             }
-            HTMLUtils.addHTML(subDiv, content.list[i]);
+            super.addHTML(subDiv, content.list[i]);
             div.appendChild(subDiv);
         }
         return div;

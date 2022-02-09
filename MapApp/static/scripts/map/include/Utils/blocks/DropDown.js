@@ -1,6 +1,6 @@
-class DropDown extends HTMLUtilsPrototype 
+class DropDown extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -13,27 +13,27 @@ class DropDown extends HTMLUtilsPrototype
         );
     }  
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
 
         let div = document.createElement('div');
         div.setAttribute('class', 'row');
         
-        HTMLUtils.addHTML(div, content.btn);
+        super.addHTML(div, content.btn);
 
         let UL = document.createElement('ul');
         UL.setAttribute('class', 'dropdown-menu');
         UL.setAttribute('id', content.id + '-menu');
 
-        HTMLUtils.addHTML(UL, content.expand);
+        super.addHTML(UL, content.expand);
         div.appendChild(UL);
         
         return div;
     }
 }
 
-class DropDownBtn extends HTMLUtilsPrototype 
+class DropDownBtn extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -44,7 +44,7 @@ class DropDownBtn extends HTMLUtilsPrototype
         );
     }  
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
 
 
         let button = document.createElement('button');
@@ -59,9 +59,9 @@ class DropDownBtn extends HTMLUtilsPrototype
     }
 }
 
-class DropDownExpand extends HTMLUtilsPrototype 
+class DropDownExpand extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -72,7 +72,7 @@ class DropDownExpand extends HTMLUtilsPrototype
         );
     }  
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
 
         let div = document.createElement('div');
         div.setAttribute('class', 'row');
@@ -80,7 +80,7 @@ class DropDownExpand extends HTMLUtilsPrototype
         for (let i = 0; i < content.list.length; i++) {
             let Li = document.createElement('li');
             content.list[i].attributes['class'] += 'dropdown-item';
-            HTMLUtils.addHTML(Li, content.list[i]);
+            super.addHTML(Li, content.list[i]);
             div.appendChild(Li);
         }
 

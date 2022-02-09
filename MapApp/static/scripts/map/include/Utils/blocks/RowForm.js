@@ -1,6 +1,6 @@
-class RowForm extends HTMLUtilsPrototype 
+class RowForm extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -11,7 +11,7 @@ class RowForm extends HTMLUtilsPrototype
         );
     }   
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
         let div = document.createElement('div');
         div.setAttribute('class', 'row');
 
@@ -30,7 +30,7 @@ class RowForm extends HTMLUtilsPrototype
                 content.list[i].attributes['class'] += ' col-' + contentCol;
             }
             
-            HTMLUtils.addHTML(form, content.list[i]);
+            super.addHTML(form, content.list[i]);
         }
         div.appendChild(form);
         return div;

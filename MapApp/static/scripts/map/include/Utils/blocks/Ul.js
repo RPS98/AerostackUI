@@ -1,6 +1,6 @@
-class Ul extends HTMLUtilsPrototype 
+class Ul extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -11,7 +11,7 @@ class Ul extends HTMLUtilsPrototype
         );
     } 
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
 
         let label = document.createElement('UL');
 
@@ -20,7 +20,7 @@ class Ul extends HTMLUtilsPrototype
             div.setAttribute('class', 'row m-1');
 
             let listElement = document.createElement('LI');
-            HTMLUtils.addHTML(listElement, content.list[i]);
+            super.addHTML(listElement, content.list[i]);
 
             div.appendChild(listElement);
             label.appendChild(div);

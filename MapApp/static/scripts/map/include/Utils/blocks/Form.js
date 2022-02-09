@@ -1,6 +1,6 @@
-class Form extends HTMLUtilsPrototype 
+class Form extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -11,10 +11,10 @@ class Form extends HTMLUtilsPrototype
         );
     }   
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
         let div = document.createElement('div');
         for (let i = 0; i < content.list.length; i++) {
-            HTMLUtils.addHTML(div, content.list[i]);
+            super.addHTML(div, content.list[i]);
         }
         return div;
     }

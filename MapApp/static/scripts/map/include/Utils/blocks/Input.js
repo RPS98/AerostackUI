@@ -1,6 +1,6 @@
-class Input extends HTMLUtilsPrototype 
+class Input extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -12,7 +12,7 @@ class Input extends HTMLUtilsPrototype
         );
     }   
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
         let input = document.createElement('input');
         input.setAttribute('type', content.inputType);
         input.setAttribute('placeholder', content.placeholder);

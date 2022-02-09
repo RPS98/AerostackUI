@@ -1,7 +1,7 @@
 
-class Label extends HTMLUtilsPrototype 
+class Label extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -12,7 +12,7 @@ class Label extends HTMLUtilsPrototype
         );
     } 
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
         let label = document.createElement('label');
         label.innerHTML = content.text;
         return label;

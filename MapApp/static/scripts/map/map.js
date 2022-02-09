@@ -1,3 +1,21 @@
+
+blocksClassList = [
+    ['button', Button],
+    ['collapse', Collapse],
+    ['div', Div],
+    ['dropDown', DropDown],
+    ['dropDownBtn', DropDownBtn],
+    ['dropDownExpand', DropDownExpand],
+    ['form', Form],
+    ['input', Input],
+    ['label', Label],
+    ['li', Li],
+    ['row', Row],
+    // ['rowForm', RowForm],
+    ['splitDivs', SplitDivs],
+    ['ul', Ul],
+]
+
 window.onload = function()
 {
     // TODO: Load parameters from a config file

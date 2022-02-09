@@ -1,6 +1,6 @@
-class Li extends HTMLUtilsPrototype 
+class Li extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -11,9 +11,9 @@ class Li extends HTMLUtilsPrototype
         );
     } 
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
         let label = document.createElement('LI');
-        HTMLUtils.addHTML(label, content.element);
+        super.addHTML(label, content.element);
         return label;
     }
 }

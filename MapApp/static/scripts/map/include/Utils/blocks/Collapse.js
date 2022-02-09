@@ -1,6 +1,6 @@
-class Collapse extends HTMLUtilsPrototype 
+class Collapse extends HTMLUtils 
 {
-    static addDict(type, id='none', attributes={}, ...args){
+    static addTypeDict(type, id='none', attributes={}, ...args){
         return super.setDict(
             type,
             id,
@@ -14,7 +14,7 @@ class Collapse extends HTMLUtilsPrototype
         );
     }  
 
-    static addHTML(content) {
+    static addTypeHTML(content) {
 
         let div = document.createElement('div');
         let btn = document.createElement('button');
@@ -34,7 +34,7 @@ class Collapse extends HTMLUtilsPrototype
         div_collapse.setAttribute('id', 'collapsable' + content.id);
         
         for (let i=0; i<content.list.length; i++) {
-            HTMLUtils.addHTML(div_collapse, content.list[i]);
+            super.addHTML(div_collapse, content.list[i]);
         }
 
         div.setAttribute('class', 'd-grid gap-2 m-2');
