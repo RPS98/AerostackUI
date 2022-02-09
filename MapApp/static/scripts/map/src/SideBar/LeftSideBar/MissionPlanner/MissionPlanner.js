@@ -2,8 +2,14 @@
 class MissionPlanner
 {
     constructor() {
+        this.missionSelected = null;
+        this.uavListSelected = null;
+        this.height = 0;
+
         this.addHTML();
+        this.addDrawTypes();
         this.addCallbacks();
+        
     }
 
     addHTML() {
@@ -50,7 +56,17 @@ class MissionPlanner
         HTMLUtils.addToExistingElement(`${this.htmlId}`, [missionPlannerCollapse]);
     }
 
+    addDrawTypes() {
+        this.pointOfInterest = new Marker(this.height);
+    }
+
     addCallbacks() {
-        
+        Utils.addButtonCallback(`${this.htmlId}-PoI`, this.enableDrawCallbacks, [this.pointOfInterest]);
+        this.height = 1;
+    }
+
+    enableDrawCallbacks(args=[]) {
+        console.log(args);
+        args[0].userDraw(MAP_MANAGER.missionSelected, MAP_MANAGER.uavListSelected, MAP_MANAGER.height);
     }
 }

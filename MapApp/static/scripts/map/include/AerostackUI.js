@@ -103,6 +103,30 @@ class MissionList
 }
 
 
+class Layer
+{
+    constructor(author, status, missionId, uavList, type, values, height='none', options={}) {
+        this.author = author;
+        this.status = status;
+        this.missionId = missionId;
+        this.uavList = uavList;
+        this.type = type;
+        this.values = values;
+        this.height = height;
+        this.options = options;
+    }
+
+    updateLayer(status, missionId, uavList, values, height='none', options={}) {
+        this.status = status;
+        this.missionId = missionId;
+        this.uavList = uavList;
+        this.values = values;
+        this.height = height;
+        this.options = options;
+    }
+}
+
+
 
 var MAP = null;
 var MISSION_LIST = new MissionList();

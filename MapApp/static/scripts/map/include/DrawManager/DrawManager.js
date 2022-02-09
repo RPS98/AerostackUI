@@ -1,36 +1,85 @@
 class DrawManager
 {
-    constructor () {
-
+    constructor (type, codeDrawOptions={}, userDrawOptions={}) {
+        this.type = type
+        this.codeDrawOptions = Object.assign(
+            {}, 
+            codeDrawOptions, 
+            {
+                'author': 'manager',
+                'type': type,
+                'instance': this 
+            }
+        );
+        this.userDrawOptions = Object.assign(
+            {}, 
+            userDrawOptions, 
+            {
+                'author': 'user',
+                'status': 'draw',
+                'type': type,
+                'instance': this 
+            }
+        );
     }
 
-    static codeDraw() {
+    codeDraw(values, options={}) {
+
+        let draw = null;
+
+        switch (this.type) {
+            case 'Marker':
+                draw = L.marker(values, Object.assign({}, this.codeDrawOptions, options));
+                break;
+            case 'Line':
+                draw = L.polyline(values, Object.assign({}, this.codeDrawOptions, options));
+                break;
+            case 'Circle':
+                draw = L.circle(values[0], values[1], Object.assign({}, this.codeDrawOptions, options));
+                break;
+            case 'Polygon':
+                draw = L.polygon(values, Object.assign({}, this.codeDrawOptions, options));
+                break;
+            default:
+                alert("Try to draw from code a type: " + this.type);
+                throw new Error("Unknown type of draw");
+        }
+        draw.addTo(MAP);
+        return draw
+    }
+
+    userDraw(options={}) {
+
+        switch (this.type) {
+            case 'Marker':
+                MAP.pm.enableDraw('Marker', Object.assign({}, this.userDrawOptions, options));
+                break;
+            case 'Line':
+                MAP.pm.enableDraw('Line', Object.assign({}, this.userDrawOptions, options));
+                break;
+            case 'Circle':
+                MAP.pm.enableDraw('Circle', Object.assign({}, this.userDrawOptions, options));
+                break;
+            case 'Polygon':
+                MAP.pm.enableDraw('Polygon', Object.assign({}, this.userDrawOptions, options));
+                break;
+            case 'CircleMarker':
+                MAP.pm.enableDraw('CircleMarker', Object.assign({}, this.userDrawOptions, options));
+                break;
+            case 'Rectangle':
+                MAP.pm.enableDraw('Rectangle', Object.assign({}, this.userDrawOptions, options));
+                break;
+            default:
+                alert("Try to draw from code a type: " + this.type);
+                throw new Error("Unknown type of draw");
+        }
+    }
+
+    showInfo() {
         throw new Error("Method not implemented.");
     }
 
-    static userDraw() {
+    sendInfo() {
         throw new Error("Method not implemented.");
-    }
-
-    static showInfo() {
-        throw new Error("Method not implemented.");
-    }
-
-    static sendInfo() {
-        throw new Error("Method not implemented.");
-    }
-
-    codeDraw(type) {
-        
-    }
-
-    userDraw(type, options={}) {
-        options['status'] = 'draw';
-        options['missionId'] = iApp.gv['draw_selected_mission']; 
-        options['UAVId'] = iApp.gv['draw_selected_UAV'];
-        options['height'] = iApp.gv['draw_selected_height'];
-        options['type'] = 'UAVMarker';
-        
-        mapManager.pm.enableDraw(type, options);
     }
 }

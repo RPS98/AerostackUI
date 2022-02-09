@@ -16,8 +16,16 @@ blocksClassList = [
     ['ul', Ul],
 ]
 
+var sideBarsClass = [
+    new Home(),
+    new MissionPlanner(),
+    new MissionController(),
+]
+
+
 window.onload = function()
 {
+    
     // TODO: Load parameters from a config file
     // Map parameters
     let map_center=[28.14376, -16.50235];
@@ -33,9 +41,41 @@ window.onload = function()
         connectionString
     );
 
-    let home = new Home();
-    let missionPlanner = new MissionPlanner();
-    let missionController = new MissionController();
+    // For each class in sideBarsClass, instantiate it
+    for (let i=0; i<sideBarsClass.length; i++) {
+        sideBarsClass[i];
+    }
+    
+
+    /*
+    class Parent 
+    {
+        constructor(type) {
+            this.type = type;
+        }
+        
+        printType() {
+            console.log(this);
+            console.log(this.type);
+        }
+    }
+
+    class Child extends Parent
+    {
+        constructor(type) {
+            super(type);
+        }
+
+        childPrintType() {
+            super.printType();
+        }
+
+    }
+
+    let child = new Child('marker');
+    child.childPrintType();
+    */
+
 };
 
 
