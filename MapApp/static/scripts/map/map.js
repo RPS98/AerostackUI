@@ -37,49 +37,51 @@ window.onload = function()
         connectionString
     );
 
+    /*
     var sideBarsClass = [
         new Home(),
         new MissionPlanner(),
         new MissionController(),
     ]
 
+    
     // For each class in sideBarsClass, instantiate it
     for (let i=0; i<sideBarsClass.length; i++) {
         sideBarsClass[i];
-    }
+    } 
     
-
-    /*
-    class Parent 
-    {
-        constructor(type) {
-            this.type = type;
-        }
-        
-        printType() {
-            console.log(this);
-            console.log(this.type);
-        }
-    }
-
-    class Child extends Parent
-    {
-        constructor(type) {
-            super(type);
-        }
-
-        childPrintType() {
-            super.printType();
-        }
-
-    }
-
-    let child = new Child('marker');
-    child.childPrintType();
     */
-
 };
 
+
+/*
+class Parent 
+{
+    constructor(type) {
+        this.type = type;
+    }
+    
+    printType() {
+        console.log(this);
+        console.log(this.type);
+    }
+}
+
+class Child extends Parent
+{
+    constructor(type) {
+        super(type);
+    }
+
+    childPrintType() {
+        super.printType();
+    }
+
+}
+
+let child = new Child('marker');
+child.childPrintType();
+*/
 
 
 

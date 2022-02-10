@@ -39,9 +39,15 @@ class MapManager
         this.missionListCallbacks = [];     // When a mission is added or removed
         this.missionDrawListCallbacks = []; // When a mission drawn is added or removed
 
-        this.UAV_LIST = new UAVList();
-        this.MISSION_LIST = new MissionList();
-        this.MISSION_DRAW_LIST = new MissionList();
+        this.UAV_LIST = new SmartList();
+        this.MISSION_LIST = new SmartList();
+        this.MISSION_DRAW_LIST = new SmartList();
+    }
+
+    _callCallbacks(callbackList, ...args) {
+        for (let i = 0; i < callbackList.length; i++) {
+            callbackList[i](...args);
+        }
     }
 
     // #region Side Bars
@@ -77,72 +83,62 @@ class MapManager
     addUavListCallback(callback) {
         this.uavListCallbacks.push(callback);
     }
-
-    callUavListCallbacks() {
-        for (let i = 0; i < this.uavListCallbacks.length; i++) {
-            this.uavListCallbacks[i]();
-        }
-    }
-
-    callUavCallbacks(id) {
-        for (let i = 0; i < this.uavCallbacks.length; i++) {
-            this.uavCallbacks[i](id);
-        }
-    }
     
-    getUavDict(id)
+    getUavDicById(id)
     {
-        return this.UAV_LIST.getUavDict(id);
+        if (id in this.getUavList()) {
+            return this.UAV_LIST.getDictById(id);
+        } else {
+            return null;
+        }
     }
 
-    getAllUavList() {
-        return this.UAV_LIST.getAllUavList();
+    getUavList() {
+        return this.UAV_LIST.getList();
     }
 
-    getAllUavDict() {
-        return this.UAV_LIST.getAllUavDict();
+    getUavDict() {
+        return this.UAV_LIST.getDict();
     }
 
     removeUav(id) {
-        this.UAV_LIST.removeUav(id);
-        this.callUavListCallbacks();
+        this.UAV_LIST.removeObject(id);
+        this._callCallbacks(this.uavListCallbacks);
     }
 
-    addUav(id, state, pose, odom, desiredPath, sensors) {
-        if (id in this.getAllUavList()) {
-            this.UAV_LIST.setUav(id, state, pose, odom, desiredPath, sensors);
-            this.callUavCallbacks(id);
+    addUav(id, state, pose, odom={}, desiredPath={}, sensors={}) {
+        if (id in this.getUavList()) {
+            this.getUavDicById(id).setUav(id, state, pose, odom={}, desiredPath={}, sensors={});
+            this._callCallbacks(this.uavCallbacks, id);
         } else {
-            this.UAV_LIST.addUav(id, state, pose, odom, desiredPath, sensors);
-            this.callUavListCallbacks();
-        }
-    }
-
-    _updateUav(id, method, value) {
-        if (id in this.getAllUavList()) {
-            method(id, value);
-            this.callUavCallbacks(id);
+            this.UAV_LIST.addObject(id, new UAV(id, state, pose, odom, desiredPath, sensors));
+            this._callCallbacks(this.uavListCallbacks);
         }
     }
 
     setUavState(id, state) {
-        this._updateUav(id, this.UAV_LIST.setUavState, state);
+        this.getUavDicById(id).setUavState(state);
+        this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavPose(id, pose) {
-        this._updateUav(id, this.UAV_LIST.setUavPose, pose);
+        this.getUavDicById(id).setUavPose(pose);
+        this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavOdom(id, odom) {
-        this._updateUav(id, this.UAV_LIST.setUavOdom, odom);
+        this.getUavDicById(id).setUavOdom(odom);
+        this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavDesiredPath(id, desiredPath) {
-        this._updateUav(id, this.UAV_LIST.setUavDesiredPath, desiredPath);
+        this.getUavDicById(id).setUavDesiredPath(desiredPath);
+        this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavSensors(id, sensors) {
-        this._updateUav(id, this.UAV_LIST.setUavSensors, sensors);
+        this.getUavDicById(id).setUavSensors(sensors);
+        this._callCallbacks(this.uavCallbacks, id);
     }
     // #endregion
 
@@ -155,33 +151,108 @@ class MapManager
         this.missionListCallbacks.push(callback);
     }
 
-    callMissionListCallbacks() {
-        for (let i = 0; i < this.missionListCallbacks.length; i++) {
-            this.missionListCallbacks[i]();
+    getMissionDicById(id)
+    {
+        if (id in this.getMissionList()) {
+            return this.MISSION_LIST.getDictById(id);
+        } else {
+            return null;
         }
     }
 
-    callMissionCallbacks(id) {
-        for (let i = 0; i < this.missionCallbacks.length; i++) {
-            this.missionCallbacks[i](id);
-        }
+    getMissionList() {
+        return this.MISSION_LIST.getList();
     }
 
-    getMissionDict(id) {
-        return this.MISSION_LIST.getMissionDict(id);
-    }
-
-    getAllMissionList() {
-        return this.MISSION_LIST.getAllMissionList();
-    }
-
-    getAllMissionDict() {
-        return this.MISSION_LIST.getAllMissionDict();
+    getMissionDict() {
+        return this.MISSION_LIST.getDict();
     }
 
     removeMission(id) {
-        this.MISSION_LIST.removeMission(id);
-        this.callMissionListCallbacks();
+        this.MISSION_LIST.removeObject(id);
+        this._callCallbacks(this.missionListCallbacks);
     }
 
+    addMission(id, state, uavList, layers) {
+        if (id in this.getMissionList()) {
+            this.getMissionDicById(id).setMission(id, state, uavList, layers);
+            this._callCallbacks(this.missionCallbacks, id);
+        } else {
+            this.MISSION_LIST.addObject(id, new Mission(id, state, uavList, layers) );
+            this._callCallbacks(this.missionListCallbacks);
+        }
+    }
+
+    setMissionState(id, state) {
+        this.getMissionDicById(id).setMissionState(state);
+        this._callCallbacks(this.missionCallbacks, id);
+    }
+
+    setMissionUavList(id, uavList) {
+        this.getMissionDicById(id).setMissionUavList(uavList);
+        this._callCallbacks(this.missionCallbacks, id);
+    }
+
+    setMissionLayers(id, layers) {
+        this.getMissionDicById(id).setMissionLayers(layers);
+        this._callCallbacks(this.missionCallbacks, id);
+    }
+    // #endregion
+
+    // #region Mission Draw List
+    addMissionDrawCallback(callback) {
+        this.missionDrawCallbacks.push(callback);
+    }
+
+    addMissionDrawListCallback(callback) {
+        this.missionDrawListCallbacks.push(callback);
+    }
+
+    getMissionDrawDicById(id)
+    {
+        if (id in this.getMissionDrawList()) {
+            return this.MISSION_DRAW_LIST.getDictById(id);
+        } else {
+            return null;
+        }
+    }
+
+    getMissionDrawList() {
+        return this.MISSION_DRAW_LIST.getList();
+    }
+
+    getMissionDrawDict() {
+        return this.MISSION_DRAW_LIST.getDict();
+    }
+
+    removeMissionDraw(id) {
+        this.MISSION_DRAW_LIST.removeObject(id);
+        this._callCallbacks(this.missionDrawListCallbacks);
+    }
+
+    addMissionDraw(id, state, uavList, layers) {
+        if (id in this.getMissionDrawList()) {
+            this.getMissionDrawDicById(id).setMissionDraw(id, state, uavList, layers);
+            this._callCallbacks(this.missionDrawCallbacks, id);
+        } else {
+            this.MISSION_DRAW_LIST.addObject(id, new Mission(id, state, uavList, layers) );
+            this._callCallbacks(this.missionDrawListCallbacks);
+        }
+    }
+
+    setMissionDrawState(id, state) {
+        this.getMissionDrawDicById(id).setMissionDrawState(state);
+        this._callCallbacks(this.missionDrawCallbacks, id);
+    }
+
+    setMissionDrawUavList(id, uavList) {
+        this.getMissionDrawDicById(id).setMissionDrawUavList(uavList);
+        this._callCallbacks(this.missionDrawCallbacks, id);
+    }
+
+    setMissionDrawLayers(id, layers) {
+        this.getMissionDrawDicById(id).setMissionDrawLayers(layers);
+        this._callCallbacks(this.missionDrawCallbacks, id);
+    }
+    // #endregion
 }
