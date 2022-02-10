@@ -1,7 +1,7 @@
-class Line extends DrawManager
+class CircleMarker extends DrawManager
 {
     constructor(name, codeDrawOptions={}, userDrawOptions={}) {
-        super('Line', name, codeDrawOptions, userDrawOptions);
+        super('CircleMarker', name, codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(layer, values, options={}) {
@@ -18,20 +18,5 @@ class Line extends DrawManager
 
     sendInfo() {
         throw new Error("Method not implemented.");
-    }
-}
-
-class Path extends Line
-{
-    constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('Path', codeDrawOptions, userDrawOptions);
-    }
-
-    showInfo() {
-        super.showInfo();
-    }
-
-    sendInfo() {
-        super.sendInfo();
     }
 }

@@ -16,11 +16,7 @@ blocksClassList = [
     ['ul', Ul],
 ]
 
-var sideBarsClass = [
-    new Home(),
-    new MissionPlanner(),
-    new MissionController(),
-]
+
 
 
 window.onload = function()
@@ -32,7 +28,7 @@ window.onload = function()
     let map_zoom=19;
     let connectionString = 'ws://127.0.0.1:8000/ws/user/';
 
-    MAP_MANAGER = new MapManager(
+    M = new MapManager(
         map_center,
         map_zoom
     );
@@ -40,6 +36,12 @@ window.onload = function()
     WEB_SOCKET_MANAGER = new WebSocketManager(
         connectionString
     );
+
+    var sideBarsClass = [
+        new Home(),
+        new MissionPlanner(),
+        new MissionController(),
+    ]
 
     // For each class in sideBarsClass, instantiate it
     for (let i=0; i<sideBarsClass.length; i++) {

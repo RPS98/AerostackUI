@@ -72,7 +72,7 @@ class HTMLUtils
         
         let dropDownExpandList = [];
         for (let i=0; i<list.length; i++) {
-            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, {'class': 'btn btn-secondary dropdown-MPMission-item w-75', 'style': "background: #dae8fc"}, list[i]));
+            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, {'class': `btn btn-secondary ${id}-item w-75`, 'style': "background: #dae8fc"}, list[i]));
         }
 
         let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
@@ -85,7 +85,7 @@ class HTMLUtils
 
         let dropDownExpandList = [];
         for (let i=0; i<list.length; i++) {
-            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, {'class': 'btn btn-secondary dropdown-MPMission-item w-75', 'style': "background: #dae8fc"}, list[i]));
+            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, {'class': `btn btn-secondary ${id}-item w-75`, 'style': "background: #dae8fc"}, list[i]));
         }
 
         let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
@@ -122,6 +122,21 @@ class Utils
             // call the button callback
             callback(args);
         });
+    }
+
+    static addButtonsCallback(button_class, callback=Utils._nullFunct, args=[]) {
+        const btns = document.getElementsByClassName(button_class);
+
+        // add an event listener to the button
+        for (let i=0; i<btns.length; i++) {
+            btns[i].addEventListener('click', (e) => {
+                // disable the refresh on the page when submit
+                e.preventDefault(); 
+
+                // call the button callback
+                callback(e.target, args);
+            });
+        }
     }
  
      /**

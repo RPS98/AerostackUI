@@ -1,26 +1,15 @@
 class Marker extends DrawManager
 {
-    constructor(test, codeDrawOptions={}, userDrawOptions={}) {
-        super('Marker', codeDrawOptions, userDrawOptions);
-
-        this.codeDrawOptions = codeDrawOptions;
-        this.userDrawOptions = userDrawOptions;
-
-        this.test_var = test;
+    constructor(name, codeDrawOptions={}, userDrawOptions={}) {
+        super('Marker', name, codeDrawOptions, userDrawOptions);
     }
 
-    codeDraw(values, missionId, uavList, height, options={}) {
-        this.codeDrawOptions['missionId'] = missionId;
-        this.codeDrawOptions['uavList'] = uavList;
-        this.codeDrawOptions['height'] = height;
-        return super.codeDraw(values, Object.assign({}, this.codeDrawOptions, options));
+    codeDraw(layer, values, options={}) {
+        return super.codeDraw(layer, values, options={});
     }
 
-    userDraw(missionId, uavList, height, options={}) {
-        this.codeDrawOptions['missionId'] = missionId;
-        this.codeDrawOptions['uavList'] = uavList;
-        this.codeDrawOptions['height'] = height;
-        return super.userDraw(Object.assign({}, this.userDrawOptions, options));
+    userDraw(layer, options={}) {
+        return super.userDraw(layer, options={});
     }
 
     showInfo() {
@@ -29,5 +18,67 @@ class Marker extends DrawManager
 
     sendInfo() {
         throw new Error("Method not implemented.");
+    }
+}
+
+class PointOfInterest extends Marker
+{
+    constructor(codeDrawOptions={}, userDrawOptions={}) {
+        super('PointOfInterest', codeDrawOptions, userDrawOptions);
+    }
+
+    showInfo() {
+        super.showInfo();
+    }
+
+    sendInfo() {
+        super.sendInfo();
+    }
+}
+
+
+class WayPoint extends Marker
+{
+    constructor(codeDrawOptions={}, userDrawOptions={}) {
+        super('WayPoint', codeDrawOptions, userDrawOptions);
+    }
+
+    showInfo() {
+        super.showInfo();
+    }
+
+    sendInfo() {
+        super.sendInfo();
+    }
+}
+
+class LandPoint extends Marker
+{
+    constructor(codeDrawOptions={}, userDrawOptions={}) {
+        super('LandPoint', codeDrawOptions, userDrawOptions);
+    }
+
+    showInfo() {
+        super.showInfo();
+    }
+
+    sendInfo() {
+        super.sendInfo();
+    }
+}
+
+
+class UAVMarker extends Marker
+{
+    constructor(codeDrawOptions={}, userDrawOptions={}) {
+        super('UAVMarker', codeDrawOptions, userDrawOptions);
+    }
+
+    showInfo() {
+        super.showInfo();
+    }
+
+    sendInfo() {
+        super.sendInfo();
     }
 }

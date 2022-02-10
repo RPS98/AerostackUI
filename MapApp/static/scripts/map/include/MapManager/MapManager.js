@@ -1,19 +1,17 @@
-
-
 class MapManager
 {
     constructor(map_center, zoom)
     {
-        MAP = new L.Map('mapid').setView(map_center, zoom);
+        this.MAP = new L.Map('mapid').setView(map_center, zoom);
 
-        this.uavTilesAll = {'All': L.featureGroup().addTo(MAP)};
+        this.uavTilesAll = {'All': L.featureGroup().addTo(this.MAP)};
         
         // add tile layers
         this.layer_control = L.control.layers({
             "hybrid": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
                 maxZoom: 22,
                 subdomains:['mt0','mt1','mt2','mt3']
-            }).addTo(MAP),
+            }).addTo(this.MAP),
             "streets": L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
                 maxZoom: 22,
                 subdomains:['mt0','mt1','mt2','mt3']
@@ -27,25 +25,27 @@ class MapManager
                 subdomains:['mt0','mt1','mt2','mt3']
             })
             
-        }, this.uavTilesAll, { position: 'topleft', collapsed: false }).addTo(MAP);
+        }, this.uavTilesAll, { position: 'topleft', collapsed: false }).addTo(this.MAP);
 
         // {% include 'include/SideBar/SideBar.html' %}
 
         this.initializeSideBars();
         
+        this.uavCallbacks = [];         // When a UAV is modified
+        this.missionCallbacks = [];     // When a mission is modified
+        this.missionDrawCallbacks = []; // When a mission drawn is modified
+
+        this.uavListCallbacks = [];         // When a UAV is added or removed
+        this.missionListCallbacks = [];     // When a mission is added or removed
+        this.missionDrawListCallbacks = []; // When a mission drawn is added or removed
+
+        this.UAV_LIST = new UAVList();
+        this.MISSION_LIST = new MissionList();
+        this.MISSION_DRAW_LIST = new MissionList();
     }
 
+    // #region Side Bars
     initializeSideBars() {
-        /*
-        // Initialize HTML Sidebars 
-        let div = document.createElement('div');
-        div.setAttribute('id', 'sideBar');
-        div.innerHTML = `{% include 'include/SideBar/SideBar.html' %}`
-
-        let article = document.getElementById('main_article');
-
-        article.appendChild(div);
-        */
         this.initializeLefSideBar();
         this.initializeRightSideBar();
     }
@@ -56,7 +56,7 @@ class MapManager
             closeButton: true,         // whether t add a close button to the panes
             container: 'sideBar-left', // the DOM container or #ID of a predefined sidebar container that should be used
             position: 'left',
-        }).addTo(MAP);
+        }).addTo(this.MAP);
     }
 
     initializeRightSideBar() {
@@ -65,124 +65,123 @@ class MapManager
             closeButton: true,
             container: 'sideBar-right',
             position: 'right',
-        }).addTo(MAP);
+        }).addTo(this.MAP);
+    }
+    // #endregion
+
+    // #region UAV List
+    addUavCallback(callback) {
+        this.uavCallbacks.push(callback);
     }
 
-    /* UAV List */
-    getUAVList() {
-
+    addUavListCallback(callback) {
+        this.uavListCallbacks.push(callback);
     }
 
-    setUAVList(uav_list) {
-
+    callUavListCallbacks() {
+        for (let i = 0; i < this.uavListCallbacks.length; i++) {
+            this.uavListCallbacks[i]();
+        }
     }
 
-    addUAVListCallback(callback) {
-
+    callUavCallbacks(id) {
+        for (let i = 0; i < this.uavCallbacks.length; i++) {
+            this.uavCallbacks[i](id);
+        }
+    }
+    
+    getUavDict(id)
+    {
+        return this.UAV_LIST.getUavDict(id);
     }
 
-    /* UAV */
-    getUAV(id) {
-
+    getAllUavList() {
+        return this.UAV_LIST.getAllUavList();
     }
 
-    setUAV(id) {
-
+    getAllUavDict() {
+        return this.UAV_LIST.getAllUavDict();
     }
 
-    addUAVCallback(callback) {
-
+    removeUav(id) {
+        this.UAV_LIST.removeUav(id);
+        this.callUavListCallbacks();
     }
 
-    /* Mission List */
-    getMissionList() {
-
+    addUav(id, state, pose, odom, desiredPath, sensors) {
+        if (id in this.getAllUavList()) {
+            this.UAV_LIST.setUav(id, state, pose, odom, desiredPath, sensors);
+            this.callUavCallbacks(id);
+        } else {
+            this.UAV_LIST.addUav(id, state, pose, odom, desiredPath, sensors);
+            this.callUavListCallbacks();
+        }
     }
 
-    setMissionList(mission_list) {
+    _updateUav(id, method, value) {
+        if (id in this.getAllUavList()) {
+            method(id, value);
+            this.callUavCallbacks(id);
+        }
+    }
 
+    setUavState(id, state) {
+        this._updateUav(id, this.UAV_LIST.setUavState, state);
+    }
+
+    setUavPose(id, pose) {
+        this._updateUav(id, this.UAV_LIST.setUavPose, pose);
+    }
+
+    setUavOdom(id, odom) {
+        this._updateUav(id, this.UAV_LIST.setUavOdom, odom);
+    }
+
+    setUavDesiredPath(id, desiredPath) {
+        this._updateUav(id, this.UAV_LIST.setUavDesiredPath, desiredPath);
+    }
+
+    setUavSensors(id, sensors) {
+        this._updateUav(id, this.UAV_LIST.setUavSensors, sensors);
+    }
+    // #endregion
+
+    // #region Mission List
+    addMissionCallback(callback) {
+        this.missionCallbacks.push(callback);
     }
 
     addMissionListCallback(callback) {
-
+        this.missionListCallbacks.push(callback);
     }
 
-    /* Confirmed Mission */
-    getMission(id) {
-
+    callMissionListCallbacks() {
+        for (let i = 0; i < this.missionListCallbacks.length; i++) {
+            this.missionListCallbacks[i]();
+        }
     }
 
-    setMission(id) {
-
+    callMissionCallbacks(id) {
+        for (let i = 0; i < this.missionCallbacks.length; i++) {
+            this.missionCallbacks[i](id);
+        }
     }
 
-    addMissionCallback(callback) {
-
+    getMissionDict(id) {
+        return this.MISSION_LIST.getMissionDict(id);
     }
 
-    /* Draw Mission */
-    getDrawMission() {
-
+    getAllMissionList() {
+        return this.MISSION_LIST.getAllMissionList();
     }
 
-    setDrawMission() {
-
+    getAllMissionDict() {
+        return this.MISSION_LIST.getAllMissionDict();
     }
 
-    addDrawMissionCallback(callback) {
-
+    removeMission(id) {
+        this.MISSION_LIST.removeMission(id);
+        this.callMissionListCallbacks();
     }
+
 }
-
-
-
-
-
-/*
-
-<div id="sideBar">
-    <div id="sideBar-left" class="leaflet-sidebar collapsed">
-
-        <!-- nav tabs -->
-        <div class="leaflet-sidebar-tabs">
-            <!-- top aligned tabs -->
-            <ul role="tablist">
-                <li><a href="#sideBar-left-home"              role="tab"><i class="fa fa-home"></i></a></li>
-                <li><a href="#sideBar-left-missionPlanner"    role="tab"><i class="fas fa-map-marked"></i></a></li>
-                <li><a href="#sideBar-left-missionController" role="tab"><i class="fa fa-flag-checkered"></i></a></li>
-                <li><a href="#sideBar-left-imageOverlay"      role="tab"><i class="fas fa-gamepad"></i></a></li>
-                <li><a href="#sideBar-left-settings"          role="tab"><i class="fas fa-image"></i></a></li>
-            </ul>
-        </div>
-
-        <div class="leaflet-sidebar-content">
-            {% include 'include/SideBar/LeftSideBar/Home/Home.html' %}
-            {% include 'include/SideBar/LeftSideBar/MissionPlanner/MissionPlanner.html' %}
-            {% include 'include/SideBar/LeftSideBar/MissionController/MissionController.html' %}
-            {% include 'include/SideBar/LeftSideBar/UAVController/UAVController.html' %}
-            {% include 'include/SideBar/LeftSideBar/ImageOverlay/ImageOverlay.html' %}
-            {% include 'include/SideBar/LeftSideBar/Settings/Settings.html' %}
-        </div>
-    </div>
-
-    <div id="sideBar-right" class="leaflet-sidebar collapsed">
-
-        <!-- nav tabs -->
-        <div class="leaflet-sidebar-tabs">
-            <!-- top aligned tabs -->
-            <ul role="tablist">
-                <li><a href="#sideBar-right-drawInfo"    role="tab"><i class="fas fa-map-marked"></i></a></li>
-                <li><a href="#sideBar-right-missionInfo" role="tab"><i class="fa fa-flag-checkered"></i></a></li>
-                <li><a href="#sideBar-right-UAVInfo"     role="tab"><i class="fas fa-helicopter"></i></a></li>
-            </ul>
-        </div>
-
-        <div class="leaflet-sidebar-content">
-            {% include 'include/SideBar/RightSideBar/DrawInfo/DrawInfo.html' %}
-            {% include 'include/SideBar/RightSideBar/MissionInfo/MissionInfo.html' %}
-            {% include 'include/SideBar/RightSideBar/UAVInfo/UAVInfo.html' %}
-        </div>
-    </div>
-</div>
-
-*/

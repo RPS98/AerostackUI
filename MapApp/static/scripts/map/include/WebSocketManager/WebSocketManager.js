@@ -189,7 +189,6 @@
       */
     handshake()
     {
-        console.log("Handshake");
         this.sendBasic('handshake', {'rol': 'webpage'})
     }
  

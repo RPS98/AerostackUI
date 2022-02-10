@@ -1,4 +1,3 @@
-
 class UAV {
     constructor(id, state, pose, odom, desiredPath, sensors) 
     {
@@ -49,20 +48,40 @@ class UAVList
         delete this.uavDict[id];
     }
 
-    getUavList() {
-        return this.uavListId;
-    }
-
-    getUavDict() {
-        return this.uavDict;
-    }
-
-    getUavListById(id) {
+    getUavDict(id) {
         return this.uavDict[id];
     }
 
-    modifyUav(id, state, pose, odom, desiredPath, sensors) {
+    getAllUavList() {
+        return this.uavListId;
+    }
+
+    getAllUavDict() {
+        return this.uavDict;
+    }
+
+    setUav(id, state, pose, odom, desiredPath, sensors) {
         this.uavDict.newState(id, state, pose, odom, desiredPath, sensors);
+    }
+
+    setUavState(id, state) {
+        this.uavDict[id].state = state;
+    }
+
+    setUavPose(id, pose) {
+        this.uavDict[id].pose = pose;
+    }
+
+    setUavOdom(id, odom) {
+        this.uavDict[id].odom = odom;
+    }
+
+    setUavDesiredPath(id, desiredPath) {
+        this.uavDict[id].desiredPath = desiredPath;
+    }
+
+    setUavSensors(id, sensors) {
+        this.uavDict[id].sensors = sensors;
     }
 }
 
@@ -84,8 +103,16 @@ class MissionList
         delete this.missionDict[id];
     }
 
-    getMissionList() {
+    getMissionDict(id) {
+        return this.missionDict[id];
+    }
+
+    getAllMissionList() {
         return this.missionListId;
+    }
+
+    getAllMissionDict() {
+        return this.missionDict;
     }
 
     getMissionListById(id) {
@@ -99,43 +126,60 @@ class MissionList
     getLength() {
         return this.missionListId.length;
     }
-
 }
 
 
 class Layer
 {
-    constructor(author, status, missionId, uavList, type, values, height='none', options={}) {
-        this.author = author;
-        this.status = status;
-        this.missionId = missionId;
-        this.uavList = uavList;
-        this.type = type;
-        this.values = values;
-        this.height = height;
-        this.options = options;
+    constructor(author, missionId, uavList, height='none') {
+        this.info = {
+            'author': author,
+            'missionId': missionId,
+            'uavList': uavList,
+            'height': height
+        }
     }
 
-    updateLayer(status, missionId, uavList, values, height='none', options={}) {
-        this.status = status;
-        this.missionId = missionId;
-        this.uavList = uavList;
-        this.values = values;
-        this.height = height;
-        this.options = options;
+    getInfo() {
+        return this.info;
+    }
+
+    updateLayer(author, missionId, uavList, height='none') {
+        this.info = {
+            'author': author,
+            'missionId': missionId,
+            'uavList': uavList,
+            'height': height
+        }
+    }
+
+    updateAuthor(author) {
+        this.info.author = author;
+    }
+
+    updateMissionId(missionId) {
+        this.info.missionId = missionId;
+    }
+    
+    updateUavList(uavList) {
+        this.info.uavList = uavList;
+    }
+
+    updateHeight(height) {
+        this.info.height = height;
     }
 }
 
 
-
+/*
 var MAP = null;
 var MISSION_LIST = new MissionList();
 var UAV_LIST = new UAVList();
 
 UAV_LIST.addUav('Virtual UAV', 'landed', {'lat': 0, 'lng': 0}, {'x': 0, 'y': 0}, [], []);
 MISSION_LIST.addMission('Virtual Mission', 'confirmed', [], []);
+*/
 
-
-var MAP_MANAGER = null;
+var M = null;
 var WEB_SOCKET_MANAGER = null;
 var DRAW_MANAGER = null;

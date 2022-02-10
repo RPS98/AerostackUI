@@ -7,7 +7,7 @@ class MissionController
         let missionControllerHtmlList = [];
 
         // Mission Dropdown list
-        missionControllerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, MISSION_LIST.getMissionList(), MISSION_LIST.getMissionList()[0]));
+        missionControllerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, M.MISSION_LIST.getMissionList(), M.MISSION_LIST.getMissionList()[0]));
 
         // Buttons for draw mission
         let splitBtn = [];

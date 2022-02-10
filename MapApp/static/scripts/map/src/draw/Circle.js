@@ -1,7 +1,7 @@
-class Line extends DrawManager
+class Circle extends DrawManager
 {
     constructor(name, codeDrawOptions={}, userDrawOptions={}) {
-        super('Line', name, codeDrawOptions, userDrawOptions);
+        super('Circle', name, codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(layer, values, options={}) {
@@ -21,10 +21,10 @@ class Line extends DrawManager
     }
 }
 
-class Path extends Line
+class CircularArea extends Circle
 {
     constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('Path', codeDrawOptions, userDrawOptions);
+        super('CircularArea', codeDrawOptions, userDrawOptions);
     }
 
     showInfo() {

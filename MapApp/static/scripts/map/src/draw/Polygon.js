@@ -1,7 +1,7 @@
-class Line extends DrawManager
+class Polygon extends DrawManager
 {
     constructor(name, codeDrawOptions={}, userDrawOptions={}) {
-        super('Line', name, codeDrawOptions, userDrawOptions);
+        super('Polygon', name, codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(layer, values, options={}) {
@@ -21,10 +21,10 @@ class Line extends DrawManager
     }
 }
 
-class Path extends Line
+class Area extends Polygon
 {
     constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('Path', codeDrawOptions, userDrawOptions);
+        super('Area', codeDrawOptions, userDrawOptions);
     }
 
     showInfo() {
@@ -35,3 +35,4 @@ class Path extends Line
         super.sendInfo();
     }
 }
+
