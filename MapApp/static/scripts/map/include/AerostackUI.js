@@ -1,10 +1,10 @@
 class UAV 
 {
-    constructor(id, state, pose, odom={}, desiredPath={}, sensors={}) {
+    constructor(id, state, pose, odom=[], desiredPath=[], sensors={}) {
         this.setUav(id, state, pose, odom, desiredPath, sensors);
     }
 
-    setUav(id, state, pose, odom={}, desiredPath={}, sensors={}) {
+    setUav(id, state, pose, odom=[], desiredPath=[], sensors={}) {
         this.id = id;
         this.state = state;
         this.pose = pose;

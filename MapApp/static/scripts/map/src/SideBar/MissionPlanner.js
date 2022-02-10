@@ -1,25 +1,23 @@
 class MissionPlanner
 {
     constructor() {
-        this.addHTML();
-        this.addDrawTypes();
-        //this.addCallbacks();
-        
+        this.htmlId = 'sideBar-left-missionPlanner-content';
+
+        this.initialized = false;
+        M.addUavListCallback(this.updateUavListCallback, this);
+        M.addMissionListCallback(this.updateMissionListCallback, this);
     }
 
     addHTML() {
-
-        this.htmlId = 'sideBar-left-missionPlanner-content';
-
         let missionPlannerHtmlList = [];
 
         // Mission Dropdown list
         let missionList = ['New mission'];
-        let missionListTotal = missionList.concat(M.MISSION_LIST.getMissionList());
+        let missionListTotal = missionList.concat(M.getMissionList());
         missionPlannerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV Dropdown list
-        missionPlannerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-UAVList`, M.UAV_LIST.getUavList(), M.UAV_LIST.getUavList()[0]));
+        missionPlannerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-UAVList`, M.getUavList(), M.getUavList()[0]));
 
         // Heigh input
         let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, {'class': 'form-control', 'required': 'required',}, 'text', '1');
@@ -53,25 +51,23 @@ class MissionPlanner
         // TODO: Save Mission Planner Dict on a json file
         
         HTMLUtils.addToExistingElement(`${this.htmlId}`, [missionPlannerCollapse]);
+
+        this.addDrawTypes();
     }
 
     addDrawTypes() {
-        this.layer = new Layer('user', 'New Mission', M.UAV_LIST.getUavList()[0], 1);
+        this.layer = new Layer('user', 'New Mission', M.getUavList()[0], 1);
         this.pointOfInterest = new PointOfInterest();
         this.wayPoint = new WayPoint();
         this.path = new Path();
         this.area = new Area();
         this.carea = new CircularArea();
         this.landPoint = new LandPoint()
+
+        this.addCallbacks();
     }
 
     addCallbacks() {
-        
-        // Mission Dropdown list
-        Utils.addButtonsCallback(`${this.htmlId }-MissionList-item`, this.missionListCallback, [this.layer]);
-
-        // UAV Dropdown list
-        Utils.addButtonsCallback(`${this.htmlId }-UAVList-item`, this.uavListCallback, [this.layer]);
 
         // Heigh input
         Utils.addFormCallback(`${this.htmlId}-heighBtn`, [`${this.htmlId}-heightInput`], ['height'], this.heightCallback, [this.layer]);
@@ -107,13 +103,40 @@ class MissionPlanner
         });
     }
 
-    missionListCallback(e, args) {
+    addDropDownUavCallback() {
+        Utils.addButtonsCallback(`${this.htmlId }-UAVList-item`, this.clickUavListCallback, [this.layer]);
+    }
+
+    addDropDownMissionCallback() {
+        Utils.addButtonsCallback(`${this.htmlId }-MissionList-item`, this.clickMissionListCallback, [this.layer]);
+    }
+
+    _checkInitalize() {
+        if (!this.initialized) {
+            this.addHTML();
+            this.initialized = true;
+        }
+    }
+
+    updateUavListCallback(instance, args) {
+        instance[0]._checkInitalize();
+        HTMLUtils.updateDropDown(`${instance[0].htmlId}-UAVList`, M.getUavList());
+        instance[0].addDropDownUavCallback();
+    }
+
+    updateMissionListCallback(instance, args) {
+        instance[0]._checkInitalize();
+        HTMLUtils.updateDropDown(`${instance[0].htmlId}-MissionList`, ['New Mission'].concat(M.getMissionList()));
+        instance[0].addDropDownMissionCallback();
+    }
+
+    clickMissionListCallback(e, args) {
         let button = document.getElementById('sideBar-left-missionPlanner-content-MissionList-DropDown-Btn');
         button.innerHTML = e.innerHTML;
         args[0].updateMissionId(e.innerHTML);
     }
 
-    uavListCallback(e, args) {
+    clickUavListCallback(e, args) {
         args[0].updateUavList(e.innerHTML);
     }
 

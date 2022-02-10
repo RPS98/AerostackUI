@@ -37,20 +37,17 @@ window.onload = function()
         connectionString
     );
 
-    /*
+    
     var sideBarsClass = [
         new Home(),
         new MissionPlanner(),
         new MissionController(),
     ]
 
-    
     // For each class in sideBarsClass, instantiate it
     for (let i=0; i<sideBarsClass.length; i++) {
         sideBarsClass[i];
     } 
-    
-    */
 };
 
 

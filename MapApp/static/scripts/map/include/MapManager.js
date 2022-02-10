@@ -46,7 +46,7 @@ class MapManager
 
     _callCallbacks(callbackList, ...args) {
         for (let i = 0; i < callbackList.length; i++) {
-            callbackList[i](...args);
+            callbackList[i][0](callbackList[i][1], ...args);
         }
     }
 
@@ -76,12 +76,12 @@ class MapManager
     // #endregion
 
     // #region UAV List
-    addUavCallback(callback) {
-        this.uavCallbacks.push(callback);
+    addUavCallback(callback, ...args) {
+        this.uavCallbacks.push([callback, args]);
     }
 
-    addUavListCallback(callback) {
-        this.uavListCallbacks.push(callback);
+    addUavListCallback(callback, ...args) {
+        this.uavListCallbacks.push([callback, args]);
     }
     
     getUavDicById(id)
@@ -106,9 +106,9 @@ class MapManager
         this._callCallbacks(this.uavListCallbacks);
     }
 
-    addUav(id, state, pose, odom={}, desiredPath={}, sensors={}) {
+    addUav(id, state, pose, odom=[], desiredPath=[], sensors={}) {
         if (id in this.getUavList()) {
-            this.getUavDicById(id).setUav(id, state, pose, odom={}, desiredPath={}, sensors={});
+            this.getUavDicById(id).setUav(id, state, pose, odom, desiredPath, sensors);
             this._callCallbacks(this.uavCallbacks, id);
         } else {
             this.UAV_LIST.addObject(id, new UAV(id, state, pose, odom, desiredPath, sensors));
@@ -143,12 +143,12 @@ class MapManager
     // #endregion
 
     // #region Mission List
-    addMissionCallback(callback) {
-        this.missionCallbacks.push(callback);
+    addMissionCallback(callback, ...args) {
+        this.missionCallbacks.push([callback, args]);
     }
 
-    addMissionListCallback(callback) {
-        this.missionListCallbacks.push(callback);
+    addMissionListCallback(callback, ...args) {
+        this.missionListCallbacks.push([callback, args]);
     }
 
     getMissionDicById(id)
@@ -200,12 +200,12 @@ class MapManager
     // #endregion
 
     // #region Mission Draw List
-    addMissionDrawCallback(callback) {
-        this.missionDrawCallbacks.push(callback);
+    addMissionDrawCallback(callback, ...args) {
+        this.missionDrawCallbacks.push([callback, args]);
     }
 
-    addMissionDrawListCallback(callback) {
-        this.missionDrawListCallbacks.push(callback);
+    addMissionDrawListCallback(callback, ...args) {
+        this.missionDrawListCallbacks.push([callback, args]);
     }
 
     getMissionDrawDicById(id)
