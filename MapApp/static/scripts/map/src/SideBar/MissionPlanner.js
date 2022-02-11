@@ -4,8 +4,8 @@ class MissionPlanner
         this.htmlId = 'sideBar-left-missionPlanner-content';
 
         this.initialized = false;
-        M.addUavListCallback(this.updateUavListCallback, this);
-        M.addMissionListCallback(this.updateMissionListCallback, this);
+        M.addUavListCallback(this.updateUavListCallback.bind(this), this);
+        M.addMissionListCallback(this.updateMissionListCallback.bind(this), this);
     }
 
     addHTML() {
@@ -70,7 +70,7 @@ class MissionPlanner
     addCallbacks() {
 
         // Heigh input
-        Utils.addFormCallback(`${this.htmlId}-heighBtn`, [`${this.htmlId}-heightInput`], ['height'], this.heightCallback, [this.layer]);
+        Utils.addFormCallback(`${this.htmlId}-heighBtn`, [`${this.htmlId}-heightInput`], ['height'], this.heightCallback.bind(this));
 
         // Buttons for change draw mode
         Utils.addButtonCallback(`${this.htmlId}-mouse`,   DrawController.drawMouse, []);
@@ -80,12 +80,12 @@ class MissionPlanner
         Utils.addButtonCallback(`${this.htmlId}-rotate`,  DrawController.drawRotate, []);
         
         // Buttons for draw mission
-        Utils.addButtonCallback(`${this.htmlId}-PoI`,   this.userDrawCallbacks, [this.pointOfInterest, this.layer]);
-        Utils.addButtonCallback(`${this.htmlId}-WP`,    this.userDrawCallbacks, [this.wayPoint,        this.layer]);
-        Utils.addButtonCallback(`${this.htmlId}-path`,  this.userDrawCallbacks, [this.path,            this.layer]);
-        Utils.addButtonCallback(`${this.htmlId}-area`,  this.userDrawCallbacks, [this.area,            this.layer]);
-        Utils.addButtonCallback(`${this.htmlId}-cArea`, this.userDrawCallbacks, [this.carea,           this.layer]);
-        Utils.addButtonCallback(`${this.htmlId}-land`,  this.userDrawCallbacks, [this.landPoint,       this.layer]);
+        Utils.addButtonCallback(`${this.htmlId}-PoI`,   this.userDrawCallbacks.bind(this), [this.pointOfInterest]);
+        Utils.addButtonCallback(`${this.htmlId}-WP`,    this.userDrawCallbacks.bind(this), [this.wayPoint]);
+        Utils.addButtonCallback(`${this.htmlId}-path`,  this.userDrawCallbacks.bind(this), [this.path]);
+        Utils.addButtonCallback(`${this.htmlId}-area`,  this.userDrawCallbacks.bind(this), [this.area]);
+        Utils.addButtonCallback(`${this.htmlId}-cArea`, this.userDrawCallbacks.bind(this), [this.carea]);
+        Utils.addButtonCallback(`${this.htmlId}-land`,  this.userDrawCallbacks.bind(this), [this.landPoint]);
 
         Utils.addButtonCallback(`${this.htmlId}-remove`,  DrawController.drawRemoveAll, []);
         Utils.addButtonCallback(`${this.htmlId}-confirm`, this.confirmCallback, []);
@@ -104,11 +104,11 @@ class MissionPlanner
     }
 
     addDropDownUavCallback() {
-        Utils.addButtonsCallback(`${this.htmlId }-UAVList-item`, this.clickUavListCallback, [this.layer]);
+        Utils.addButtonsCallback(`${this.htmlId }-UAVList-item`, this.clickUavListCallback.bind(this));
     }
 
     addDropDownMissionCallback() {
-        Utils.addButtonsCallback(`${this.htmlId }-MissionList-item`, this.clickMissionListCallback, [this.layer]);
+        Utils.addButtonsCallback(`${this.htmlId }-MissionList-item`, this.clickMissionListCallback.bind(this));
     }
 
     _checkInitalize() {
@@ -118,34 +118,36 @@ class MissionPlanner
         }
     }
 
-    updateUavListCallback(instance, args) {
-        instance[0]._checkInitalize();
-        HTMLUtils.updateDropDown(`${instance[0].htmlId}-UAVList`, M.getUavList());
-        instance[0].addDropDownUavCallback();
+    updateUavListCallback(myargs, args) {
+        this._checkInitalize();
+        HTMLUtils.updateDropDown(`${this.htmlId}-UAVList`, M.getUavList());
+        this.addDropDownUavCallback();
     }
 
-    updateMissionListCallback(instance, args) {
-        instance[0]._checkInitalize();
-        HTMLUtils.updateDropDown(`${instance[0].htmlId}-MissionList`, ['New Mission'].concat(M.getMissionList()));
-        instance[0].addDropDownMissionCallback();
+    updateMissionListCallback(myargs, args) {
+        this._checkInitalize();
+        HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, ['New Mission'].concat(M.getMissionList()));
+        this.addDropDownMissionCallback();
     }
 
     clickMissionListCallback(e, args) {
-        let button = document.getElementById('sideBar-left-missionPlanner-content-MissionList-DropDown-Btn');
+        let button = document.getElementById(`${this.htmlId}-MissionList-DropDown-Btn`);
         button.innerHTML = e.innerHTML;
-        args[0].updateMissionId(e.innerHTML);
+        this.layer.updateMissionId(e.innerHTML);
     }
 
     clickUavListCallback(e, args) {
-        args[0].updateUavList(e.innerHTML);
+        let button = document.getElementById(`${this.htmlId}-UAVList-DropDown-Btn`);
+        button.innerHTML = e.innerHTML;
+        this.layer.updateUavList(e.innerHTML);
     }
 
     heightCallback(arg, input) {
-        arg[0].updateHeight(input['height']);
+        this.layer.updateHeight(input['height']);
     }
 
     userDrawCallbacks(args=[]) {
-        args[0].userDraw(args[1]);
+        args[0].userDraw(this.layer);
     }
 
     confirmCallback(args=[]) {

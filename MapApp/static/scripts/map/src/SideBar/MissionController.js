@@ -4,10 +4,12 @@ class MissionController
     {
         this.htmlId = 'sideBar-left-missionController-content';
         this.initialized = false;
-        M.addMissionListCallback(this.updateMissionListCallback, this);
+        M.addMissionListCallback(this.updateMissionListCallback.bind(this));
+        
     }
 
     addHTML() {
+        this.selectedMissionId = null;
 
         let missionControllerHtmlList = [];
 
@@ -37,8 +39,19 @@ class MissionController
         }
     }
 
-    updateMissionListCallback(instance, args) {
-        instance[0]._checkInitalize();
-        HTMLUtils.updateDropDown(`${instance[0].htmlId}-MissionList`, M.getMissionList());
+    updateMissionListCallback(myargs, args) {
+        this._checkInitalize();
+        HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, M.getMissionList());
+        this.addDropDownMissionCallback();
+    }
+
+    clickMissionListCallback(e, args) {
+        let button = document.getElementById(`${this.htmlId}-MissionList-DropDown-Btn`);
+        button.innerHTML = e.innerHTML;
+        this.selectedMissionId = e.innerHTML;
+    }
+
+    addDropDownMissionCallback() {
+        Utils.addButtonsCallback(`${this.htmlId }-MissionList-item`, this.clickMissionListCallback.bind(this));
     }
 }

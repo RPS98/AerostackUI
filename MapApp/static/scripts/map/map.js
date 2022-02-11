@@ -19,25 +19,26 @@ blocksClassList = [
 
 
 
-window.onload = function()
-{
-    
+window.onload = function () {
+
     // TODO: Load parameters from a config file
     // Map parameters
-    let map_center=[28.14376, -16.50235];
-    let map_zoom=19;
+    let map_center = [28.14376, -16.50235];
+    let map_zoom = 19;
     let connectionString = 'ws://127.0.0.1:8000/ws/user/';
 
     M = new MapManager(
         map_center,
-        map_zoom
-    );
-
-    WEB_SOCKET_MANAGER = new WebSocketManager(
+        map_zoom,
         connectionString
     );
 
-    
+    /*
+    WEB_SOCKET_MANAGER = new WebSocketManager(
+        
+    );
+    */
+
     var sideBarsClass = [
         new Home(),
         new MissionPlanner(),
@@ -45,19 +46,19 @@ window.onload = function()
     ]
 
     // For each class in sideBarsClass, instantiate it
-    for (let i=0; i<sideBarsClass.length; i++) {
+    for (let i = 0; i < sideBarsClass.length; i++) {
         sideBarsClass[i];
-    } 
+    }
 };
 
 
 /*
-class Parent 
+class Parent
 {
     constructor(type) {
         this.type = type;
     }
-    
+
     printType() {
         console.log(this);
         console.log(this.type);

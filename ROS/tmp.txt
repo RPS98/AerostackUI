@@ -1,5 +1,12 @@
-1.
-    - HTML único
-    - carpetas: {%include %}
+TODO:
 
-2. 
+1. Conectar WebSocket
+2. Colores
+3. Iconos
+4. Show 
+
+5. Arreglar servidor (Consumer.py)
+6. Arreglar interfaz (AerostackUI.py)
+
+7. Console: Log, warning, error, info
+8. Altura

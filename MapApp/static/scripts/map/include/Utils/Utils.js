@@ -80,7 +80,7 @@ class HTMLUtils
     }
 
     static updateDropDown(id, list) {
-        let expand = document.getElementById(`${id}-DropDown-Expand`);
+        let expand = document.getElementById(`${id}-DropDown-menu`);
         expand.innerHTML = '';
 
         let dropDownExpandList = [];

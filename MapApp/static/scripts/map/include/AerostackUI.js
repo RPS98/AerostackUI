@@ -145,7 +145,7 @@ MISSION_LIST.addMission('Virtual Mission', 'confirmed', [], []);
 
 var M = null;
 var WEB_SOCKET_MANAGER = null;
-var DRAW_MANAGER = null;
+//var DRAW_MANAGER = null;
 
 
 

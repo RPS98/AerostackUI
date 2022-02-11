@@ -1,6 +1,6 @@
 class MapManager
 {
-    constructor(map_center, zoom)
+    constructor(map_center, zoom, host)
     {
         this.MAP = new L.Map('mapid').setView(map_center, zoom);
 
@@ -42,6 +42,23 @@ class MapManager
         this.UAV_LIST = new SmartList();
         this.MISSION_LIST = new SmartList();
         this.MISSION_DRAW_LIST = new SmartList();
+
+        // Initialize connection to server
+        this.WS = new WebSocketManager(host);
+
+        this.WS.addCallback('basic', 'handshake', this.onHandshake.bind(this));
+    }
+
+    onHandshake(payload) {
+        console.log('Handshake received');
+        console.log(payload);
+        console.log(this);
+
+        this.addUav('PX 1', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
+        this.addUav('PX 2', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
+
+        this.addMission('Mission 1', 'landed', ['PX 1'], []);
+        this.addMission('Mission 2', 'landed', ['PX 2'], []);
     }
 
     _callCallbacks(callbackList, ...args) {
