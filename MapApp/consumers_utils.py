@@ -2,6 +2,16 @@ class UAV():
     def __init__(self, id, state, pose, odom=[], desiredPath=[], sensors={}):
         self.setUav(id, state, pose, odom, desiredPath, sensors)
         
+    def getInfo(self):
+        return {
+            'id': self.id,
+            'state': self.state,
+            'pose': self.pose,
+            'odom': self.odom,
+            'desiredPath': self.desiredPath,
+            'sensors': self.sensors
+        }
+        
     def setUav(self, id, state, pose, odom, desiredPath, sensors):
         self.id = id
         self.state = state
@@ -30,6 +40,14 @@ class Mission():
     def __init__(self, id, state, uavList, layers):
         self.setMission(id, state, uavList, layers)
         
+    def getInfo(self):
+        return {
+            'id': self.id,
+            'state': self.state,
+            'uavList': self.uavList,
+            'layers': self.layers
+        }
+        
     def setMission(self, id, state, uavList, layers):
         self.id = id
         self.state = state
@@ -51,19 +69,30 @@ class SmartList():
         self.objectList = []
         self.objectDict = {}
         
-    def getList(self):
+    async def getList(self):
         return self.objectList;
 
-    def getDict(self):
+    async def getDict(self):
         return self.objectDict;
+    
+    async def getDictById(self, id):
+        return self.objectDict[id]
 
-    def getDictById(self, id):
-        return self.objectDict[id];
+    async def getDictInfo(self):
+        objectDict = {}
+        for id in self.objectList:
+            objectDict[id] = self.objectDict[id].getInfo()
+        return objectDict;
 
-    def removeObject(self, id):
+    async def getDictInfoById(self, id):
+        return {
+            id: self.objectDict[id].getInfo(),
+        }
+
+    async def removeObject(self, id):
         self.objectList.remove(id);
         del self.objectDict[id];
 
-    def addObject(self, id, object):
+    async def addObject(self, id, object):
         self.objectList.append(id);
         self.objectDict[id] = object;

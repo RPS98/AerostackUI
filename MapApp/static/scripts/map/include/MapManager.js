@@ -4,8 +4,7 @@ class UAVManager
         this.UAV_LIST = new SmartList();
         this.uavCallbacks = [];     // When a UAV is modified
         this.uavListCallbacks = []; // When a UAV is added or removed
-
-        
+        this.initialize();
     }
 
     initialize() {
@@ -16,6 +15,8 @@ class UAVManager
         M.WS.addCallback('info', 'uavOdom', this.onUavOdom.bind(this));
         M.WS.addCallback('info', 'uavDesiredPath', this.onDesiredPath.bind(this));
         M.WS.addCallback('info', 'uavSensors', this.onUavSensors.bind(this));
+
+        M.WS.addCallback('request', 'getUAVList', this.onUAVListUpdate.bind(this));
     }
 
     _callCallbacks(callbackList, ...args) {
@@ -86,13 +87,14 @@ class UAVManager
     }
 
     addUavList(uavList) {
-        if (Object.keys(uavList).length > 0) {
-            for (let id in uavList) {
-                let state = uavList[id]['state'];
-                let pose = uavList[id]['pose'];
-                let odom = uavList[id]['odom'];
-                let desiredPath = uavList[id]['desiredPath'];
-                let sensors = uavList[id]['sensors'];
+        if (uavList.length > 0) {
+            for (let i=0; i<uavList.length; i++) {
+                let id = uavList[i]['id'];
+                let state = uavList[i]['state'];
+                let pose = uavList[i]['pose'];
+                let odom = uavList[i]['odom'];
+                let desiredPath = uavList[i]['desiredPath'];
+                let sensors = uavList[i]['sensors'];
 
                 if (id in this.getUavList()) {
                     this.getUavDicById(id).setUav(id, state, pose, odom, desiredPath, sensors);
@@ -152,7 +154,6 @@ class MissionManager
         this.MISSION_LIST = new SmartList();
         this.missionCallbacks = [];     // When a mission is modified
         this.missionListCallbacks = [];     // When a mission is added or removed
-        
     }
 
     _callCallbacks(callbackList, ...args) {
@@ -341,12 +342,13 @@ class MapManager
         console.log('Handshake received');
         this.WS.requestGetUAVList();
         this.WS.requestGetMissionList();
-        
+        /*
         this.UAV_MANAGER.addUav('PX 1', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
         this.UAV_MANAGER.addUav('PX 2', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
 
         this.MISSION_MANAGER.addMission('Mission 1', 'landed', ['PX 1'], []);
         this.MISSION_MANAGER.addMission('Mission 2', 'landed', ['PX 2'], []);
+        */
         
     }
     // #endregion

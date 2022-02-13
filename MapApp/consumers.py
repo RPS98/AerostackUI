@@ -1,6 +1,127 @@
 import json
+from subprocess import call
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-# from consumers_utils import *
+from MapApp.consumers_utils import *
+
+
+class UAVManager():
+    def __init__(self):
+        self.UAV_LIST = SmartList()
+        
+    async def initialize(self):
+        await serverManager.addCallback('request', 'getUAVList', self.onGetUavList)
+        
+        await serverManager.addCallback('info', 'uavListUpdate', self.onUAVListUpdate);
+        await serverManager.addCallback('info', 'uavUpdate', self.onUAVUpdate);
+        await serverManager.addCallback('info', 'uavState', self.onUAVState);
+        await serverManager.addCallback('info', 'uavPose', self.onUAVPose);
+        await serverManager.addCallback('info', 'uavOdom', self.onUavOdom);
+        await serverManager.addCallback('info', 'uavDesiredPath', self.onDesiredPath);
+        await serverManager.addCallback('info', 'uavSensors', self.onUavSensors);
+    
+    async def onGetUavList(self, id, rol, msg):
+
+        payload = {
+            'uavList': await self.getDictInfo()
+        }
+        msg = {
+            'type': 'request',
+            'header': 'getUAVList',
+            'payload': payload
+        }
+        
+        print("IN onGetUavList")
+        print(self.getDictInfo())
+        
+        await serverManager.sendMessage(0, id, msg)
+        
+    async def onUAVListUpdate(self, id, rol, msg):
+        for uav in msg['payload']['uavList']:
+            await self.addUav(
+                uav['id'], 
+                uav['state'], 
+                uav['pose'], 
+                uav['odom'], 
+                uav['desiredPath'], 
+                uav['sensors']
+            )
+
+        await serverManager.sendMessage(id, 'webpage', msg)
+    
+    async def onUAVUpdate(self, id, rol, msg):
+        
+        print("IN onUAVUpdate")
+        print(msg)
+        
+        if msg['payload']['id'] in await self.getList():
+            uav = msg['payload']
+            await self.addUav(
+                uav['id'], 
+                uav['state'], 
+                uav['pose'], 
+                uav['odom'], 
+                uav['desiredPath'], 
+                uav['sensors']
+            )
+        else:
+            uav = await self.getDictById(msg['payload']['id'])
+            uav.setUavState(msg['payload']['state'])
+            uav.setUavPose(msg['payload']['pose'])
+            uav.setUavOdom(msg['payload']['odom'])
+            uav.setUavDesiredPath(msg['payload']['desiredPath'])
+            uav.setUavSensors(msg['payload']['sensors'])
+        
+        await serverManager.sendMessage(id, 'webpage', msg)
+    
+    async def onUAVState(self, id, rol, msg):
+        uav = self.getDictById(msg['payload']['id'])
+        uav.setUavState(msg['payload']['state'])
+
+        await serverManager.sendMessage(id, 'webpage', msg)
+    
+    async def onUAVPose(self, id, rol, msg):
+        uav = self.getDictById(msg['payload']['id'])
+        uav.setUavState(msg['payload']['pose'])
+
+        await serverManager.sendMessage(id, 'webpage', msg)
+    
+    async def onUavOdom(self, id, rol, msg):
+        uav = self.getDictById(msg['payload']['id'])
+        uav.setUavState(msg['payload']['odom'])
+
+        await serverManager.sendMessage(id, 'webpage', msg)
+    
+    async def onDesiredPath(self, id, rol, msg):
+        uav = self.getDictById(msg['payload']['id'])
+        uav.setUavState(msg['payload']['desiredPath'])
+
+        await serverManager.sendMessage(id, 'webpage', msg)
+    
+    async def onUavSensors(self, id, rol, msg):
+        uav = self.getDictById(msg['payload']['id'])
+        uav.setUavState(msg['payload']['sensors'])
+
+        await serverManager.sendMessage(id, 'webpage', msg)
+    
+    async def getList(self):
+        return await self.UAV_LIST.getList()
+    
+    async def getDict(self):
+        return await self.UAV_LIST.getDict()
+    
+    async def getDictById(self, id):
+        return await self.UAV_LIST.getDictById(id)
+    
+    async def getDictInfo(self):
+        return await self.UAV_LIST.getDictInfo()
+    
+    async def getDictInfoById(self, id):
+        return await self.UAV_LIST.getDictInfoById(id)
+        
+    async def addUav(self, id, state, pose, odom=[], desiredPath=[], sensors={}):
+        self.UAV_LIST.addObject(id, UAV(id, state, pose, odom, desiredPath, sensors))
+
+
 
 class ServerManager():
     """
@@ -13,6 +134,15 @@ class ServerManager():
         self.manager_list = []  # Manager list is [consumer]
         self.web_page_list = [] # Webpage list is [id, consumer]
         self.client_id = 2      # Client id=0 is the server. Client id=1 is the manager. Client id=2 is the first webpage client.   
+        self.callbacksList = [] # List of callbacks to be executed when a message is received
+        self.intialize = False
+        self.UAV_MANAGER = UAVManager()
+        
+        
+    async def onConnect(self):
+        if not self.intialize:
+            await self.UAV_MANAGER.initialize()
+            self.intialize = True
 
     async def clientDisconnect(self, id, rol):
         """
@@ -68,8 +198,22 @@ class ServerManager():
             for manager in self.manager_list:
                 await manager[0].sendMessage(msg) 
 
+    async def addCallback(self, type, header, callback):
+        """
+        Add a callback to the callbacks list
+
+        Args:
+            type (str): Type of the callback
+            header (str): Header of the callback
+            callback (function): Callback function
+        """
+        self.callbacksList.append({'type': type, 'header': header, 'callback': callback})
+
     async def newMsg(self, id, rol, msg):
-        pass
+        for callback in self.callbacksList:
+            if (callback['type'] == msg['type'] and callback['header'] == msg['header']):
+                await callback['callback'](id, rol, msg)
+    
     
     #region Basic communication
     def newWebpage(self, consumer):
@@ -114,7 +258,6 @@ class ServerManager():
 
 serverManager = ServerManager()
 
-
 class CLientWebsocket(AsyncJsonWebsocketConsumer):
     """
      It handle the client connection and communication
@@ -136,6 +279,7 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
         Accepts an incoming socket
         """
         print("Connected")
+        await serverManager.onConnect()
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -176,7 +320,7 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
                 await self._getClientsList()
                 
         elif self.identified:
-            serverManager.newMsg(self.id, self.rol, msg)
+            await serverManager.newMsg(self.id, self.rol, msg)
 
     @staticmethod        
     async def checkMessage(message):
@@ -344,3 +488,6 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
         await self.sendMessage(response)
     #endregion
 
+
+
+        
