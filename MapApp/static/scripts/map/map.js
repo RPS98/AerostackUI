@@ -32,6 +32,7 @@ window.onload = function () {
         map_zoom,
         connectionString
     );
+    M.initialize();
 
     /*
     WEB_SOCKET_MANAGER = new WebSocketManager(

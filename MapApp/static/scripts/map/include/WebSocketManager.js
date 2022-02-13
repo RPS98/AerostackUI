@@ -116,40 +116,6 @@ class WebSocketManager {
         switch (msg['type']) {
 
 
-            case 'info':
-                payload = msg['payload'];
-                switch (msg['header']) {
-                    case 'newUAVList':
-                        //this.websocketinterface.newUAVList(payload);
-                        break;
-
-                    case 'newUAV':
-                        //this.websocketinterface.newUAV(payload);
-                        break;
-
-                    case 'UAVPose':
-                        //this.websocketinterface.UAVPose(payload);
-                        break;
-
-                    case 'UAVOdom':
-                        //this.websocketinterface.UAVOdom(payload);
-                        break;
-
-                    case 'UAVDesiredPath':
-                        //this.websocketinterface.UAVDesiredPath(payload);
-                        break;
-
-                    case 'UAVSensors':
-                        //this.websocketinterface.UAVSensors(payload);
-                        break;
-
-                    default:
-                        console.log("Unknown info message");
-                        console.log(msg);
-                        break;
-                }
-                break;
-
             case 'request':
                 payload = msg['payload'];
                 switch (msg['header']) {
@@ -228,6 +194,7 @@ class WebSocketManager {
         }, to);
     }
 
+    // #region Basic messages
     /**
      * Send a handshake message to the WebSocket server.
      */
@@ -279,6 +246,21 @@ class WebSocketManager {
     onGetClientsList(payload) {
         console.log(`Get client list:`);
         console.log(payload);
+    }
+
+    // #endregion
+
+    // #region Request messages
+    requestGetUAVList() {
+        this.sendRequest('getUAVList', {});
+    }
+
+    requestGetMissionList() {
+        this.sendRequest('getMissionList', {});
+    }
+
+    requestConfirmMission(missionId) {
+        this.sendRequest('confirmMission', { 'missionId': missionId });
     }
 }
 

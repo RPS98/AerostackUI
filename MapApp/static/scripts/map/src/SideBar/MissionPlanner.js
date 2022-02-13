@@ -4,8 +4,8 @@ class MissionPlanner
         this.htmlId = 'sideBar-left-missionPlanner-content';
 
         this.initialized = false;
-        M.addUavListCallback(this.updateUavListCallback.bind(this), this);
-        M.addMissionListCallback(this.updateMissionListCallback.bind(this), this);
+        M.UAV_MANAGER.addUavListCallback(this.updateUavListCallback.bind(this), this);
+        M.MISSION_MANAGER.addMissionListCallback(this.updateMissionListCallback.bind(this), this);
     }
 
     addHTML() {
@@ -13,11 +13,11 @@ class MissionPlanner
 
         // Mission Dropdown list
         let missionList = ['New mission'];
-        let missionListTotal = missionList.concat(M.getMissionList());
+        let missionListTotal = missionList.concat(M.MISSION_MANAGER.getMissionList());
         missionPlannerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV Dropdown list
-        missionPlannerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-UAVList`, M.getUavList(), M.getUavList()[0]));
+        missionPlannerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-UAVList`, M.UAV_MANAGER.getUavList(), M.UAV_MANAGER.getUavList()[0]));
 
         // Heigh input
         let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, {'class': 'form-control', 'required': 'required',}, 'text', '1');
@@ -56,7 +56,7 @@ class MissionPlanner
     }
 
     addDrawTypes() {
-        this.layer = new Layer('user', 'New Mission', M.getUavList()[0], 1);
+        this.layer = new Layer('user', 'New Mission', M.UAV_MANAGER.getUavList()[0], 1);
         this.pointOfInterest = new PointOfInterest();
         this.wayPoint = new WayPoint();
         this.path = new Path();
@@ -120,13 +120,13 @@ class MissionPlanner
 
     updateUavListCallback(myargs, args) {
         this._checkInitalize();
-        HTMLUtils.updateDropDown(`${this.htmlId}-UAVList`, M.getUavList());
+        HTMLUtils.updateDropDown(`${this.htmlId}-UAVList`, M.UAV_MANAGER.getUavList());
         this.addDropDownUavCallback();
     }
 
     updateMissionListCallback(myargs, args) {
         this._checkInitalize();
-        HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, ['New Mission'].concat(M.getMissionList()));
+        HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, ['New Mission'].concat(M.MISSION_MANAGER.getMissionList()));
         this.addDropDownMissionCallback();
     }
 

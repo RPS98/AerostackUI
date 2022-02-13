@@ -4,7 +4,7 @@ class MissionController
     {
         this.htmlId = 'sideBar-left-missionController-content';
         this.initialized = false;
-        M.addMissionListCallback(this.updateMissionListCallback.bind(this));
+        M.MISSION_MANAGER.addMissionListCallback(this.updateMissionListCallback.bind(this));
         
     }
 
@@ -14,7 +14,7 @@ class MissionController
         let missionControllerHtmlList = [];
 
         // Mission Dropdown list
-        missionControllerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, M.getMissionList(), M.getMissionList()[0]));
+        missionControllerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, M.MISSION_MANAGER.getMissionList(), M.MISSION_MANAGER.getMissionList()[0]));
 
         // Buttons for draw mission
         let splitBtn = [];
@@ -41,7 +41,7 @@ class MissionController
 
     updateMissionListCallback(myargs, args) {
         this._checkInitalize();
-        HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, M.getMissionList());
+        HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, M.MISSION_MANAGER.getMissionList());
         this.addDropDownMissionCallback();
     }
 

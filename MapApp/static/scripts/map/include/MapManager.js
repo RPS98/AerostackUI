@@ -1,64 +1,21 @@
-class MapManager
+class UAVManager
 {
-    constructor(map_center, zoom, host)
-    {
-        this.MAP = new L.Map('mapid').setView(map_center, zoom);
-
-        this.uavTilesAll = {'All': L.featureGroup().addTo(this.MAP)};
-        
-        // add tile layers
-        this.layer_control = L.control.layers({
-            "hybrid": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
-                maxZoom: 22,
-                subdomains:['mt0','mt1','mt2','mt3']
-            }).addTo(this.MAP),
-            "streets": L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
-                maxZoom: 22,
-                subdomains:['mt0','mt1','mt2','mt3']
-            }),
-            "satellite": L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
-                maxZoom: 22,
-                subdomains:['mt0','mt1','mt2','mt3'],
-            }),
-            "terrain": L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
-                maxZoom: 22,
-                subdomains:['mt0','mt1','mt2','mt3']
-            })
-            
-        }, this.uavTilesAll, { position: 'topleft', collapsed: false }).addTo(this.MAP);
-
-        // {% include 'include/SideBar/SideBar.html' %}
-
-        this.initializeSideBars();
-        
-        this.uavCallbacks = [];         // When a UAV is modified
-        this.missionCallbacks = [];     // When a mission is modified
-        this.missionDrawCallbacks = []; // When a mission drawn is modified
-
-        this.uavListCallbacks = [];         // When a UAV is added or removed
-        this.missionListCallbacks = [];     // When a mission is added or removed
-        this.missionDrawListCallbacks = []; // When a mission drawn is added or removed
-
+    constructor() {
         this.UAV_LIST = new SmartList();
-        this.MISSION_LIST = new SmartList();
-        this.MISSION_DRAW_LIST = new SmartList();
+        this.uavCallbacks = [];     // When a UAV is modified
+        this.uavListCallbacks = []; // When a UAV is added or removed
 
-        // Initialize connection to server
-        this.WS = new WebSocketManager(host);
-
-        this.WS.addCallback('basic', 'handshake', this.onHandshake.bind(this));
+        
     }
 
-    onHandshake(payload) {
-        console.log('Handshake received');
-        console.log(payload);
-        console.log(this);
-
-        this.addUav('PX 1', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
-        this.addUav('PX 2', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
-
-        this.addMission('Mission 1', 'landed', ['PX 1'], []);
-        this.addMission('Mission 2', 'landed', ['PX 2'], []);
+    initialize() {
+        M.WS.addCallback('info', 'uavListUpdate', this.onUAVListUpdate.bind(this));
+        M.WS.addCallback('info', 'uavUpdate', this.onUAVUpdate.bind(this));
+        M.WS.addCallback('info', 'uavState', this.onUAVState.bind(this));
+        M.WS.addCallback('info', 'uavPose', this.onUAVPose.bind(this));
+        M.WS.addCallback('info', 'uavOdom', this.onUavOdom.bind(this));
+        M.WS.addCallback('info', 'uavDesiredPath', this.onDesiredPath.bind(this));
+        M.WS.addCallback('info', 'uavSensors', this.onUavSensors.bind(this));
     }
 
     _callCallbacks(callbackList, ...args) {
@@ -67,28 +24,33 @@ class MapManager
         }
     }
 
-    // #region Side Bars
-    initializeSideBars() {
-        this.initializeLefSideBar();
-        this.initializeRightSideBar();
+    // #region WebScoket Callbacks
+    onUAVUpdate(payload) {
+        this.addUavCallback(payload['id'], payload['state'], payload['pose'], payload['odom'], payload['desiredPath'], payload['sensors']);
     }
 
-    initializeLefSideBar() {
-        this.sidebar_left = L.control.sidebar({
-            autopan: true,             // whether to maintain the centered map point when opening the sidebar
-            closeButton: true,         // whether t add a close button to the panes
-            container: 'sideBar-left', // the DOM container or #ID of a predefined sidebar container that should be used
-            position: 'left',
-        }).addTo(this.MAP);
+    onUAVListUpdate(payload) {
+        this.addUavList(payload['uavList']);
     }
 
-    initializeRightSideBar() {
-        this.sidebar_right = L.control.sidebar({
-            autopan: false,
-            closeButton: true,
-            container: 'sideBar-right',
-            position: 'right',
-        }).addTo(this.MAP);
+    onUAVState(payload) {
+        this.setUavState(payload['id'], payload['state']);
+    }
+
+    onUAVPose(payload) {
+        this.setUavPose(payload['id'], payload['pose']);
+    }
+
+    onUavOdom(payload) {
+        this.setUavOdom(payload['id'], payload['odom']);
+    }
+
+    onDesiredPath(payload) {
+        this.setDesiredPath(payload['id'], payload['desiredPath']);
+    }
+
+    onUavSensors(payload) {
+        this.setUavSensors(payload['id'], payload['sensors']);
     }
     // #endregion
 
@@ -121,6 +83,27 @@ class MapManager
     removeUav(id) {
         this.UAV_LIST.removeObject(id);
         this._callCallbacks(this.uavListCallbacks);
+    }
+
+    addUavList(uavList) {
+        if (Object.keys(uavList).length > 0) {
+            for (let id in uavList) {
+                let state = uavList[id]['state'];
+                let pose = uavList[id]['pose'];
+                let odom = uavList[id]['odom'];
+                let desiredPath = uavList[id]['desiredPath'];
+                let sensors = uavList[id]['sensors'];
+
+                if (id in this.getUavList()) {
+                    this.getUavDicById(id).setUav(id, state, pose, odom, desiredPath, sensors);
+                    this._callCallbacks(this.uavCallbacks, id);
+                } else {
+                    this.UAV_LIST.addObject(id, new UAV(id, state, pose, odom, desiredPath, sensors));
+                    
+                }
+            }
+            this._callCallbacks(this.uavListCallbacks);
+        }
     }
 
     addUav(id, state, pose, odom=[], desiredPath=[], sensors={}) {
@@ -158,6 +141,25 @@ class MapManager
         this._callCallbacks(this.uavCallbacks, id);
     }
     // #endregion
+
+
+}
+
+class MissionManager
+{
+
+    constructor() {
+        this.MISSION_LIST = new SmartList();
+        this.missionCallbacks = [];     // When a mission is modified
+        this.missionListCallbacks = [];     // When a mission is added or removed
+        
+    }
+
+    _callCallbacks(callbackList, ...args) {
+        for (let i = 0; i < callbackList.length; i++) {
+            callbackList[i][0](callbackList[i][1], ...args);
+        }
+    }
 
     // #region Mission List
     addMissionCallback(callback, ...args) {
@@ -216,6 +218,16 @@ class MapManager
     }
     // #endregion
 
+}
+
+class MissionDrawManager
+{
+    constructor() {
+        this.MISSION_DRAW_LIST = new SmartList();
+        this.missionDrawCallbacks = []; // When a mission drawn is modified
+        this.missionDrawListCallbacks = []; // When a mission drawn is added or removed
+    }
+
     // #region Mission Draw List
     addMissionDrawCallback(callback, ...args) {
         this.missionDrawCallbacks.push([callback, args]);
@@ -270,6 +282,97 @@ class MapManager
     setMissionDrawLayers(id, layers) {
         this.getMissionDrawDicById(id).setMissionDrawLayers(layers);
         this._callCallbacks(this.missionDrawCallbacks, id);
+    }
+    // #endregion
+}
+
+class MapManager
+{
+    constructor(map_center, zoom, host)
+    {
+        this.MAP = new L.Map('mapid').setView(map_center, zoom);
+
+        this.uavTilesAll = {'All': L.featureGroup().addTo(this.MAP)};
+        
+        // add tile layers
+        this.layer_control = L.control.layers({
+            "hybrid": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+                maxZoom: 22,
+                subdomains:['mt0','mt1','mt2','mt3']
+            }).addTo(this.MAP),
+            "streets": L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+                maxZoom: 22,
+                subdomains:['mt0','mt1','mt2','mt3']
+            }),
+            "satellite": L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+                maxZoom: 22,
+                subdomains:['mt0','mt1','mt2','mt3'],
+            }),
+            "terrain": L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+                maxZoom: 22,
+                subdomains:['mt0','mt1','mt2','mt3']
+            })
+            
+        }, this.uavTilesAll, { position: 'topleft', collapsed: false }).addTo(this.MAP);
+
+        // {% include 'include/SideBar/SideBar.html' %}
+
+        this.initializeSideBars();
+        
+        // Initialize connection to server
+        this.WS = new WebSocketManager(host);
+        this.WS.addCallback('basic', 'handshake', this.onHandshake.bind(this));   
+    }
+
+    initialize() {
+        this.UAV_MANAGER = new UAVManager();
+        this.MISSION_MANAGER = new MissionManager();
+        this.MISSIOn_DRAW_MANAGER = new MissionDrawManager();
+    }
+
+    _callCallbacks(callbackList, ...args) {
+        for (let i = 0; i < callbackList.length; i++) {
+            callbackList[i][0](callbackList[i][1], ...args);
+        }
+    }
+
+    // #region WebScoket Callbacks
+    onHandshake(payload) {
+        console.log('Handshake received');
+        this.WS.requestGetUAVList();
+        this.WS.requestGetMissionList();
+        
+        this.UAV_MANAGER.addUav('PX 1', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
+        this.UAV_MANAGER.addUav('PX 2', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
+
+        this.MISSION_MANAGER.addMission('Mission 1', 'landed', ['PX 1'], []);
+        this.MISSION_MANAGER.addMission('Mission 2', 'landed', ['PX 2'], []);
+        
+    }
+    // #endregion
+    
+    // #region Side Bars
+    initializeSideBars() {
+        this.initializeLefSideBar();
+        this.initializeRightSideBar();
+    }
+
+    initializeLefSideBar() {
+        this.sidebar_left = L.control.sidebar({
+            autopan: true,             // whether to maintain the centered map point when opening the sidebar
+            closeButton: true,         // whether t add a close button to the panes
+            container: 'sideBar-left', // the DOM container or #ID of a predefined sidebar container that should be used
+            position: 'left',
+        }).addTo(this.MAP);
+    }
+
+    initializeRightSideBar() {
+        this.sidebar_right = L.control.sidebar({
+            autopan: false,
+            closeButton: true,
+            container: 'sideBar-right',
+            position: 'right',
+        }).addTo(this.MAP);
     }
     // #endregion
 }
