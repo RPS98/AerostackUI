@@ -94,9 +94,8 @@ class SmartList
 
 class Layer
 {
-    constructor(author, missionId, uavList, height='none') {
+    constructor(missionId, uavList, height='none') {
         this.info = {
-            'author': author,
             'missionId': missionId,
             'uavList': uavList,
             'height': height
@@ -107,17 +106,12 @@ class Layer
         return this.info;
     }
 
-    updateLayer(author, missionId, uavList, height='none') {
+    updateLayer(missionId, uavList, height='none') {
         this.info = {
-            'author': author,
             'missionId': missionId,
             'uavList': uavList,
             'height': height
         }
-    }
-
-    updateAuthor(author) {
-        this.info.author = author;
     }
 
     updateMissionId(missionId) {

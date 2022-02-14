@@ -8,7 +8,6 @@ class DrawManager
                 'author': 'manager',
                 'type': type,
                 'name': name,
-                'instance': this 
             },
             codeDrawOptions
         );
@@ -19,15 +18,14 @@ class DrawManager
                 'type': type,
                 'name': name,
                 'status': 'draw',
-                'instance': this 
             },
             userDrawOptions
         );
+        this.codeLayerDrawn = null;
     }
 
-    codeDraw(layer, values, options={}) {
-        let layerOptions = Object.assign({}, layer.getInfo(), options);
-        let drawOptions = Object.assign({}, this.codeDrawOptions, layerOptions);
+    codeDraw(values, options={}) {
+        let drawOptions = Object.assign({}, this.codeDrawOptions, options);
 
         let draw = null;
 
@@ -36,6 +34,10 @@ class DrawManager
                 draw = L.marker(values, drawOptions);
                 break;
             case 'Line':
+
+                console.log("IN codeDraw");
+                console.log(values)
+
                 draw = L.polyline(values, drawOptions);
                 break;
             case 'Circle':
@@ -48,32 +50,32 @@ class DrawManager
                 alert("Try to draw from code a type: " + this.type);
                 throw new Error("Unknown type of draw");
         }
-        draw.addTo(MAP_MANAGER.MAP);
+        draw.addTo(M.MAP);
+        this.codeLayerDrawn = draw;
         return draw
     }
 
-    userDraw(layer, options={}) {
-        let layerOptions = Object.assign({}, layer.getInfo(), options);
-        let drawOptions = Object.assign({}, this.userDrawOptions, layerOptions);
+    userDraw(options={}) {
+        let drawOptions = Object.assign({}, this.userDrawOptions, options);
 
         switch (this.type) {
             case 'Marker':
-                MAP_MANAGER.MAP.pm.enableDraw('Marker', drawOptions);
+                M.MAP.pm.enableDraw('Marker', drawOptions);
                 break;
             case 'Line':
-                MAP_MANAGER.MAP.pm.enableDraw('Line', drawOptions);
+                M.MAP.pm.enableDraw('Line', drawOptions);
                 break;
             case 'Circle':
-                MAP_MANAGER.MAP.pm.enableDraw('Circle', drawOptions);
+                M.MAP.pm.enableDraw('Circle', drawOptions);
                 break;
             case 'Polygon':
-                MAP_MANAGER.MAP.pm.enableDraw('Polygon', drawOptions);
+                M.MAP.pm.enableDraw('Polygon', drawOptions);
                 break;
             case 'CircleMarker':
-                MAP_MANAGER.MAP.pm.enableDraw('CircleMarker', drawOptions);
+                M.MAP.pm.enableDraw('CircleMarker', drawOptions);
                 break;
             case 'Rectangle':
-                MAP_MANAGER.MAP.pm.enableDraw('Rectangle', drawOptions);
+                M.MAP.pm.enableDraw('Rectangle', drawOptions);
                 break;
             default:
                 alert("Try to draw from code a type: " + this.type);

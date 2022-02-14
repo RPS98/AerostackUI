@@ -44,6 +44,7 @@ window.onload = function () {
         new Home(),
         new MissionPlanner(),
         new MissionController(),
+        new UavDrawer(),
     ]
 
     // For each class in sideBarsClass, instantiate it

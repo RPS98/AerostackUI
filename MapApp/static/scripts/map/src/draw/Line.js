@@ -4,12 +4,13 @@ class Line extends DrawManager
         super('Line', name, codeDrawOptions, userDrawOptions);
     }
 
-    codeDraw(layer, values, options={}) {
-        return super.codeDraw(layer, values, options={});
+    codeDraw(values, options={}) {
+        if (values.length > 1)
+        return super.codeDraw(values, options);
     }
 
-    userDraw(layer, options={}) {
-        return super.userDraw(layer, options={});
+    userDraw(options={}) {
+        return super.userDraw(options);
     }
 
     showInfo() {
@@ -24,7 +25,51 @@ class Line extends DrawManager
 class Path extends Line
 {
     constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('Path', codeDrawOptions, userDrawOptions);
+        super('path', codeDrawOptions, userDrawOptions);
+    }
+
+    showInfo() {
+        super.showInfo();
+    }
+
+    sendInfo() {
+        super.sendInfo();
+    }
+}
+
+
+class Odom extends Line
+{
+    constructor(codeDrawOptions={}, userDrawOptions={}) {
+        super('odom', codeDrawOptions, userDrawOptions);
+    }
+
+    codeDraw(id, values, options={}) {
+        options['color'] = M.UAV_MANAGER.getColor(id);
+        return super.codeDraw(values, options);
+    }
+
+    showInfo() {
+        super.showInfo();
+    }
+
+    sendInfo() {
+        super.sendInfo();
+    }
+}
+
+
+class DesiredPath extends Line
+{
+    constructor(codeDrawOptions={}, userDrawOptions={}) {
+        super('desiredPath', codeDrawOptions, userDrawOptions);
+    }
+
+    codeDraw(id, values, options={}) {
+        options['color'] = M.UAV_MANAGER.getColor(id);
+        options['opacity'] = 0.5;
+
+        return super.codeDraw(values, options);
     }
 
     showInfo() {

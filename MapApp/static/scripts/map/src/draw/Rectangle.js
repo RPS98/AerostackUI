@@ -4,12 +4,12 @@ class Rectangle extends DrawManager
         super('Rectangle', name, codeDrawOptions, userDrawOptions);
     }
 
-    codeDraw(layer, values, options={}) {
+    codeDraw(values, options={}) {
         // TODO: Make rectangle draw on MAP
     }
 
-    userDraw(layer, options={}) {
-        return super.userDraw(layer, options={});
+    userDraw(options={}) {
+        return super.userDraw(options);
     }
 
     showInfo() {

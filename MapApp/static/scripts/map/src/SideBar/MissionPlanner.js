@@ -56,7 +56,7 @@ class MissionPlanner
     }
 
     addDrawTypes() {
-        this.layer = new Layer('user', 'New Mission', M.UAV_MANAGER.getUavList()[0], 1);
+        this.layer = new Layer('New Mission', M.UAV_MANAGER.getUavList()[0], 1);
         this.pointOfInterest = new PointOfInterest();
         this.wayPoint = new WayPoint();
         this.path = new Path();
@@ -147,7 +147,7 @@ class MissionPlanner
     }
 
     userDrawCallbacks(args=[]) {
-        args[0].userDraw(this.layer);
+        args[0].userDraw(this.layer.getInfo());
     }
 
     confirmCallback(args=[]) {

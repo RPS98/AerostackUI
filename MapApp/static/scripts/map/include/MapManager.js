@@ -5,6 +5,17 @@ class UAVManager
         this.uavCallbacks = [];     // When a UAV is modified
         this.uavListCallbacks = []; // When a UAV is added or removed
         this.initialize();
+
+        this.Uav_icon_folder = '/static/scripts/map/img/custom_markers/';
+
+        this.Uav_icon_names = [
+                'cd_blue.png',
+                'cd_green.png',
+                'cd_orange.png',
+                'cd_yellow.png',
+                'cd_red.png',
+                'cd_violet.png',
+        ];
     }
 
     initialize() {
@@ -16,7 +27,7 @@ class UAVManager
         M.WS.addCallback('info', 'uavDesiredPath', this.onDesiredPath.bind(this));
         M.WS.addCallback('info', 'uavSensors', this.onUavSensors.bind(this));
 
-        M.WS.addCallback('request', 'getUAVList', this.onUAVListUpdate.bind(this));
+        M.WS.addCallback('request', 'getUavList', this.onUAVListUpdate.bind(this));
     }
 
     _callCallbacks(callbackList, ...args) {
@@ -25,9 +36,17 @@ class UAVManager
         }
     }
 
+    getIcon(id) {
+        return this.Uav_icon_folder + this.Uav_icon_names[this.getUavList().indexOf(id) % this.Uav_icon_names.length];
+    }
+
+    getColor(id) {
+        return M.colors[this.getUavList().indexOf(id) % M.colors.length];
+    }
+
     // #region WebScoket Callbacks
     onUAVUpdate(payload) {
-        this.addUavCallback(payload['id'], payload['state'], payload['pose'], payload['odom'], payload['desiredPath'], payload['sensors']);
+        this.addUav(payload['id'], payload['state'], payload['pose'], payload['odom'], payload['desiredPath'], payload['sensors']);
     }
 
     onUAVListUpdate(payload) {
@@ -43,11 +62,15 @@ class UAVManager
     }
 
     onUavOdom(payload) {
-        this.setUavOdom(payload['id'], payload['odom']);
+        if (payload['odom'].length > 1) {
+            this.setUavOdom(payload['id'], payload['odom']);
+        }
     }
 
     onDesiredPath(payload) {
-        this.setDesiredPath(payload['id'], payload['desiredPath']);
+        if (payload['desiredPath'].length > 1) {
+            this.setDesiredPath(payload['id'], payload['desiredPath']);
+        }
     }
 
     onUavSensors(payload) {
@@ -64,9 +87,9 @@ class UAVManager
         this.uavListCallbacks.push([callback, args]);
     }
     
-    getUavDicById(id)
+    getUavDictById(id)
     {
-        if (id in this.getUavList()) {
+        if (this.getUavList().indexOf(id) !== -1) {
             return this.UAV_LIST.getDictById(id);
         } else {
             return null;
@@ -83,11 +106,12 @@ class UAVManager
 
     removeUav(id) {
         this.UAV_LIST.removeObject(id);
-        this._callCallbacks(this.uavListCallbacks);
+        this._callCallbacks(this.uavListCallbacks, id);
     }
 
     addUavList(uavList) {
         if (uavList.length > 0) {
+            let uavModify = [];
             for (let i=0; i<uavList.length; i++) {
                 let id = uavList[i]['id'];
                 let state = uavList[i]['state'];
@@ -97,49 +121,47 @@ class UAVManager
                 let sensors = uavList[i]['sensors'];
 
                 if (id in this.getUavList()) {
-                    this.getUavDicById(id).setUav(id, state, pose, odom, desiredPath, sensors);
-                    this._callCallbacks(this.uavCallbacks, id);
+                    this.getUavDictById(id).setUav(id, state, pose, odom, desiredPath, sensors);
                 } else {
                     this.UAV_LIST.addObject(id, new UAV(id, state, pose, odom, desiredPath, sensors));
-                    
                 }
+                uavModify.push(id);
             }
-            this._callCallbacks(this.uavListCallbacks);
+            this._callCallbacks(this.uavListCallbacks, uavModify);
         }
     }
 
     addUav(id, state, pose, odom=[], desiredPath=[], sensors={}) {
         if (id in this.getUavList()) {
-            this.getUavDicById(id).setUav(id, state, pose, odom, desiredPath, sensors);
-            this._callCallbacks(this.uavCallbacks, id);
+            this.getUavDictById(id).setUav(id, state, pose, odom, desiredPath, sensors);
         } else {
             this.UAV_LIST.addObject(id, new UAV(id, state, pose, odom, desiredPath, sensors));
-            this._callCallbacks(this.uavListCallbacks);
         }
+        this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavState(id, state) {
-        this.getUavDicById(id).setUavState(state);
+        this.getUavDictById(id).setUavState(state);
         this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavPose(id, pose) {
-        this.getUavDicById(id).setUavPose(pose);
+        this.getUavDictById(id).setUavPose(pose);
         this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavOdom(id, odom) {
-        this.getUavDicById(id).setUavOdom(odom);
+        this.getUavDictById(id).setUavOdom(odom);
         this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavDesiredPath(id, desiredPath) {
-        this.getUavDicById(id).setUavDesiredPath(desiredPath);
+        this.getUavDictById(id).setUavDesiredPath(desiredPath);
         this._callCallbacks(this.uavCallbacks, id);
     }
 
     setUavSensors(id, sensors) {
-        this.getUavDicById(id).setUavSensors(sensors);
+        this.getUavDictById(id).setUavSensors(sensors);
         this._callCallbacks(this.uavCallbacks, id);
     }
     // #endregion
@@ -322,7 +344,16 @@ class MapManager
         
         // Initialize connection to server
         this.WS = new WebSocketManager(host);
-        this.WS.addCallback('basic', 'handshake', this.onHandshake.bind(this));   
+        this.WS.addCallback('basic', 'handshake', this.onHandshake.bind(this));
+
+        this.colors = [
+            '#DAE8FC', // blue
+            '#D5E8D4', // green
+            '#FFE6CC', // orange
+            '#FFF2CC', // yellow
+            '#F8CECC', // red
+            '#E1D5E7', // violet
+        ];
     }
 
     initialize() {
@@ -340,7 +371,7 @@ class MapManager
     // #region WebScoket Callbacks
     onHandshake(payload) {
         console.log('Handshake received');
-        this.WS.requestGetUAVList();
+        this.WS.requestGetUavList();
         this.WS.requestGetMissionList();
         /*
         this.UAV_MANAGER.addUav('PX 1', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});

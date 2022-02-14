@@ -4,12 +4,12 @@ class Marker extends DrawManager
         super('Marker', name, codeDrawOptions, userDrawOptions);
     }
 
-    codeDraw(layer, values, options={}) {
-        return super.codeDraw(layer, values, options={});
+    codeDraw(values, options={}) {
+        return super.codeDraw(values, options);
     }
 
-    userDraw(layer, options={}) {
-        return super.userDraw(layer, options={});
+    userDraw(options={}) {
+        super.userDraw(options);
     }
 
     showInfo() {
@@ -72,6 +72,16 @@ class UAVMarker extends Marker
 {
     constructor(codeDrawOptions={}, userDrawOptions={}) {
         super('UAVMarker', codeDrawOptions, userDrawOptions);
+    }
+
+    codeDraw(id, values, options={}) {
+        options['icon'] = new L.Icon({
+            iconUrl: M.UAV_MANAGER.getIcon(id),
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+            popupAnchor: [0, -15]
+        });
+        return super.codeDraw(values, options);
     }
 
     showInfo() {

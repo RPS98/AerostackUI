@@ -210,7 +210,7 @@ class WebSocketClient:
         message = json.dumps({'message': msg})
             
         self.ws.send('%s' % message)
-        print("Message sent: " + message)
+        # print("Message sent: " + message)
     
     #region Basic communication
     
@@ -278,19 +278,6 @@ class WebSocketClient:
             'payload': payload
         }
         self.send(msg, to)
-        
-    
-    def _getUAVListInfo(self):
-        """
-        Return a list of UAVs information
-
-        Returns:
-            [list]: List of UAVs information with format {'id': id, 'state': state, 'pose': pose, 'odom': odom, 'desired_path': desired_path, 'sensors': sensors}
-        """
-        info = []
-        for uav in self.UAV_dict:
-            info.append(self.UAV_dict[uav].getInfo())
-        return info
     
     def _sendUAVInfo(self, id):
         """
@@ -299,13 +286,7 @@ class WebSocketClient:
         Args:
             id (int): Id of the UAV
         """
-        print("IN SEND UAV INFO")
-        print(self.UAV_dict)
-        print(self.UAV_dict[id])
-        print(self.UAV_dict[id].getInfo())
-        
         payload = self.UAV_dict[id].getInfo()
-        
         self.sendInfo('uavUpdate', payload)
         
     def newUAV(self, uav, send=True):
@@ -318,17 +299,8 @@ class WebSocketClient:
         """
         id = uav['id']
         self.UAV_dict[id] = UAV(uav['id'], uav['state'], uav['pose'], uav['odom'], uav['desiredPath'], uav['sensors'])
-        if send:
-            self._sendUAVInfo(id)
-            
-    def _sendUAVList(self):
-        """
-        Send UAV list to server
-        """
-        payload = {
-            'uavList': self._getUAVListInfo()
-        }
-        self.sendInfo('uavListUpdate', payload)
+        self._sendUAVInfo(id)
+
         
     def newUAVList(self, UAV_dict):
         """
@@ -338,8 +310,7 @@ class WebSocketClient:
             UAV_dict (dict): Dict with format {'id': id, 'state': state, 'pose': pose, 'odom': odom, 'desired_path': desired_path, 'sensors': sensors}
         """
         for uav in UAV_dict:
-            self.newUAV(uav, False)
-        self._sendUAVList()
+            self.newUAV(uav)
         
     def sendUavState(self, id, state):
         payload = {'id': id, 'state': state}
@@ -443,7 +414,7 @@ def main():
     client = WebSocketClient("ws://127.0.0.1:8000/ws/user/")
     print(client.mission_id)
     client.new_mission_function = newMissionCallback
-     
+    
     time.sleep(1)
 
     client.newUAVList([
@@ -451,13 +422,38 @@ def main():
         {'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'alt': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 100, 'temperature': 20}} 
     ])
     
-    time.sleep(2)
+
+    time.sleep(1)
+    
+    lat = 28.14396
+    lng = -16.50255
+    incr = 0.000001
+    
+    odom = [
+        [lat-incr*5, lng-incr*5],
+        [lat, lng],
+    ]
+        
+    desiredPath = [
+        [lat, lng],
+        [lat+incr*500, lng+incr*500],
+        [lat+incr*1500, lng+incr*1000],
+    ]
     
     client.newUAV(
-        {'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': 28.14396, 'lng': -16.50255, 'alt': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 70, 'temperature': 60}}
-    ) 
-    """
+        {'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0}, 'odom': odom, 'desiredPath': desiredPath, 'sensors': {'battey': 70, 'temperature': 60}}
+    )
     
+    
+    while True:
+        time.sleep(1. / 30)
+        lat += incr
+        lng += incr
+        odom.append([lat, lng])
+        client.sendUavPose('UAV 2', {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0})
+        client.sendUavOdom('UAV 2', odom)
+
+    """
     time.sleep(2)
     client.sendUAVPose('UAV 0', 'fly', {'lat': 28.14406, 'lng': -16.50265, 'alt': 0, 'yaw': 0})
     

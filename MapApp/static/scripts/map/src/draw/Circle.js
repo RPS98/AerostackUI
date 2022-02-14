@@ -4,12 +4,12 @@ class Circle extends DrawManager
         super('Circle', name, codeDrawOptions, userDrawOptions);
     }
 
-    codeDraw(layer, values, options={}) {
-        return super.codeDraw(layer, values, options={});
+    codeDraw(values, options={}) {
+        return super.codeDraw(values, options);
     }
 
-    userDraw(layer, options={}) {
-        return super.userDraw(layer, options={});
+    userDraw(options={}) {
+        return super.userDraw(options);
     }
 
     showInfo() {
