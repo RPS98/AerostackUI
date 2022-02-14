@@ -2,6 +2,7 @@ class UAVManager
 {
     constructor() {
         this.UAV_LIST = new SmartList();
+        this.uavparamCallbacks = [];
         this.uavCallbacks = [];     // When a UAV is modified
         this.uavListCallbacks = []; // When a UAV is added or removed
         this.initialize();
@@ -19,13 +20,8 @@ class UAVManager
     }
 
     initialize() {
-        M.WS.addCallback('info', 'uavListUpdate', this.onUAVListUpdate.bind(this));
-        M.WS.addCallback('info', 'uavUpdate', this.onUAVUpdate.bind(this));
-        M.WS.addCallback('info', 'uavState', this.onUAVState.bind(this));
-        M.WS.addCallback('info', 'uavPose', this.onUAVPose.bind(this));
-        M.WS.addCallback('info', 'uavOdom', this.onUavOdom.bind(this));
-        M.WS.addCallback('info', 'uavDesiredPath', this.onDesiredPath.bind(this));
-        M.WS.addCallback('info', 'uavSensors', this.onUavSensors.bind(this));
+        M.WS.addCallback('info', 'uavInfo', this.onUavInfo.bind(this));
+        M.WS.addCallback('info', 'uavInfoSet', this.onUavInfoSet.bind(this));
 
         M.WS.addCallback('request', 'getUavList', this.onUAVListUpdate.bind(this));
     }
@@ -33,6 +29,20 @@ class UAVManager
     _callCallbacks(callbackList, ...args) {
         for (let i = 0; i < callbackList.length; i++) {
             callbackList[i][0](callbackList[i][1], ...args);
+        }
+    }
+
+    _callCallbackByParam(id, param, value) {
+        for (let i=0; i<this.uavparamCallbacks.length; i++) {
+            if (this.uavparamCallbacks[i][0] == param || this.uavparamCallbacks[i][0] == '*') {
+                this.uavparamCallbacks[i][1](id, param, value);
+            }
+        }
+    }
+
+    _callCallbacksParam(payload) {
+        for (let key in payload) {
+            this._callCallbackByParam(payload['id'], key, payload[key]);
         }
     }
 
@@ -45,36 +55,33 @@ class UAVManager
     }
 
     // #region WebScoket Callbacks
-    onUAVUpdate(payload) {
-        this.addUav(payload['id'], payload['state'], payload['pose'], payload['odom'], payload['desiredPath'], payload['sensors']);
+    onUavInfo(payload) {
+        if (!this.UAV_LIST.getList().includes(payload['id'])) {
+            this.UAV_LIST.addObject(payload['id'], payload);
+            this._callCallbacks(this.uavListCallbacks, payload['id']);
+        } else {
+            this.UAV_LIST.updateObject(payload['id'], payload);
+            this._callCallbacks(this.uavCallbacks, payload['id']);
+        }
+        this._callCallbacksParam(payload);
+    }
+
+    onUavInfoSet(payload) {
+        if (!this.UAV_LIST.getList().includes(payload['id'])) {
+            this.UAV_LIST.addObject(payload['id'], payload);
+            this._callCallbacks(this.uavListCallbacks, payload['id']);
+        } else {
+            this.UAV_LIST.addObject(payload['id'], payload);
+            this._callCallbacks(this.uavCallbacks, payload['id']);
+        }
+        this._callCallbacksParam(payload);
     }
 
     onUAVListUpdate(payload) {
-        this.addUavList(payload['uavList']);
-    }
-
-    onUAVState(payload) {
-        this.setUavState(payload['id'], payload['state']);
-    }
-
-    onUAVPose(payload) {
-        this.setUavPose(payload['id'], payload['pose']);
-    }
-
-    onUavOdom(payload) {
-        if (payload['odom'].length > 1) {
-            this.setUavOdom(payload['id'], payload['odom']);
+        for (let key in payload['uavList']) {
+            let uav = payload['uavList'][key];
+            this.onUavInfo(uav);
         }
-    }
-
-    onDesiredPath(payload) {
-        if (payload['desiredPath'].length > 1) {
-            this.setDesiredPath(payload['id'], payload['desiredPath']);
-        }
-    }
-
-    onUavSensors(payload) {
-        this.setUavSensors(payload['id'], payload['sensors']);
     }
     // #endregion
 
@@ -85,6 +92,10 @@ class UAVManager
 
     addUavListCallback(callback, ...args) {
         this.uavListCallbacks.push([callback, args]);
+    }
+
+    addUavParamCallback(param, callback, ...args) {
+        this.uavparamCallbacks.push([param, callback, args]);
     }
     
     getUavDictById(id)
@@ -109,64 +120,7 @@ class UAVManager
         this._callCallbacks(this.uavListCallbacks, id);
     }
 
-    addUavList(uavList) {
-        if (uavList.length > 0) {
-            let uavModify = [];
-            for (let i=0; i<uavList.length; i++) {
-                let id = uavList[i]['id'];
-                let state = uavList[i]['state'];
-                let pose = uavList[i]['pose'];
-                let odom = uavList[i]['odom'];
-                let desiredPath = uavList[i]['desiredPath'];
-                let sensors = uavList[i]['sensors'];
-
-                if (id in this.getUavList()) {
-                    this.getUavDictById(id).setUav(id, state, pose, odom, desiredPath, sensors);
-                } else {
-                    this.UAV_LIST.addObject(id, new UAV(id, state, pose, odom, desiredPath, sensors));
-                }
-                uavModify.push(id);
-            }
-            this._callCallbacks(this.uavListCallbacks, uavModify);
-        }
-    }
-
-    addUav(id, state, pose, odom=[], desiredPath=[], sensors={}) {
-        if (id in this.getUavList()) {
-            this.getUavDictById(id).setUav(id, state, pose, odom, desiredPath, sensors);
-        } else {
-            this.UAV_LIST.addObject(id, new UAV(id, state, pose, odom, desiredPath, sensors));
-        }
-        this._callCallbacks(this.uavCallbacks, id);
-    }
-
-    setUavState(id, state) {
-        this.getUavDictById(id).setUavState(state);
-        this._callCallbacks(this.uavCallbacks, id);
-    }
-
-    setUavPose(id, pose) {
-        this.getUavDictById(id).setUavPose(pose);
-        this._callCallbacks(this.uavCallbacks, id);
-    }
-
-    setUavOdom(id, odom) {
-        this.getUavDictById(id).setUavOdom(odom);
-        this._callCallbacks(this.uavCallbacks, id);
-    }
-
-    setUavDesiredPath(id, desiredPath) {
-        this.getUavDictById(id).setUavDesiredPath(desiredPath);
-        this._callCallbacks(this.uavCallbacks, id);
-    }
-
-    setUavSensors(id, sensors) {
-        this.getUavDictById(id).setUavSensors(sensors);
-        this._callCallbacks(this.uavCallbacks, id);
-    }
     // #endregion
-
-
 }
 
 class MissionManager

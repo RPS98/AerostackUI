@@ -89,6 +89,10 @@ class SmartList
         this.objectList.push(id);
         this.objectDict[id] = object;
     }
+
+    updateObject(id, objectInfo) {
+        this.objectDict[id] = Object.assign({}, this.objectDict[id], objectInfo);
+    }
 }
 
 

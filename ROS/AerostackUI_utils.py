@@ -1,98 +1,103 @@
 class UAV():
-    def __init__(self, id, state, pose, odom=[], desiredPath=[], sensors={}):
-        self.setUav(id, state, pose, odom, desiredPath, sensors)
+    def __init__(self, id, state, pose, odom=[], desired_path=[], sensors={}):
+        self.set_uav(id, state, pose, odom, desired_path, sensors)
         
-    def getInfo(self):
+    def get_info(self):
         return {
             'id': self.id,
             'state': self.state,
             'pose': self.pose,
             'odom': self.odom,
-            'desiredPath': self.desiredPath,
+            'desiredPath': self.desired_path,
             'sensors': self.sensors
         }
         
-    def setUav(self, id, state, pose, odom=[], desiredPath=[], sensors={}):
+    def set_uav(self, id, state, pose, odom=[], desired_path=[], sensors={}):
         self.id = id
         self.state = state
         self.pose = pose
         self.odom = odom
-        self.desiredPath = desiredPath
+        self.desired_path = desired_path
         self.sensors = sensors
 
-    def setUavState(self, state):
+    def set_uav_state(self, state):
         self.state = state
         
-    def setUavPose(self, pose):
+    def set_uav_pose(self, pose):
         self.pose = pose
 
-    def setUavOdom(self, odom):
+    def set_uav_odom(self, odom):
         self.odom = odom
 
-    def setUavDesiredPath(self, desiredPath):
-        self.desiredPath = desiredPath
+    def set_uav_desired_path(self, desired_path):
+        self.desired_path = desired_path
 
-    def setUavSensors(self, sensors):
+    def set_uav_sensors(self, sensors):
         self.sensors = sensors
-        
-
-class Mission():
-    def __init__(self, id, state, uavList, layers):
-        self.setMission(id, state, uavList, layers)
-        
-    def getInfo(self):
-        return {
-            'id': self.id,
-            'state': self.state,
-            'uavList': self.uavList,
-            'layers': self.layers
-        }
-        
-    def setMission(self, id, state, uavList, layers):
-        self.id = id
-        self.state = state
-        self.uavList = uavList
-        self.layers = layers
-        
-    def setMissionState(self, state):
-        self.state = state
-        
-    def setMissionUavList(self, uavList):
-        self.uavList = uavList
-        
-    def setMissionLayers(self, layers):
-        self.layers = layers
         
 
 class SmartList():
     def __init__(self):
-        self.objectList = []
-        self.objectDict = {}
+        self.object_list = []
+        self.object_dict = {}
         
-    def getList(self):
-        return self.objectList;
+    def get_list(self):
+        return self.object_list;
 
-    def getDict(self):
-        return self.objectDict;
+    def get_dict(self):
+        return self.object_dict;
     
-    def getDictById(self, id):
-        return self.objectDict[id]
+    def get_dict_by_id(self, id):
+        return self.object_dict[id]
 
-    def getDictInfo(self):
-        objectDict = []
-        for id in self.objectList:
-            objectDict.append(self.objectDict[id].getInfo())
-        return objectDict;
+    def get_dict_info(self):
+        object_dict = []
+        for id in self.object_list:
+            object_dict.append(self.object_dict[id].get_info())
+        return object_dict;
 
-    def getDictInfoById(self, id):
+    def get_dict_info_by_id(self, id):
         return {
-            id: self.objectDict[id].getInfo(),
+            id: self.object_dict[id].get_info(),
         }
 
-    def removeObject(self, id):
-        self.objectList.remove(id);
-        del self.objectDict[id];
+    def remove_object(self, id):
+        self.object_list.remove(id);
+        del self.object_dict[id];
 
-    def addObject(self, id, object):
-        self.objectList.append(id);
-        self.objectDict[id] = object;
+    def add_object(self, id, object):
+        self.object_list.append(id);
+        self.object_dict[id] = object;
+        
+        
+class UAV_MANAGER():
+    def __init__(self, sender):
+        self.UAV_LIST = SmartList()
+        self.sender = sender
+    
+    def add_uav(self, id, state, pose, odom=[], desired_path=[], sensors={}):
+        self.UAV_LIST.addObject(id, UAV(id, state, pose, odom, desired_path, sensors))
+        
+    def remove_uav(self, id):
+        self.remove_uav(id)
+        
+    def update_uav(self, info_dictionary, overwrite=False):
+        id = info_dictionary['id']
+        
+        if id in self.UAV_LIST.get_list():
+            for key in info_dictionary:
+                uav = self.UAV_LIST.get_dict_by_id(id)
+                uav[key] = info_dictionary[key]
+        
+        else:
+            if (info_dictionary['id'] and
+                info_dictionary['state'] and
+                info_dictionary['pose']):
+                
+                self.add_uav(info_dictionary['id'], info_dictionary)
+                
+            else:
+                raise Exception('Invalid UAV info')
+        
+        
+        

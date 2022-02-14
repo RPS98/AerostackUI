@@ -34,10 +34,6 @@ class DrawManager
                 draw = L.marker(values, drawOptions);
                 break;
             case 'Line':
-
-                console.log("IN codeDraw");
-                console.log(values)
-
                 draw = L.polyline(values, drawOptions);
                 break;
             case 'Circle':

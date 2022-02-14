@@ -1,71 +1,79 @@
 class UavDrawer
 {
     constructor() {
-        M.UAV_MANAGER.addUavCallback(this.updateUavCallback.bind(this));
-        M.UAV_MANAGER.addUavListCallback(this.updateUavListCallback.bind(this));
+        M.UAV_MANAGER.addUavParamCallback('pose', this.updateUavParam.bind(this));
+        M.UAV_MANAGER.addUavParamCallback('odom', this.updateUavParam.bind(this));
+        M.UAV_MANAGER.addUavParamCallback('desiredPath', this.updateUavParam.bind(this));
+        M.UAV_MANAGER.addUavParamCallback('state', this.updateUavParam.bind(this));
 
         this.uavListId = Object.assign([], M.UAV_MANAGER.getUavList());
         this.uavDict = Object.assign({}, M.UAV_MANAGER.getUavDict());
 
-        this.uavLayerDict = {};
+        this.UAV_LIST = new SmartList();
     }
 
-    drawUav(id) { 
-        let uav = M.UAV_MANAGER.getUavDictById(id);
-        
-        if (id in this.uavLayerDict) {
+    _checkLayer(id, name) {
+        if (name in this.UAV_LIST.getDictById(id)) {
 
-            if (uav['state'] != this.uavDict[id]['state']) {
-                this.uavLayerDict[id]['marker'].codeLayerDrawn.options['state'] = uav['state'];
+            console.log("Removing")
+            console.log(this.UAV_LIST.getDictById(id)[name].codeLayerDrawn)
+
+            this.UAV_LIST.getDictById(id)[name].codeLayerDrawn.remove();
+        }
+    }
+
+    updateUavParam(id, param, value) {
+        if ((this.UAV_LIST.getList().indexOf(id) === -1)) {
+            this.UAV_LIST.addObject(id, {'id': id});
+        }
+
+        if (param in this.UAV_LIST.getDictById(id)) {
+            switch (param) {
+                case 'pose':
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.setLatLng([value['lat'], value['lng']]);
+                    break;
+                case 'odom':
+                    this.UAV_LIST.getDictById(id)['layerOdom'].codeLayerDrawn.setLatLngs(value);
+                    break;
+                case 'desiredPath':
+                    this.UAV_LIST.getDictById(id)['layerDesiredPath'].codeLayerDrawn.setLatLngs(value);
+                    break;
+                case 'state':
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.options['state'] = value;
+                    break;
+                default:
+                    break;
             }
-            if (uav['pose'] != this.uavDict[id]['pose']) {
-                this.uavLayerDict[id]['marker'].codeLayerDrawn.setLatLng([uav['pose']['lat'], uav['pose']['lng']]);
-            }
-            if (uav['odom'] != this.uavDict[id]['odom']) {
-                this.uavLayerDict[id]['odom'].codeLayerDrawn.setLatLngs(uav['odom']);
-                // TODO: Update odom
-                //this.uavLayerDict[id]['odom'].codeLayerDrawn.setLatLng([uav['odom']['lat'], uav['odom']['lng']]);
-            }
-            if (uav['desiredPath'] != this.uavDict[id]['desiredPath']) {
-                console.log("Changing desiredPath");
-                console.log(uav['desiredPath']);
-                this.uavLayerDict[id]['desiredPath'].codeLayerDrawn.setLatLngs(uav['desiredPath']);
-                // TODO: Update desiredPath
-                // this.uavLayerDict[id]['desiredPath'].codeLayerDrawn.setLatLngs(uav['desiredPath']);
-            }
-            this.uavDict[id] = Object.assign(this.uavDict[id], uav);
 
         } else {
+            switch (param) {
+                case 'pose':
+                    this._checkLayer(id, 'layerPose');
+                    this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']]);
+                    break;
+                case 'odom':
+                    this._checkLayer(id, 'layerOdom'); 
+                    this.UAV_LIST.getDictById(id)['layerOdom'] = new Odom();
+                    this.UAV_LIST.getDictById(id)['layerOdom'].codeDraw(id, value);
+                    break;
+                case 'desiredPath':
+                    this._checkLayer(id, 'layerDesiredPath');
+                    this.UAV_LIST.getDictById(id)['layerDesiredPath'] = new DesiredPath();
+                    this.UAV_LIST.getDictById(id)['layerDesiredPath'].codeDraw(id, value);
+                    break;
+                case 'state':
+                    this._checkLayer(id, 'layerPose');
+                    let pose = M.UAV_MANAGER.getUavDictById(id)['pose'];
 
-            let layerPose = new UAVMarker();
-            layerPose.codeDraw(id, [uav['pose']['lat'], uav['pose']['lng']], {'state': uav['state']});
-
-            let layerOdom = new Odom();
-            console.log("Drawing odom");
-            console.log(uav['odom']);
-            layerOdom.codeDraw(id, uav['odom']);
-            
-            let layerDesiredPath = new DesiredPath();
-            console.log("Drawing desiredPath");
-            console.log(uav['desiredPath']);
-            layerDesiredPath.codeDraw(id, uav['desiredPath']);
-
-            this.uavLayerDict[id] = {
-                'marker': layerPose,
-                'odom': layerOdom,
-                'desiredPath': layerDesiredPath,
-            };
-            this.uavDict[id] = Object.assign({}, uav);
+                    this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [pose['lat'], pose['lng']]);
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.options['state'] = value;
+                default:
+                    break;
+            }
         }
-    }
-
-    updateUavCallback(myargs, args) {
-        this.drawUav(args);
-    }
-
-    updateUavListCallback(myargs, args) {
-        for (let i=0; i<args.length; i++) {
-            this.drawUav(args[i]);
-        }
+        this.UAV_LIST.getDictById(id)[param] = value;
+        
     }
 }

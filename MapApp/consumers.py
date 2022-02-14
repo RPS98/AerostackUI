@@ -1,27 +1,22 @@
 import json
 from subprocess import call
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from MapApp.consumers_utils import *
 
 
 class UAVManager():
     def __init__(self):
-        self.UAV_LIST = SmartList()
+        self.uav_id_list = []
+        self.uav_info_dict = {}
         
     async def initialize(self):
         await serverManager.addCallback('request', 'getUavList', self.onGetUavList)
-        
-        await serverManager.addCallback('info', 'uavListUpdate', self.onUAVListUpdate);
-        await serverManager.addCallback('info', 'uavUpdate', self.onUAVUpdate);
-        await serverManager.addCallback('info', 'uavState', self.onUAVState);
-        await serverManager.addCallback('info', 'uavPose', self.onUAVPose);
-        await serverManager.addCallback('info', 'uavOdom', self.onUavOdom);
-        await serverManager.addCallback('info', 'uavDesiredPath', self.onDesiredPath);
-        await serverManager.addCallback('info', 'uavSensors', self.onUavSensors);
+    
+        await serverManager.addCallback('info', 'uavInfo', self.on_uav_info)
+        await serverManager.addCallback('info', 'uavInfoSet', self.on_uav_info_set)
     
     async def onGetUavList(self, id, rol, msg):
         payload = {
-            'uavList': await self.getDictInfo()
+            'uavList': self.uav_info_dict
         }
         msg = {
             'type': 'request',
@@ -30,98 +25,26 @@ class UAVManager():
         }
         
         await serverManager.sendMessage(0, id, msg)
-        
-    async def onUAVListUpdate(self, id, rol, msg):
-        for uav in msg['payload']['uavList']:
-            await self.addUav(
-                uav['id'], 
-                uav['state'], 
-                uav['pose'], 
-                uav['odom'], 
-                uav['desiredPath'], 
-                uav['sensors']
-            )
+    
+    async def on_uav_info(self, id, rol, msg):
+        if msg['payload']['id'] in self.uav_id_list:    
+            self.uav_info_dict[msg['payload']['id']].update(msg['payload'])
             
-        payload = {
-            'uavList': await self.getDictInfo()
-        }
-        msg = {
-            'type': 'info',
-            'header': 'uavListUpdate',
-            'payload': payload
-        }
-
-        await serverManager.sendMessage(id, 'webpage', msg)
-    
-    async def onUAVUpdate(self, id, rol, msg):
-        
-        if msg['payload']['id'] in await self.getList():
-            uav = await self.getDictById(msg['payload']['id'])
-            await uav.setUavState(msg['payload']['state'])
-            await uav.setUavPose(msg['payload']['pose'])
-            await uav.setUavOdom(msg['payload']['odom'])
-            await uav.setUavDesiredPath(msg['payload']['desiredPath'])
-            await uav.setUavSensors(msg['payload']['sensors'])
         else:
-            uav = msg['payload']
-            await self.addUav(
-                uav['id'], 
-                uav['state'], 
-                uav['pose'], 
-                uav['odom'], 
-                uav['desiredPath'], 
-                uav['sensors']
-            )
-        
-        await serverManager.sendMessage(id, 'webpage', msg)
+            self.uav_id_list.append(msg['payload']['id'])
+            self.uav_info_dict[msg['payload']['id']] = msg['payload']
+            
+        await serverManager.sendMessage(0, 'webpage', msg)    
     
-    async def onUAVState(self, id, rol, msg):
-        uav = await self.getDictById(msg['payload']['id'])
-        await uav.setUavState(msg['payload']['state'])
-
-        await serverManager.sendMessage(id, 'webpage', msg)
-    
-    async def onUAVPose(self, id, rol, msg):
-        uav = await self.getDictById(msg['payload']['id'])
-        await uav.setUavPose(msg['payload']['pose'])
-
-        await serverManager.sendMessage(id, 'webpage', msg)
-    
-    async def onUavOdom(self, id, rol, msg):
-        uav = await self.getDictById(msg['payload']['id'])
-        await uav.setUavOdom(msg['payload']['odom'])
-
-        await serverManager.sendMessage(id, 'webpage', msg)
-    
-    async def onDesiredPath(self, id, rol, msg):
-        uav = await self.getDictById(msg['payload']['id'])
-        await uav.setUavDesiredPath(msg['payload']['desiredPath'])
-
-        await serverManager.sendMessage(id, 'webpage', msg)
-    
-    async def onUavSensors(self, id, rol, msg):
-        uav = await self.getDictById(msg['payload']['id'])
-        await uav.setUavSensors(msg['payload']['sensors'])
-
-        await serverManager.sendMessage(id, 'webpage', msg)
-    
-    async def getList(self):
-        return await self.UAV_LIST.getList()
-    
-    async def getDict(self):
-        return await self.UAV_LIST.getDict()
-    
-    async def getDictById(self, id):
-        return await self.UAV_LIST.getDictById(id)
-    
-    async def getDictInfo(self):
-        return await self.UAV_LIST.getDictInfo()
-    
-    async def getDictInfoById(self, id):
-        return await self.UAV_LIST.getDictInfoById(id)
-        
-    async def addUav(self, id, state, pose, odom=[], desiredPath=[], sensors={}):
-        await self.UAV_LIST.addObject(id, UAV(id, state, pose, odom, desiredPath, sensors))
+    async def on_uav_info_set(self, id, rol, msg):
+        if msg['payload']['id'] in self.uav_id_list:    
+            self.uav_info_dict[msg['payload']['id']] = msg['payload']
+            
+        else:
+            self.uav_id_list.append(msg['payload']['id'])
+            self.uav_info_dict[msg['payload']['id']] = msg['payload']
+            
+        await serverManager.sendMessage(0, 'webpage', msg)
 
 
 

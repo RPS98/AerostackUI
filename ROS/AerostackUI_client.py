@@ -82,7 +82,6 @@ class UAV:
         }
 
 
-
 # Asynchronous client to websockets server
 class WebSocketClient:
     """
@@ -104,9 +103,10 @@ class WebSocketClient:
         self.on_message_function = None
         self.new_mission_function = None
         
+        self.uav_id_list = []
+        
         self.msg_id = 0
         self.mission_id = 1 # Can not be 0
-        self.UAV_dict = {}
         self.missions_dict = {}
 
         # Execute run in a thread
@@ -279,59 +279,25 @@ class WebSocketClient:
         }
         self.send(msg, to)
     
-    def _sendUAVInfo(self, id):
-        """
-        Send UAV information to server by it id
+    def send_uav_info(self, uav_info, override=False):
+        
+        if not ('id' in uav_info):
+            raise Exception("UAV info must contain the key 'id'")
+        
+        id = uav_info['id']
+        
+        if (not (id in self.uav_id_list)):
+            self.uav_id_list.append(id)
+            if (not ('id' in uav_info and 'state' in uav_info and 'pose' in uav_info)):
+                raise Exception('Invalid UAV info. For the firt time an UAV is send, it must contain the keys "id", "state" and "pose"')
+        
+        payload = uav_info 
+        
+        if override:
+            self.sendInfo('uavInfoSet', payload)
+        else:
+            self.sendInfo('uavInfo', payload)
 
-        Args:
-            id (int): Id of the UAV
-        """
-        payload = self.UAV_dict[id].getInfo()
-        self.sendInfo('uavUpdate', payload)
-        
-    def newUAV(self, uav, send=True):
-        """
-        Add new UAV to the list with it state
-
-        Args:
-            uav (dict): UVA information with format {'id': id, 'state': state, 'pose': pose, 'odom': odom, 'desired_path': desired_path, 'sensors': sensors}
-            send (bool, optional): Flag to send it to the server. Defaults to True.
-        """
-        id = uav['id']
-        self.UAV_dict[id] = UAV(uav['id'], uav['state'], uav['pose'], uav['odom'], uav['desiredPath'], uav['sensors'])
-        self._sendUAVInfo(id)
-
-        
-    def newUAVList(self, UAV_dict):
-        """
-        Add new UAV list to the list with it state
-
-        Args:
-            UAV_dict (dict): Dict with format {'id': id, 'state': state, 'pose': pose, 'odom': odom, 'desired_path': desired_path, 'sensors': sensors}
-        """
-        for uav in UAV_dict:
-            self.newUAV(uav)
-        
-    def sendUavState(self, id, state):
-        payload = {'id': id, 'state': state}
-        self.sendInfo('uavState', payload)
-        
-    def sendUavPose(self, id, pose, to=None):
-        payload = {'id': id, 'pose': pose}
-        self.sendInfo('uavPose', payload, to)
-
-    def sendUavDesiredPath(self, id, path, to=None):
-        payload = {'id': id, 'desiredPath': path} 
-        self.sendInfo('uavDesiredPath', payload)
-        
-    def sendUavOdom(self, id, odom, to=None):
-        payload = {'id': id, 'odom': odom}
-        self.sendInfo('uavOdom', payload, to)
-        
-    def sendUavSensors(self, id, sensors, to=None):
-        payload = {'id': id, 'sensors': sensors}
-        self.sendInfo('uavSensors', payload, to)
-        
     #endregion
     
     #region Request communication
@@ -415,15 +381,15 @@ def main():
     print(client.mission_id)
     client.new_mission_function = newMissionCallback
     
+    """ 
     time.sleep(1)
 
-    client.newUAVList([
-        {'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.14376, 'lng': -16.50235, 'alt': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}},
-        {'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'alt': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 100, 'temperature': 20}} 
-    ])
+    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.14376, 'lng': -16.50235, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
+    client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 100, 'temperature': 20}})
     
-
+    """
     time.sleep(1)
+    
     
     lat = 28.14396
     lng = -16.50255
@@ -440,18 +406,15 @@ def main():
         [lat+incr*1500, lng+incr*1000],
     ]
     
-    client.newUAV(
-        {'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0}, 'odom': odom, 'desiredPath': desiredPath, 'sensors': {'battey': 70, 'temperature': 60}}
-    )
+    client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0}, 'odom': odom, 'desiredPath': desiredPath, 'sensors': {'battey': 70, 'temperature': 60}})
     
     
     while True:
-        time.sleep(1. / 30)
+        time.sleep(1. / 10)
         lat += incr
         lng += incr
         odom.append([lat, lng])
-        client.sendUavPose('UAV 2', {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0})
-        client.sendUavOdom('UAV 2', odom)
+        client.send_uav_info({'id': 'UAV 2', 'pose': {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0}, 'odom': odom})
 
     """
     time.sleep(2)
