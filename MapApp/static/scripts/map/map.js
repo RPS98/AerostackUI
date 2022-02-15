@@ -17,8 +17,6 @@ blocksClassList = [
 ]
 
 
-
-
 window.onload = function () {
 
     // TODO: Load parameters from a config file
@@ -34,12 +32,6 @@ window.onload = function () {
     );
     M.initialize();
 
-    /*
-    WEB_SOCKET_MANAGER = new WebSocketManager(
-        
-    );
-    */
-
     var sideBarsClass = [
         new Home(),
         new MissionPlanner(),
@@ -51,6 +43,7 @@ window.onload = function () {
     for (let i = 0; i < sideBarsClass.length; i++) {
         sideBarsClass[i];
     }
+
 };
 
 

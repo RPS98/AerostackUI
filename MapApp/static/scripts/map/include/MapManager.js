@@ -7,15 +7,13 @@ class UAVManager
         this.uavListCallbacks = []; // When a UAV is added or removed
         this.initialize();
 
-        this.Uav_icon_folder = '/static/scripts/map/img/custom_markers/';
-
-        this.Uav_icon_names = [
-                'cd_blue.png',
-                'cd_green.png',
-                'cd_orange.png',
-                'cd_yellow.png',
-                'cd_red.png',
-                'cd_violet.png',
+        this.colors = [
+            ['#DAE8FC', '#6C8EBF'], // blue
+            ['#D5E8D4', '#82B366'], // green
+            ['#FFE6CC', '#D79B00'], // orange
+            ['#FFF2CC', '#FFF2CC'], // yellow
+            ['#F8CECC', '#F8CECC'], // red
+            ['#E1D5E7', '#9673A6'], // violet
         ];
     }
 
@@ -46,12 +44,12 @@ class UAVManager
         }
     }
 
-    getIcon(id) {
-        return this.Uav_icon_folder + this.Uav_icon_names[this.getUavList().indexOf(id) % this.Uav_icon_names.length];
+    getIconColor(id) {
+        return this.colors[this.getUavList().indexOf(id) % this.colors.length];
     }
 
     getColor(id) {
-        return M.colors[this.getUavList().indexOf(id) % M.colors.length];
+        return M.colors[this.getUavList().indexOf(id) % M.colors.length][0];
     }
 
     // #region WebScoket Callbacks
@@ -317,15 +315,9 @@ class MapManager
         //     color: 'red',
         // });
 
-        this.MAP.on('pm:create', function (e) {
-
-            console.log("Layer created");
-            console.log(e.layer);
-
-            
+        this.MAP.on('pm:create', function (e) {            
             if ('color' in e.layer.pm.options) {
                 e.layer.setStyle({color: e.layer.pm.options['color']});
-
                 if ('color' in e.layer.options) {
                     e.layer.options['color'] = e.layer.options['color'];
                 }

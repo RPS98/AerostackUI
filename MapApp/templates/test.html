@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        {% load static %}
+
+        <!-- Meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        
+        <!-- Page header meta -->
+        <title>Aerostack</title>
+        <link rel="icon" href="{% static 'scripts/map/img/CVAR.ico' %}">
+        <meta name="description" content="">
+        <meta name="author" content="">
+    </head>
+
+    <body>
+
+        <!-- <object class="svgClass" type="image/svg+xml" data="/static/scripts/map/img/icons/PointOfInterest.svg"></object> -->
+
+        <script>
+            let element = document.createElement('object');
+
+            element.setAttribute('class', 'svgClass');
+            element.setAttribute('type', 'image/svg+xml');
+            element.setAttribute('data', '/static/scripts/map/img/icons/PointOfInterest.svg');
+
+            console.log(element.firstElementChild);
+
+            console.log(element.getSVGDocument()); //.getElementById("svgInternalID").setAttribute("fill", "red")
+
+        </script>
+    </body>
+
+</html>
+

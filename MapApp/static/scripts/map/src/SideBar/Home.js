@@ -35,7 +35,6 @@ class Home
 
     static goToCallback(zoom, input) {
         console.log('goToCallback');
-        console.log(map)
-        map.flyTo([input['map_center_lat'], input['map_center_long']], zoom);
+        M.MAP.flyTo([input['map_center_lat'], input['map_center_long']], zoom);
     }
 }

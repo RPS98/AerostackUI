@@ -37,8 +37,9 @@ class MissionPlanner
 
         // Buttons for draw mission
         let splitBtn = [];
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-takeOff`, {'class': 'btn btn-primary',}, `Take off <i class="fa-solid fa-t"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-PoI`,     {'class': 'btn btn-primary',}, `Point of interest  <i class="fas fa-map-marker-alt"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-WP`,      {'class': 'btn btn-primary',}, `WayPoint  <i class="fa-solid fa-location-pin"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-WP`,      {'class': 'btn btn-primary',}, `WayPoint  <i class="fa-solid fa-circle"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-path`,    {'class': 'btn btn-primary',}, `Path <i class="fas fa-long-arrow-alt-up"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-area`,    {'class': 'btn btn-primary',}, `Area <i class="fas fa-draw-polygon"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-cArea`,   {'class': 'btn btn-primary',}, `Circular area <i class="far fa-circle"></i>`));
@@ -80,14 +81,17 @@ class MissionPlanner
     }
 
     addDrawTypes() {
+        let fillColor = '#b3b3b3';
+        let borderColor = '#7f7f7f';
 
         let userDrawOptions = {'color': M.drawColor};
-        this.pointOfInterest = new PointOfInterest();
-        this.wayPoint = new WayPoint();
+        this.pointOfInterest = new PointOfInterest(fillColor, borderColor);
+        this.wayPoint = new WayPoint(fillColor, borderColor);
         this.path = new Path({}, userDrawOptions);
         this.area = new Area({}, userDrawOptions);
         this.carea = new CircularArea({}, userDrawOptions);
-        this.landPoint = new LandPoint();
+        this.landPoint = new LandPoint(fillColor, borderColor);
+        this.takeOffPont = new TakeOffPoint(fillColor, borderColor);
 
         this.addCallbacks();
     }
@@ -106,6 +110,7 @@ class MissionPlanner
         Utils.addButtonCallback(`${this.htmlId}-rotate`,  DrawController.drawRotate, []);
         
         // Buttons for draw mission
+        Utils.addButtonCallback(`${this.htmlId}-takeOff`,   this.userDrawCallbacks.bind(this), [this.takeOffPont]);
         Utils.addButtonCallback(`${this.htmlId}-PoI`,   this.userDrawCallbacks.bind(this), [this.pointOfInterest]);
         Utils.addButtonCallback(`${this.htmlId}-WP`,    this.userDrawCallbacks.bind(this), [this.wayPoint]);
         Utils.addButtonCallback(`${this.htmlId}-path`,  this.userDrawCallbacks.bind(this), [this.path]);

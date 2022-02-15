@@ -181,5 +181,35 @@ class Utils
     static onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
     }
+
+    static readFileText(path) {
+        let output = null;
+        fetch(path)
+        .then(response => response.text())
+        .then(data => {
+            output = data;
+            //console.log(output)
+        });
+        return output;
+    }
+
+    static readFileImage(path) {
+        let output = null;
+        fetch(path)
+        .then(response => response.blob())
+        .then(data => {
+            output = data;
+        });
+        return output;
+    }
       
+    static readFileJson(path) {
+        let output = null;
+        fetch(path)
+        .then(response => response.json())
+        .then(data => {
+            output = data;
+        });
+        return output;
+    }
  }
