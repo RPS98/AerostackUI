@@ -110,6 +110,18 @@ class Layer
         return this.info;
     }
 
+    getMissionId() {
+        return this.info.missionId;
+    }
+
+    getUavList() {
+        return this.info.uavList;
+    }
+
+    getHeight() {
+        return this.info.height;
+    }
+
     updateLayer(missionId, uavList, height='none') {
         this.info = {
             'missionId': missionId,

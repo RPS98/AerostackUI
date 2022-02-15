@@ -112,43 +112,6 @@ class WebSocketManager {
                 this.callbacksList[i]['callback'](payload);
             }
         }
-
-        // console.log("Message recived");
-        // console.log(msg);
-        /*
-        switch (msg['type']) {
-
-
-            case 'request':
-                payload = msg['payload'];
-                switch (msg['header']) {
-                    case 'getUAVList':
-
-                        M.addUav('PX 1', 'landed', { 'lat': 0, 'lng': 0, 'yaw': 0 }, [], [], {});
-
-                        //this.websocketinterface.newUAVList(payload);
-                        break;
-                    case 'getMissionList':
-
-                        M.addMission('Mission 1', 'landed', ['PX 1'], []);
-                        //this.websocketinterface.newMissionList(payload);
-                        break;
-                    case 'confirmMission':
-                        //this.websocketinterface.newMission(payload);
-                        break;
-                    default:
-                        console.log("Unknown request message");
-                        console.log(msg);
-                        break;
-                }
-                break;
-
-            default:
-                console.log("Unknown message");
-                console.log(msg);
-                break;
-        }
-        */
     }
 
     addCallback(type, header, callback) {
@@ -262,8 +225,15 @@ class WebSocketManager {
         this.sendRequest('getMissionList', {});
     }
 
-    requestConfirmMission(missionId) {
-        this.sendRequest('confirmMission', { 'missionId': missionId });
+    requestConfirmMission(missionId, uavList, layers) {
+        this.sendRequest(
+            'confirmMission', 
+            {
+                'missionId': missionId,
+                'uavList': uavList,
+                'layers': info
+            }
+        );
     }
 }
 

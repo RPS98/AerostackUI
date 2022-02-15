@@ -308,6 +308,29 @@ class MapManager
             '#F8CECC', // red
             '#E1D5E7', // violet
         ];
+
+        // Color grey
+        this.drawColor = '#B3B3B3';
+
+        // Default color
+        // M.MAP.pm.setPathOptions({
+        //     color: 'red',
+        // });
+
+        this.MAP.on('pm:create', function (e) {
+
+            console.log("Layer created");
+            console.log(e.layer);
+
+            
+            if ('color' in e.layer.pm.options) {
+                e.layer.setStyle({color: e.layer.pm.options['color']});
+
+                if ('color' in e.layer.options) {
+                    e.layer.options['color'] = e.layer.options['color'];
+                }
+            }
+        });
     }
 
     initialize() {
@@ -360,6 +383,10 @@ class MapManager
             container: 'sideBar-right',
             position: 'right',
         }).addTo(this.MAP);
+    }
+
+    getLayers() {
+        return L.PM.Utils.findLayers(this.MAP);
     }
     // #endregion
 }

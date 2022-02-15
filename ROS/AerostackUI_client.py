@@ -380,12 +380,13 @@ def main():
     client = WebSocketClient("ws://127.0.0.1:8000/ws/user/")
     print(client.mission_id)
     client.new_mission_function = newMissionCallback
-    
-    """ 
+ 
     time.sleep(1)
 
     client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.14376, 'lng': -16.50235, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
     client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 100, 'temperature': 20}})
+    
+ 
     
     """
     time.sleep(1)
@@ -416,7 +417,7 @@ def main():
         odom.append([lat, lng])
         client.send_uav_info({'id': 'UAV 2', 'pose': {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0}, 'odom': odom})
 
-    """
+    
     time.sleep(2)
     client.sendUAVPose('UAV 0', 'fly', {'lat': 28.14406, 'lng': -16.50265, 'alt': 0, 'yaw': 0})
     

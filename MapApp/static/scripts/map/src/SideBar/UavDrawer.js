@@ -14,10 +14,6 @@ class UavDrawer
 
     _checkLayer(id, name) {
         if (name in this.UAV_LIST.getDictById(id)) {
-
-            console.log("Removing")
-            console.log(this.UAV_LIST.getDictById(id)[name].codeLayerDrawn)
-
             this.UAV_LIST.getDictById(id)[name].codeLayerDrawn.remove();
         }
     }
