@@ -1,19 +1,21 @@
 
 blocksClassList = [
     ['button', Button],
+    ['checkBox', CheckBox],
+    ['checkBoxes', CheckBoxes],
     ['collapse', Collapse],
     ['div', Div],
     ['dropDown', DropDown],
     ['dropDownBtn', DropDownBtn],
     ['dropDownExpand', DropDownExpand],
-    ['form', Form],
+    // ['form', Form],
     ['input', Input],
     ['label', Label],
-    ['li', Li],
-    ['row', Row],
+    // ['li', Li],
+    // ['row', Row],
     // ['rowForm', RowForm],
     ['splitDivs', SplitDivs],
-    ['ul', Ul],
+    // ['ul', Ul],
 ]
 
 

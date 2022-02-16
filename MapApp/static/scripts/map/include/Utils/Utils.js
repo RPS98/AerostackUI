@@ -90,7 +90,16 @@ class HTMLUtils
 
         let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
         HTMLUtils.addToExistingElement(`${id}-DropDown-menu`, [dropDownExpand]);
-    }   
+    }
+
+    static updateCheckBoxes(idCheckBoxes, list) {
+        let checkBoxes = document.getElementById(`${idCheckBoxes}`);
+        checkBoxes.innerHTML = '';
+        for (let i=0; i<list.length; i++) {
+            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox-${list[i]}`, {}, list[i]);
+            HTMLUtils.addToExistingElement(`${idCheckBoxes}`, [checkBox]);
+        }
+    }
 }
 
 
