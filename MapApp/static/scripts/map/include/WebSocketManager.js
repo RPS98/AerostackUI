@@ -229,9 +229,10 @@ class WebSocketManager {
         this.sendRequest(
             'confirmMission', 
             {
+                'status': 'request',
                 'missionId': missionId,
                 'uavList': uavList,
-                'layers': info
+                'layers': layers
             }
         );
     }

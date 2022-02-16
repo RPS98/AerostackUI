@@ -20,11 +20,11 @@ class CheckBox extends HTMLUtils
 
         input.setAttribute('type', 'checkbox');
         input.setAttribute('class', 'form-check-input');
-        input.setAttribute('id', `${content.id}-Input${content.name}`);
+        input.setAttribute('id', `${content.id}-Input-${content.name}`);
 
         label.setAttribute('class', 'badge bg-primary text-wrap fs-6');
-        label.setAttribute('for',  `${content.id}-Input${content.name}`);
-        label.setAttribute('id', `${content.id}-Label${content.name}`);
+        label.setAttribute('for',  `${content.id}-Input-${content.name}`);
+        label.setAttribute('id', `${content.id}-Label-${content.name}`);
         label.setAttribute('style', 'display:inline-block; width:90%');
         
         label.innerHTML = content.name;

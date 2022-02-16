@@ -76,8 +76,8 @@ class UAVManager
     }
 
     onUAVListUpdate(payload) {
-        for (let key in payload['uavList']) {
-            let uav = payload['uavList'][key];
+        for (let key in payload['list']) {
+            let uav = payload['list'][key];
             this.onUavInfo(uav);
         }
     }

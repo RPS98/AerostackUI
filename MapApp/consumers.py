@@ -3,48 +3,78 @@ from subprocess import call
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 
-class UAVManager():
-    def __init__(self):
-        self.uav_id_list = []
-        self.uav_info_dict = {}
+class InfoManager():
+    def __init__(self, getList, getInfo, setInfo):
+        self.id_list = []
+        self.info_dict = {}
+        
+        self.getList = getList
+        self.getInfo = getInfo
+        self.setInfo = setInfo
         
     async def initialize(self):
-        await serverManager.addCallback('request', 'getUavList', self.onGetUavList)
+        await serverManager.addCallback('request', self.getList, self.on_get_list)
     
-        await serverManager.addCallback('info', 'uavInfo', self.on_uav_info)
-        await serverManager.addCallback('info', 'uavInfoSet', self.on_uav_info_set)
+        await serverManager.addCallback('info', self.getInfo, self.on_info)
+        await serverManager.addCallback('info', self.setInfo , self.on_info_set)
     
-    async def onGetUavList(self, id, rol, msg):
+    async def on_get_list(self, id, rol, msg):
         payload = {
-            'uavList': self.uav_info_dict
+            'list': self.info_dict
         }
         msg = {
             'type': 'request',
-            'header': 'getUavList',
+            'header': self.getList,
             'payload': payload
         }
         
         await serverManager.sendMessage(0, id, msg)
     
-    async def on_uav_info(self, id, rol, msg):
-        if msg['payload']['id'] in self.uav_id_list:    
-            self.uav_info_dict[msg['payload']['id']].update(msg['payload'])
+    async def on_info(self, id, rol, msg):
+        if msg['payload']['id'] in self.id_list:    
+            self.info_dict[msg['payload']['id']].update(msg['payload'])
             
         else:
-            self.uav_id_list.append(msg['payload']['id'])
-            self.uav_info_dict[msg['payload']['id']] = msg['payload']
+            self.id_list.append(msg['payload']['id'])
+            self.info_dict[msg['payload']['id']] = msg['payload']
             
         await serverManager.sendMessage(0, 'webpage', msg)    
     
-    async def on_uav_info_set(self, id, rol, msg):
-        if msg['payload']['id'] in self.uav_id_list:    
-            self.uav_info_dict[msg['payload']['id']] = msg['payload']
+    async def on_info_set(self, id, rol, msg):
+        if msg['payload']['id'] in self.id_list:    
+            self.info_dict[msg['payload']['id']] = msg['payload']
             
         else:
-            self.uav_id_list.append(msg['payload']['id'])
-            self.uav_info_dict[msg['payload']['id']] = msg['payload']
+            self.id_list.append(msg['payload']['id'])
+            self.info_dict[msg['payload']['id']] = msg['payload']
             
         await serverManager.sendMessage(0, 'webpage', msg)
+
+
+class UAVManager(InfoManager):
+    def __init__(self):
+        super().__init__('getUavList', 'uavInfo', 'uavInfoSet')
+
+
+class MissionManager(InfoManager):
+    def __init__(self):
+        super().__init__('getMissionList', 'missionInfo', 'missionInfoSet')
+        
+    async def initialize(self):
+        await super().initialize()
+        await serverManager.addCallback('request', 'confirmMission', self.on_confirm_mission)
+        
+    async def on_confirm_mission(self, id, rol, msg):
+        print('UAV Manager Confirm mission')
+        if msg['payload']['status'] == 'request':
+            await serverManager.sendMessage(0, 'manager', msg)
+            
+        elif msg['payload']['status'] == 'confirm':
+            await super().on_info_set(id, rol, msg)
+            await serverManager.sendMessage(0, 'webpage', msg)
+            
+        elif msg['payload']['status'] == 'rejected':
+            await serverManager.sendMessage(0, msg['to'], msg)
 
 
 

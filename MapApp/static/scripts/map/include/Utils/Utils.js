@@ -96,7 +96,7 @@ class HTMLUtils
         let checkBoxes = document.getElementById(`${idCheckBoxes}`);
         checkBoxes.innerHTML = '';
         for (let i=0; i<list.length; i++) {
-            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox-${list[i]}`, {}, list[i]);
+            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox`, {}, list[i]);
             HTMLUtils.addToExistingElement(`${idCheckBoxes}`, [checkBox]);
         }
     }

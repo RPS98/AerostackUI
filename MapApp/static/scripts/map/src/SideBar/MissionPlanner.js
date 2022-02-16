@@ -8,11 +8,12 @@ class MissionPlanner
         M.MISSION_MANAGER.addMissionListCallback(this.updateMissionListCallback.bind(this), this);
 
         this.selectedMission = null;
-        this.selectedUavs = [];
-        this.selectedHeight = [];
+        this.selectedUavs = {};
+        this.selectedHeight = [0, 70];
 
-        this.addPlannerHTML();
         this.addDrawTypes();
+        this.addPlannerHTML();
+        
     }
 
     _checkInitalize() {
@@ -23,6 +24,20 @@ class MissionPlanner
     }
 
     // #region Planner
+    addDrawTypes() {
+        let fillColor = '#b3b3b3';
+        let borderColor = '#7f7f7f';
+
+        let userDrawOptions = {'color': M.drawColor};
+        this.pointOfInterest = new PointOfInterest(fillColor, borderColor);
+        this.wayPoint = new WayPoint(fillColor, borderColor);
+        this.path = new Path({}, userDrawOptions);
+        this.area = new Area({}, userDrawOptions);
+        this.carea = new CircularArea({}, userDrawOptions);
+        this.landPoint = new LandPoint(fillColor, borderColor);
+        this.takeOffPont = new TakeOffPoint(fillColor, borderColor);
+    }
+
     addPlannerHTML() {
         let mPlannerList = [];
 
@@ -100,27 +115,13 @@ class MissionPlanner
         document.addEventListener('keydown', function(e){
             switch (e.key) {
                 case 'Escape':
-                    console.log('ESC pressed');
+                    //console.log('ESC pressed');
                     DrawController.drawMouse();
                     break;
                 default:
                     break;
             }
         });
-    }
-
-    addDrawTypes() {
-        let fillColor = '#b3b3b3';
-        let borderColor = '#7f7f7f';
-
-        let userDrawOptions = {'color': M.drawColor};
-        this.pointOfInterest = new PointOfInterest(fillColor, borderColor);
-        this.wayPoint = new WayPoint(fillColor, borderColor);
-        this.path = new Path({}, userDrawOptions);
-        this.area = new Area({}, userDrawOptions);
-        this.carea = new CircularArea({}, userDrawOptions);
-        this.landPoint = new LandPoint(fillColor, borderColor);
-        this.takeOffPont = new TakeOffPoint(fillColor, borderColor);
     }
 
     // #region Callbacks
@@ -136,18 +137,53 @@ class MissionPlanner
         args[0].userDraw({'height': this.selectedHeight});
     }
 
-    confirmCallback(args=[]) {
+    // #endregion
+
+    // #endregion
+
+    // #region Confirm
+    addConfirmHTML() {
+        let mConfirmList = [];
+
+        // Mission Dropdown list
+        let missionList = ['New mission'];
+        let missionListTotal = missionList.concat(M.MISSION_MANAGER.getMissionList());
+        mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
+
+        // UAV picker
+        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, M.UAV_MANAGER.getUavList());
+        mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
+
+
+        // Buttons for confirm mission
+        let splitBtnConfirm = [];
+        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-SaveMission`, {'class': 'btn btn-primary'},  'Save Mission'));
+        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, {'class': 'btn btn-success'},  'Confirm mission'));
+        mConfirmList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtnConfirm, {'class': 'row m-1'}));
+        
+        // Confirm collapse
+        let missionConfirmCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-ConfirmCollapse`, {}, 'Confirm', false, mConfirmList);
+
+        HTMLUtils.addToExistingElement(`${this.htmlId}`, [missionConfirmCollapse]);
+
+        this.addConfirmCallbacks();
+    }
+
+    addConfirmCallbacks() {
+        Utils.addButtonCallback(`${this.htmlId}-confirm`, this.confirmBtnCallback.bind(this), []);
+    }
+
+    confirmBtnCallback(args=[]) {
         // TODO: websocket -> send mission to server
         console.log('confirm mission');
         let layers = M.getLayers();
 
         console.log(layers);
 
-        /*
         let drawLayers = [];
         for (let i=0; i<layers.length; i++) {
             let options = layers[i].pm.options;
-            if (options.status == 'draw' && options.missionId == this.layer.getMissionId()) {
+            if (options.status == 'draw') {
 
                 let layer_info = {
                     'name': options.name,
@@ -180,40 +216,7 @@ class MissionPlanner
                 drawLayers
             );      
         }
-        */
-    }
-    // #endregion
-
-    // #endregion
-
-    // #region Confirm
-    addConfirmHTML() {
-        let mConfirmList = [];
-
-        // Mission Dropdown list
-        let missionList = ['New mission'];
-        let missionListTotal = missionList.concat(M.MISSION_MANAGER.getMissionList());
-        mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
-
-        // UAV picker
-        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, M.UAV_MANAGER.getUavList());
-        mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
-
-
-        // Buttons for confirm mission
-        let splitBtnConfirm = [];
-        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-SaveMission`, {'class': 'btn btn-primary'},  'Save Mission'));
-        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, {'class': 'btn btn-success'},  'Confirm mission'));
-        mConfirmList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtnConfirm, {'class': 'row m-1'}));
         
-        // Confirm collapse
-        let missionConfirmCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-ConfirmCollapse`, {}, 'Confirm', false, mConfirmList);
-
-        HTMLUtils.addToExistingElement(`${this.htmlId}`, [missionConfirmCollapse]);
-    }
-
-    addConfirmCallbacks() {
-        Utils.addButtonCallback(`${this.htmlId}-confirm`, this.confirmCallback, []);
     }
 
     // #region Callbacks
@@ -224,6 +227,24 @@ class MissionPlanner
     updateUavListCallback(myargs, args) {
         this._checkInitalize();
         HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker`, M.UAV_MANAGER.getUavList());
+
+        let uavList = M.UAV_MANAGER.getUavList();
+        this.selectedUavs = {};
+        for (let i=0; i<uavList.length; i++) {
+            this.selectedUavs[uavList[i]] = false;
+            let input = document.getElementById(`${this.htmlId}-UAVPicker-checkBox-Input-${uavList[i]}`);
+
+            let callback = this.clickUavListCallback.bind(this);
+
+            input.addEventListener('change', function() {
+
+                let id = this.id.split('-');
+                let uavId = id[id.length-1];
+                let value = this.checked;
+
+                callback(uavId, value);
+            });
+        }
     }
 
     updateMissionListCallback(myargs, args) {
@@ -239,10 +260,8 @@ class MissionPlanner
         this.selectedMission = e.innerHTML;
     }
 
-    clickUavListCallback(e, args) {
-        let button = document.getElementById(`${this.htmlId}-UAVList-DropDown-Btn`);
-        button.innerHTML = e.innerHTML;
-        this.selectedUavs = e.innerHTML;
+    clickUavListCallback(uavId, value) {
+        this.selectedUavs[uavId] = value;
     }
     // #endregion
     // #endregion
