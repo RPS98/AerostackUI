@@ -92,11 +92,13 @@ class ServerManager():
         self.callbacksList = [] # List of callbacks to be executed when a message is received
         self.intialize = False
         self.UAV_MANAGER = UAVManager()
+        self.MISSION_MANAGER = MissionManager()
         
         
     async def onConnect(self):
         if not self.intialize:
             await self.UAV_MANAGER.initialize()
+            await self.MISSION_MANAGER.initialize()
             self.intialize = True
 
     async def clientDisconnect(self, id, rol):

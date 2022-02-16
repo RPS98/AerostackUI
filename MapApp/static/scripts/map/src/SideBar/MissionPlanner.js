@@ -7,7 +7,7 @@ class MissionPlanner
         M.UAV_MANAGER.addUavListCallback(this.updateUavListCallback.bind(this), this);
         M.MISSION_MANAGER.addMissionListCallback(this.updateMissionListCallback.bind(this), this);
 
-        this.selectedMission = null;
+        this.selectedMission = 'New Mission';
         this.selectedUavs = {};
         this.selectedHeight = [0, 70];
 

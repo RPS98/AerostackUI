@@ -107,7 +107,6 @@ class WebSocketClient:
         
         self.msg_id = 0
         self.mission_id = 1 # Can not be 0
-        self.missions_dict = {}
 
         # Execute run in a thread
         self.thread = threading.Thread(target=self.run)
@@ -320,59 +319,32 @@ class WebSocketClient:
     
     def confirmMission(self, new_mission_id, status, layers, old_msg, extra=[]):
         payload = {
-            'missionId': new_mission_id, 
+            'id': new_mission_id, 
             'status': status,
             'layers': layers,
-            'oldMissionId': old_msg['payload']['missionId'],
+            'oldId': old_msg['payload']['id'],
             'extra': extra,
             'author': old_msg['id']
         }
 
         self.sendRequest('confirmMission', payload, to=old_msg['id'])
-        self.missions_dict[mission_id] = payload
     
     
     #endregion
 
 
-mission_id = 1
-
 def newMissionCallback(client, msg):
-    print(f"- Callback: Received: {msg}")
-    confirm = True
+    print(f"- Callback: Received mission:")
+    print(msg)
+             
+    client.confirmMission(
+        client.mission_id,
+        'confirmed',
+        msg['payload']['layers'],
+        msg
+    )
     
-    if msg["type"] == "request":
-        if msg["header"] == "confirmMission":
-            
-            layers = msg["payload"]["layers"]
-            
-            for layer in layers:
-                # If layer status is confirmed yet or 
-                # layer Id is 0 -> New mission or
-                # layer type is UAVMarker or UAVPath
-                print(layer[4])
-                if  not (layer[0] == 'draw' and layer[1] == 0 and (layer[4] == 'UAVMarker' or layer[4] == 'UAVPath' or layer[4] == 'UAVLandZone')):
-                    confirm = False
-            
-            if confirm:
-                       
-                client.confirmMission(
-                    client.mission_id,
-                    'confirmed',
-                    msg['payload']['layers'],
-                    msg
-                )
-                
-                client.mission_id += 1
-                
-            else:
-                client.confirmMission(
-                    0, # Implies mission is not valid
-                    'denied',
-                    msg['payload']['layers'],
-                    msg,
-                    extra='Some layers are not Marker or Path',
-                )
+    client.mission_id += 1
                 
 
 def main():    

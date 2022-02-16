@@ -230,7 +230,7 @@ class WebSocketManager {
             'confirmMission', 
             {
                 'status': 'request',
-                'missionId': missionId,
+                'id': missionId,
                 'uavList': uavList,
                 'layers': layers
             }
