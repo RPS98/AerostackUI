@@ -178,8 +178,6 @@ class MissionPlanner
         console.log('confirm mission');
         let layers = M.getLayers();
 
-        console.log(layers);
-
         let drawLayers = [];
         for (let i=0; i<layers.length; i++) {
             let options = layers[i].pm.options;
@@ -209,7 +207,15 @@ class MissionPlanner
             }   
         }
 
-        if (drawLayers.length > 0) {
+        let uavList = [];
+        for (let key in this.selectedUavs) {
+            if (this.selectedUavs[key]) {
+                uavList.push(key);
+            }
+        }
+
+
+        if (drawLayers.length > 0 && uavList.length > 0) {
             M.WS.requestConfirmMission(
                 this.selectedMission,
                 this.selectedUavs,

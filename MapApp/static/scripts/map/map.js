@@ -32,6 +32,7 @@ window.onload = function () {
         map_zoom,
         connectionString
     );
+    
     M.initialize();
 
     var sideBarsClass = [
@@ -45,7 +46,6 @@ window.onload = function () {
     for (let i = 0; i < sideBarsClass.length; i++) {
         sideBarsClass[i];
     }
-
 };
 
 

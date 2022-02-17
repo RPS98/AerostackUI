@@ -61,10 +61,10 @@ class WebSocketManager {
         this.id = null;
 
         this.callbacksList = [];
-        this.addCallback('basic', 'handshake', this.onHandshake);
-        this.addCallback('basic', 'getId', this.onGetId);
-        this.addCallback('basic', 'ping', this.onPing);
-        this.addCallback('basic', 'getClientsList', this.onGetClientsList);
+        this.addCallback('basic', 'handshake', this.onHandshake.bind(this));
+        this.addCallback('basic', 'getId', this.onGetId.bind(this));
+        this.addCallback('basic', 'ping', this.onPing.bind(this));
+        this.addCallback('basic', 'getClientsList', this.onGetClientsList.bind(this));
     }
 
     /**
@@ -102,8 +102,8 @@ class WebSocketManager {
      * @param {object} webSocket - The WebSocket object.
      */
     onMessage(msg) {
-        // console.log("Message received");
-        // console.log(msg);
+        console.log("Message received");
+        console.log(msg);
         
         let payload = null;
         for (let i = 0; i < this.callbacksList.length; i++) {
@@ -130,7 +130,7 @@ class WebSocketManager {
     send(msg, to = null) {
         // If the client is logged in, add its id to the message and the destination
         if (this.id != null) {
-            msg['id'] = this.id;
+            msg['from'] = this.id;
 
             if (to != null) {
                 msg['to'] = to;
@@ -138,7 +138,6 @@ class WebSocketManager {
                 msg['to'] = 0; // 0 means server id
             }
         }
-
         this.webSocket.send(JSON.stringify({ 'message': msg }));
     }
 
@@ -191,8 +190,8 @@ class WebSocketManager {
 
     onHandshake(payload) {
         if (payload['response'] == 'success') {
-            console.log("Handshake");
             this.id = payload['id'];
+            console.log("Handshake: id=" + this.id);
         } else {
             throw new Error("Handshake failed");
         }

@@ -1,7 +1,9 @@
+from site import ENABLE_USER_SITE
 import websocket
 import threading
 import json
 import time
+
 
 def nullFunction(*args):
     """
@@ -155,7 +157,7 @@ class WebSocketClient:
         """
         This function is called when websocket receives a message and manage it
         """
-        print(f"Message recived: {message}")
+        # print(f"Message recived: {message}")
         msg= json.loads(message)['message']
         
         # Communication with server
@@ -196,11 +198,12 @@ class WebSocketClient:
             msg (dict): JSON-decoded message
             to (int, optional): Id of the destination client. Defaults to None.
         """
+        #print("Message sent: " + message)
         msg['msg_id'] = self.msg_id
         self.msg_id+=1
             
         if self.id is not None:
-            msg['id'] = self.id
+            msg['from'] = self.id
             if to is None:
                 msg['to'] = 0 # Server id
             else:
@@ -209,11 +212,10 @@ class WebSocketClient:
         message = json.dumps({'message': msg})
             
         self.ws.send('%s' % message)
-        # print("Message sent: " + message)
     
     #region Basic communication
     
-    def sendBasic(self, header, payload, to=None):
+    def sendBasic(self, header, payload):
         """
         Send a basic message to server
 
@@ -228,7 +230,7 @@ class WebSocketClient:
             'status': 'request',
             'payload': payload
         }
-        self.send(msg, to)
+        self.send(msg, 'server') # To server
     
     def handshake(self):
         """
@@ -276,7 +278,7 @@ class WebSocketClient:
             'header': header,
             'payload': payload
         }
-        self.send(msg, to)
+        self.send(msg, 'webpage') # To all webpages
     
     def send_uav_info(self, uav_info, override=False):
         
@@ -316,18 +318,20 @@ class WebSocketClient:
             'payload': payload
         }
         self.send(msg, to)
+        print("Sending request")
+        print(msg)
     
     def confirmMission(self, new_mission_id, status, layers, old_msg, extra=[]):
+        print("Sending confirmMission response")
         payload = {
             'id': new_mission_id, 
             'status': status,
             'layers': layers,
             'oldId': old_msg['payload']['id'],
             'extra': extra,
-            'author': old_msg['id']
+            'author': old_msg['from']
         }
-
-        self.sendRequest('confirmMission', payload, to=old_msg['id'])
+        self.sendRequest('confirmMission', payload, to=old_msg['from'])
     
     
     #endregion
@@ -336,11 +340,33 @@ class WebSocketClient:
 def newMissionCallback(client, msg):
     print(f"- Callback: Received mission:")
     print(msg)
+    
+    confirm = 'confirmed'
+    extra = []
+    
+    if msg['payload']['status'] == 'request':
+        if len(msg['payload']['uavList']) == 0:
+            confirm = 'rejected'
+            extra.append('No UAVs')
+        
+        if len(msg['payload']['layers']) == 0:
+            confirm = 'rejected'
+            extra.append('No layers')
+            
+        if msg['payload']['id'] != 'New Mission':
+            confirm = 'rejected'
+            extra.append('Invalid id, only "New Mission" is allowed for now :)')
              
+
+    layers = []
+    for layer in msg['payload']['layers']:
+        layer['uavList'] = msg['payload']['uavList']
+        layers.append(layer)
+
     client.confirmMission(
         client.mission_id,
-        'confirmed',
-        msg['payload']['layers'],
+        confirm,
+        layers,
         msg
     )
     
@@ -356,8 +382,8 @@ def main():
     time.sleep(1)
 
     client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.14376, 'lng': -16.50235, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
-    client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 100, 'temperature': 20}})
-    client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': 28.14396, 'lng': -16.50255, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
+    #client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 100, 'temperature': 20}})
+    #client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': 28.14396, 'lng': -16.50255, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
  
     
     """

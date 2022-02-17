@@ -17,12 +17,14 @@ class InfoManager():
     
         await serverManager.addCallback('info', self.getInfo, self.on_info)
         await serverManager.addCallback('info', self.setInfo , self.on_info_set)
-    
+        
     async def on_get_list(self, id, rol, msg):
         payload = {
             'list': self.info_dict
         }
         msg = {
+            'from': 0,
+            'to': id,
             'type': 'request',
             'header': self.getList,
             'payload': payload
@@ -38,7 +40,7 @@ class InfoManager():
             self.id_list.append(msg['payload']['id'])
             self.info_dict[msg['payload']['id']] = msg['payload']
             
-        await serverManager.sendMessage(0, 'webpage', msg)    
+        await serverManager.sendMessage(msg['from'], msg['to'], msg)    
     
     async def on_info_set(self, id, rol, msg):
         if msg['payload']['id'] in self.id_list:    
@@ -48,7 +50,7 @@ class InfoManager():
             self.id_list.append(msg['payload']['id'])
             self.info_dict[msg['payload']['id']] = msg['payload']
             
-        await serverManager.sendMessage(0, 'webpage', msg)
+        await serverManager.sendMessage(msg['from'], msg['to'], msg)
 
 
 class UAVManager(InfoManager):
@@ -65,16 +67,17 @@ class MissionManager(InfoManager):
         await serverManager.addCallback('request', 'confirmMission', self.on_confirm_mission)
         
     async def on_confirm_mission(self, id, rol, msg):
-        print('UAV Manager Confirm mission')
         if msg['payload']['status'] == 'request':
-            await serverManager.sendMessage(0, 'manager', msg)
+            print("ON CONFIRM MISSION -> REQUEST")
+            print(msg)
+            await serverManager.sendMessage(msg['from'], 1, msg)
             
-        elif msg['payload']['status'] == 'confirm':
+        elif msg['payload']['status'] == 'confirmed':
             await super().on_info_set(id, rol, msg)
-            await serverManager.sendMessage(0, 'webpage', msg)
+            await serverManager.sendMessage(1, 'webpages', msg)
             
         elif msg['payload']['status'] == 'rejected':
-            await serverManager.sendMessage(0, msg['to'], msg)
+            await serverManager.sendMessage(1, msg['to'], msg)
 
 
 
@@ -367,10 +370,12 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
                 'id': self.id
             }
             response = {
+                'from': 0,
+                'to': self.id,
                 'type': 'basic',
                 'header': 'handshake',
                 'status': 'response',
-                'payload': payload
+                'payload': payload,
             }
             
             await self.addToGroup(group_name='broadcast')
@@ -388,6 +393,8 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
                 'id': self.id
             }
             response = {
+                'from': 0,
+                'to': self.id,
                 'type': 'basic',
                 'header': 'handshake',
                 'status': 'response',
@@ -405,6 +412,8 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
             'id': self.id
         }        
         response = {
+            'from': 0,
+            'to': self.id,
             'type': 'basic',
             'header': 'getId',
             'status': 'response',
@@ -420,6 +429,8 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
         print(f"Ping received from {self.id}")
 
         response = {
+            'from': 0,
+            'to': self.id,
             'type': 'basic',
             'header': 'ping',
             'status': 'response',
@@ -436,6 +447,8 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
             'clientList': serverManager.getClientList()
         }
         response = {
+            'from': 0,
+            'to': self.id,
             'type': 'basic',
             'header': 'getClientsList',
             'status': 'response',
@@ -444,7 +457,3 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
 
         await self.sendMessage(response)
     #endregion
-
-
-
-        

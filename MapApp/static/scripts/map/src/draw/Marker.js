@@ -415,10 +415,16 @@ class UAVMarker extends Marker
             iconAnchor: [15, 15],
         });
 
-        //options['markerStyle'] = {'icon': newIcon};
         options['icon'] = newIcon;
-
+        options['dragging'] = false;
         return super.codeDraw(values, options);
+
+        //options['markerStyle'] = {'icon': newIcon};
+        //options['draggable'] = false;
+        //options['markerEditable'] = false;
+        //options['pmIgnore'] = true;
+        //options['allowIntersection'] = true;
+        //marker.dragging.disable();
     }
 
     showInfo() {

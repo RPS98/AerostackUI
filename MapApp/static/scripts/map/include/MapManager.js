@@ -314,7 +314,7 @@ class MapManager
         // M.MAP.pm.setPathOptions({
         //     color: 'red',
         // });
-
+        
         this.MAP.on('pm:create', function (e) {            
             if ('color' in e.layer.pm.options) {
                 e.layer.setStyle({color: e.layer.pm.options['color']});
@@ -323,6 +323,28 @@ class MapManager
                 }
             }
         });
+
+        /*
+        this.MAP.on("layeradd",function(e){
+            let layers = M.getLayers();
+            console.log("In layeradd");
+            for (let i=0; i<layers.length; i++) {
+                console.log(layers[i]);
+
+                if (layers[i].options['dragging'] != undefined && layers[i].options['dragging'] == false) {
+                    // layers[i].dragging.disable();
+                    //layers[i]._pmTempLayer = true;
+                    //layers[i]._dragDisabled = true;
+                    //layers[i].pm._layerDragEnabled = false;
+
+                    console.log(layers[i].dragging);
+                    layers[i].dragging.disable();
+                    console.log(layers[i].pm);
+                    layers[i].pm.disableLayerDrag();
+                }
+            }
+        });
+        */
     }
 
     initialize() {
