@@ -67,9 +67,8 @@ class MissionManager(InfoManager):
         await serverManager.addCallback('request', 'confirmMission', self.on_confirm_mission)
         
     async def on_confirm_mission(self, id, rol, msg):
+        
         if msg['payload']['status'] == 'request':
-            print("ON CONFIRM MISSION -> REQUEST")
-            print(msg)
             await serverManager.sendMessage(msg['from'], 1, msg)
             
         elif msg['payload']['status'] == 'confirmed':

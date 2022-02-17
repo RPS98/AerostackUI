@@ -1,3 +1,99 @@
+/**
+ * UAV and Mission Manager prototype, that manage income information from server and call desired callbacks.
+ */
+class ManagerPrototype {
+    /**
+     * Create a new instance of the ManagerPrototype.
+     * @param {string} infoAdd - Name of the header of the info message that will be received from server when a parameter is add/modified.
+     * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
+     * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
+     **/
+    constructor(infoAdd, infoSet, infoGet) {
+        /**
+         * Smart list with the information recived from server.
+         * @type {SmartList}
+         * @public
+         * @readonly
+         */
+        this.LIST = new SmartList();
+
+        /**
+         * List of callbacks when a parameter is modified
+         * @type {Array}
+         * @private
+         */
+        this._infoChangeCallbacks = [];
+
+        /**
+         * List of callbacks when a object is added or removed
+         * @type {Array}
+         * @private
+         */
+        this._infoAddCallbacks = [];
+
+        /**
+         * List of callbacks when the a parameter is changed
+         * @type {Array}
+         * @private
+         */
+        this._paramChangeCallbacks = [];
+
+        // Callbacks for income information from server
+        M.WS.addCallback('info',    infoAdd, this._onInfoAdd.bind(this));
+        M.WS.addCallback('info',    infoSet, this._onInfoSet.bind(this));
+        M.WS.addCallback('request', infoGet, this._onInfoGet.bind(this));
+    }
+
+    //# region Private methods
+
+    /**
+     * Callback to info message with header infoAdd, that add/updates the information and calls the callbacks.
+     * @param {dict} payload - payload of the info message
+     */
+     _onInfoAdd(payload) {
+        if (!this.LIST.getList().includes(payload['id'])) {
+            this.LIST.addObject(payload['id'], payload);
+            Utils.callCallbacks(this._infoAddCallbacks, payload['id']);
+        } else {
+            this.LIST.updateObject(payload['id'], payload);
+            Utils.callCallbacks(this._infoChangeCallbacks, payload['id']);
+        }
+
+        for (let key in payload) {
+            Utils.callCallbackByParam(this._paramChangeCallbacks, key, payload[key], payload['id']);
+        }
+    }
+
+    /**
+     * Callback to info message with header infoSet, that set the information and calls the callbacks.
+     * @param {dict} payload - payload of the info message
+     */
+     _onInfoSet(payload) {
+        if (!this.LIST.getList().includes(payload['id'])) {
+            this.LIST.addObject(payload['id'], payload);
+            Utils.callCallbacks(this._infoAddCallbacks, payload['id']);
+        } else {
+            this.LIST.addObject(payload['id'], payload);
+            Utils.callCallbacks(this._infoChangeCallbacks, payload['id']);
+        }
+
+        for (let key in payload) {
+            Utils.callCallbackByParam(this._paramChangeCallbacks, key, payload[key], payload['id']);
+        }
+    }
+
+    /**
+     * Callback to request message with header infoGet, that get the list of information and calls the callbacks.
+     * @param {dict} payload - payload of the request message
+     */
+    _onInfoGet(payload) {
+        for (let key in payload['list']) {
+            this._onInfoAdd(payload['list'][key]);
+        }
+    }
+}
+
+
 class UAVManager
 {
     constructor() {
@@ -361,9 +457,10 @@ class MapManager
 
     // #region WebScoket Callbacks
     onHandshake(payload) {
-        console.log('Handshake received');
-        this.WS.requestGetUavList();
-        this.WS.requestGetMissionList();
+        if (payload['response'] == 'success') {
+            this.WS.requestGetUavList();
+            this.WS.requestGetMissionList();
+        }
         /*
         this.UAV_MANAGER.addUav('PX 1', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
         this.UAV_MANAGER.addUav('PX 2', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});

@@ -105,6 +105,38 @@ class HTMLUtils
 
 class Utils 
 {
+
+    /**
+     * Call each function in the list with the arguments
+     * @param {Array} callbackList - list of functions to be called 
+     * @param {...any} args - other arguments to be passed to the functions
+     * @return {void} 
+     * @access public
+     */
+    static callCallbacks(callbackList, ...args) {
+        for (let i = 0; i < callbackList.length; i++) {
+            callbackList[i][0](callbackList[i][1], ...args);
+        }
+    }
+
+    /**
+     * Call each function in the list if the param changed is the desired one.
+     * If desired param is '*' this function will be also called.
+     * @param {array} callbackList - list of functions to be called 
+     * @param {string} param - name of the param that changed
+     * @param {any} value - value of the param that changed
+     * @param {...any} args - other arguments to be passed to the functions
+     * @return {void} 
+     * @access public
+     */
+    callCallbackByParam(callbackList, param, value, ...args) {
+        for (let i=0; i<callbackList.length; i++) {
+            if (callbackList[i][0] == param || callbackList[i][0] == '*') {
+                callbackList[i][1](param, value, args);
+            }
+        }
+    }
+
      /**
       * Dumb function to initialize callbacks
       * @param {Object} input - functions inputs 
