@@ -9,11 +9,23 @@ class ManagerPrototype {
      * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
      **/
     constructor(infoAdd, infoSet, infoGet) {
+
+        /**
+         * List of colors for each id of the information.
+         */
+        this.colors = [
+            ['#DAE8FC', '#6C8EBF'], // blue
+            ['#D5E8D4', '#82B366'], // green
+            ['#FFE6CC', '#D79B00'], // orange
+            ['#FFF2CC', '#FFF2CC'], // yellow
+            ['#F8CECC', '#F8CECC'], // red
+            ['#E1D5E7', '#9673A6'], // violet
+        ];
+
         /**
          * Smart list with the information recived from server.
          * @type {SmartList}
-         * @public
-         * @readonly
+         * @private
          */
         this.LIST = new SmartList();
 
@@ -39,41 +51,115 @@ class ManagerPrototype {
         this._paramChangeCallbacks = [];
 
         // Callbacks for income information from server
-        M.WS.addCallback('info',    infoAdd, this._onInfoAdd.bind(this));
-        M.WS.addCallback('info',    infoSet, this._onInfoSet.bind(this));
+        M.WS.addCallback('info',    infoAdd, this._onInfo.bind(this), 'infoAdd');
+        M.WS.addCallback('info',    infoSet, this._onInfo.bind(this), 'infoSet');
         M.WS.addCallback('request', infoGet, this._onInfoGet.bind(this));
     }
 
-    //# region Private methods
-
+    // #region Public methods
+    
     /**
-     * Callback to info message with header infoAdd, that add/updates the information and calls the callbacks.
-     * @param {dict} payload - payload of the info message
+     * Return a list of two colors for each id of the information.
+     * @param {any} id - Id of the information.
+     * @returns {list} - List of two colors, one for the background and one for the border.
      */
-     _onInfoAdd(payload) {
-        if (!this.LIST.getList().includes(payload['id'])) {
-            this.LIST.addObject(payload['id'], payload);
-            Utils.callCallbacks(this._infoAddCallbacks, payload['id']);
-        } else {
-            this.LIST.updateObject(payload['id'], payload);
-            Utils.callCallbacks(this._infoChangeCallbacks, payload['id']);
-        }
-
-        for (let key in payload) {
-            Utils.callCallbackByParam(this._paramChangeCallbacks, key, payload[key], payload['id']);
-        }
+    getColors(id) {
+        return this.colors[this.getInfoList().indexOf(id) % this.colors.length];
     }
 
     /**
-     * Callback to info message with header infoSet, that set the information and calls the callbacks.
-     * @param {dict} payload - payload of the info message
+     * Add a function callback when any parameter is changed.
+     * @param {function} callback - Function to be called when the parameter is changed.
+     * @param  {...any} args - Arguments to be passed to the callback.
+     * @return {void} 
+     * @access public
      */
-     _onInfoSet(payload) {
+    addInfoChangeCallback(callback, ...args) {
+        this._infoChangeCallbacks.push([callback, args]);
+    }
+
+    /**
+     * Add a function callback when new information is added.
+     * @param {function} callback - Function to be called when the information is added.
+     * @param  {...any} args - Arguments to be passed to the callback.
+     * @return {void} 
+     * @access public
+     */
+    addInfoAddCallback(callback, ...args) {
+        this._infoAddCallbacks.push([callback, args]);
+    }
+
+    /**
+     * Add a function callback when the desired parameter is changed.
+     * @param {string} param - Parameter to be watched.
+     * @param {function} callback - Function to be called when the parameter is changed.
+     * @param  {...any} args - Arguments to be passed to the callback.
+     * @return {void} 
+     * @access public
+     */
+    addInfoParamCallback(param, callback, ...args) {
+        this._paramChangeCallbacks.push([param, callback, args]);
+    }
+
+    /**
+     * Get the list of id of the information.
+     * @return {Array} - List of id of the information.
+     */
+    getInfoList() {
+        return this.LIST.getList();
+    }
+
+    /**
+     * Get the dictionary with the information for each id.
+     * @return {dict} - Dictionary with the information for each id.
+     * @access public
+     */
+    getInfoDict() {
+        return this.LIST.getDict();
+    }
+
+    /**
+     * Return the information in a dictionary of the given id.
+     * @param {any} id - Id of the information.
+     * @return {dict} - Dictionary with the information. If the id is not found, return null.
+     * @access public
+     */
+    getInfoDictById(id) {
+        return this.LIST.getDictById(id);
+    }
+    
+    /**
+     * Remove the information with the given id.
+     * @param {any} id - Id of the information.
+     * @return {void}
+     * @access public 
+     */
+    removeInfoById(id) {
+        this.LIST.removeObject(id);
+        this._callCallbacks(this._infoAddCallbacks, id);
+    }
+
+    // #endregion
+
+    // #region Private methods
+
+    /**
+     * Callback to info message with header infoAdd, that add/updates the information, or
+     * with header infoSet, that set the information, and calls the callbacks.
+     * @param {dict} payload - payload of the info message
+     * @return {void} 
+     * @access private
+     */
+     _onInfo(payload, type) {
         if (!this.LIST.getList().includes(payload['id'])) {
             this.LIST.addObject(payload['id'], payload);
             Utils.callCallbacks(this._infoAddCallbacks, payload['id']);
         } else {
-            this.LIST.addObject(payload['id'], payload);
+            if (type[0] == 'infoAdd') {
+                this.LIST.updateObject(payload['id'], payload);
+            } else if (type[0] == 'infoSet') {
+                this.LIST.addObject(payload['id'], payload);
+            }
             Utils.callCallbacks(this._infoChangeCallbacks, payload['id']);
         }
 
@@ -85,137 +171,17 @@ class ManagerPrototype {
     /**
      * Callback to request message with header infoGet, that get the list of information and calls the callbacks.
      * @param {dict} payload - payload of the request message
+     * @return {void} 
+     * @access private
      */
     _onInfoGet(payload) {
         for (let key in payload['list']) {
-            this._onInfoAdd(payload['list'][key]);
-        }
-    }
-}
-
-
-class UAVManager
-{
-    constructor() {
-        this.UAV_LIST = new SmartList();
-        this.uavparamCallbacks = [];
-        this.uavCallbacks = [];     // When a UAV is modified
-        this.uavListCallbacks = []; // When a UAV is added or removed
-        this.initialize();
-
-        this.colors = [
-            ['#DAE8FC', '#6C8EBF'], // blue
-            ['#D5E8D4', '#82B366'], // green
-            ['#FFE6CC', '#D79B00'], // orange
-            ['#FFF2CC', '#FFF2CC'], // yellow
-            ['#F8CECC', '#F8CECC'], // red
-            ['#E1D5E7', '#9673A6'], // violet
-        ];
-    }
-
-    initialize() {
-        M.WS.addCallback('info', 'uavInfo', this.onUavInfo.bind(this));
-        M.WS.addCallback('info', 'uavInfoSet', this.onUavInfoSet.bind(this));
-
-        M.WS.addCallback('request', 'getUavList', this.onUAVListUpdate.bind(this));
-    }
-
-    _callCallbacks(callbackList, ...args) {
-        for (let i = 0; i < callbackList.length; i++) {
-            callbackList[i][0](callbackList[i][1], ...args);
-        }
-    }
-
-    _callCallbackByParam(id, param, value) {
-        for (let i=0; i<this.uavparamCallbacks.length; i++) {
-            if (this.uavparamCallbacks[i][0] == param || this.uavparamCallbacks[i][0] == '*') {
-                this.uavparamCallbacks[i][1](id, param, value);
-            }
-        }
-    }
-
-    _callCallbacksParam(payload) {
-        for (let key in payload) {
-            this._callCallbackByParam(payload['id'], key, payload[key]);
-        }
-    }
-
-    getIconColor(id) {
-        return this.colors[this.getUavList().indexOf(id) % this.colors.length];
-    }
-
-    getColor(id) {
-        return M.colors[this.getUavList().indexOf(id) % M.colors.length][0];
-    }
-
-    // #region WebScoket Callbacks
-    onUavInfo(payload) {
-        if (!this.UAV_LIST.getList().includes(payload['id'])) {
-            this.UAV_LIST.addObject(payload['id'], payload);
-            this._callCallbacks(this.uavListCallbacks, payload['id']);
-        } else {
-            this.UAV_LIST.updateObject(payload['id'], payload);
-            this._callCallbacks(this.uavCallbacks, payload['id']);
-        }
-        this._callCallbacksParam(payload);
-    }
-
-    onUavInfoSet(payload) {
-        if (!this.UAV_LIST.getList().includes(payload['id'])) {
-            this.UAV_LIST.addObject(payload['id'], payload);
-            this._callCallbacks(this.uavListCallbacks, payload['id']);
-        } else {
-            this.UAV_LIST.addObject(payload['id'], payload);
-            this._callCallbacks(this.uavCallbacks, payload['id']);
-        }
-        this._callCallbacksParam(payload);
-    }
-
-    onUAVListUpdate(payload) {
-        for (let key in payload['list']) {
-            let uav = payload['list'][key];
-            this.onUavInfo(uav);
+            this._onInfo(payload['list'][key], 'infoAdd');
         }
     }
     // #endregion
-
-    // #region UAV List
-    addUavCallback(callback, ...args) {
-        this.uavCallbacks.push([callback, args]);
-    }
-
-    addUavListCallback(callback, ...args) {
-        this.uavListCallbacks.push([callback, args]);
-    }
-
-    addUavParamCallback(param, callback, ...args) {
-        this.uavparamCallbacks.push([param, callback, args]);
-    }
-    
-    getUavDictById(id)
-    {
-        if (this.getUavList().indexOf(id) !== -1) {
-            return this.UAV_LIST.getDictById(id);
-        } else {
-            return null;
-        }
-    }
-
-    getUavList() {
-        return this.UAV_LIST.getList();
-    }
-
-    getUavDict() {
-        return this.UAV_LIST.getDict();
-    }
-
-    removeUav(id) {
-        this.UAV_LIST.removeObject(id);
-        this._callCallbacks(this.uavListCallbacks, id);
-    }
-
-    // #endregion
 }
+
 
 class MissionManager
 {
@@ -404,14 +370,10 @@ class MapManager
         ];
 
         // Color grey
-        this.drawColor = '#B3B3B3';
-
-        // Default color
-        // M.MAP.pm.setPathOptions({
-        //     color: 'red',
-        // });
+        this.drawColor = '#B3B3B3'
         
-        this.MAP.on('pm:create', function (e) {            
+        this.MAP.on('pm:create', function (e) {
+            console.log("Layer created")        
             if ('color' in e.layer.pm.options) {
                 e.layer.setStyle({color: e.layer.pm.options['color']});
                 if ('color' in e.layer.options) {
@@ -444,7 +406,7 @@ class MapManager
     }
 
     initialize() {
-        this.UAV_MANAGER = new UAVManager();
+        this.UAV_MANAGER = new ManagerPrototype('uavInfo', 'uavInfoSet', 'getUavList');
         this.MISSION_MANAGER = new MissionManager();
         this.MISSIOn_DRAW_MANAGER = new MissionDrawManager();
     }

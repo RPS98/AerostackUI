@@ -4,7 +4,7 @@ class MissionPlanner
         this.htmlId = 'sideBar-left-missionPlanner-content';
 
         this.initialized = false;
-        M.UAV_MANAGER.addUavListCallback(this.updateUavListCallback.bind(this), this);
+        M.UAV_MANAGER.addInfoAddCallback(this.updateUavListCallback.bind(this), this);
         M.MISSION_MANAGER.addMissionListCallback(this.updateMissionListCallback.bind(this), this);
 
         this.selectedMission = 'New Mission';
@@ -151,7 +151,7 @@ class MissionPlanner
         mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV picker
-        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, M.UAV_MANAGER.getUavList());
+        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, M.UAV_MANAGER.getInfoList());
         mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
 
 
@@ -232,9 +232,9 @@ class MissionPlanner
 
     updateUavListCallback(myargs, args) {
         this._checkInitalize();
-        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker`, M.UAV_MANAGER.getUavList());
+        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker`, M.UAV_MANAGER.getInfoList());
 
-        let uavList = M.UAV_MANAGER.getUavList();
+        let uavList = M.UAV_MANAGER.getInfoList();
         this.selectedUavs = {};
         for (let i=0; i<uavList.length; i++) {
             this.selectedUavs[uavList[i]] = false;

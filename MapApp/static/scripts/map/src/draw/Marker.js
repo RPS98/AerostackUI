@@ -404,8 +404,7 @@ class UAVMarker extends Marker
     }
 
     codeDraw(id, values, options={}) {
-
-        let colors = M.UAV_MANAGER.getIconColor(id);
+        let colors = M.UAV_MANAGER.getColors(id);
         let iconSvgModified = this.iconSvgGrey.replace(new RegExp('#BORDER', 'g'), colors[1]).replace(new RegExp('#FILL', 'g'), colors[0]);
 
         let newIcon = L.divIcon({
@@ -416,15 +415,7 @@ class UAVMarker extends Marker
         });
 
         options['icon'] = newIcon;
-        options['dragging'] = false;
         return super.codeDraw(values, options);
-
-        //options['markerStyle'] = {'icon': newIcon};
-        //options['draggable'] = false;
-        //options['markerEditable'] = false;
-        //options['pmIgnore'] = true;
-        //options['allowIntersection'] = true;
-        //marker.dragging.disable();
     }
 
     showInfo() {

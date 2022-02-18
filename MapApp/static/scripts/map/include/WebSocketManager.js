@@ -102,23 +102,31 @@ class WebSocketManager {
      * @param {object} webSocket - The WebSocket object.
      */
     onMessage(msg) {
-        console.log("Message received");
-        console.log(msg);
+        // console.log("Message received");
+        // console.log(msg);
         
         let payload = null;
         for (let i = 0; i < this.callbacksList.length; i++) {
             if (this.callbacksList[i]['type'] == msg['type'] && this.callbacksList[i]['header'] == msg['header']) {
                 payload = msg['payload'];
-                this.callbacksList[i]['callback'](payload);
+                this.callbacksList[i]['callback'](payload, this.callbacksList[i]['args']);
             }
         }
     }
 
-    addCallback(type, header, callback) {
+    /**
+     * Add a callback to the incomeing messages.
+     * @param {string} type - The type of the message.
+     * @param {string} header - The header of the message.
+     * @param {function} callback - The callback function.
+     * @param  {...any} args - The arguments of the callback function.
+     */
+    addCallback(type, header, callback, ...args) {
         this.callbacksList.push({
             'type': type,
             'header': header,
-            'callback': callback
+            'callback': callback,
+            'args': args
         });
     }
 

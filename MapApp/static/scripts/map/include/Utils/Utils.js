@@ -129,7 +129,7 @@ class Utils
      * @return {void} 
      * @access public
      */
-    callCallbackByParam(callbackList, param, value, ...args) {
+    static callCallbackByParam(callbackList, param, value, ...args) {
         for (let i=0; i<callbackList.length; i++) {
             if (callbackList[i][0] == param || callbackList[i][0] == '*') {
                 callbackList[i][1](param, value, args);

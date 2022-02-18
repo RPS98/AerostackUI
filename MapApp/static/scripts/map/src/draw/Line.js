@@ -45,7 +45,7 @@ class Odom extends Line
     }
 
     codeDraw(id, values, options={}) {
-        options['color'] = M.UAV_MANAGER.getColor(id);
+        options['color'] = M.UAV_MANAGER.getColors(id)[1];
         return super.codeDraw(values, options);
     }
 
@@ -66,7 +66,7 @@ class DesiredPath extends Line
     }
 
     codeDraw(id, values, options={}) {
-        options['color'] = M.UAV_MANAGER.getColor(id);
+        options['color'] = M.UAV_MANAGER.getColors(id)[1];
         options['opacity'] = 0.5;
 
         return super.codeDraw(values, options);

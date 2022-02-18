@@ -1,13 +1,13 @@
 class UavDrawer
 {
     constructor() {
-        M.UAV_MANAGER.addUavParamCallback('pose', this.updateUavParam.bind(this));
-        M.UAV_MANAGER.addUavParamCallback('odom', this.updateUavParam.bind(this));
-        M.UAV_MANAGER.addUavParamCallback('desiredPath', this.updateUavParam.bind(this));
-        M.UAV_MANAGER.addUavParamCallback('state', this.updateUavParam.bind(this));
+        M.UAV_MANAGER.addInfoParamCallback('pose', this.updateUavParam.bind(this));
+        M.UAV_MANAGER.addInfoParamCallback('odom', this.updateUavParam.bind(this));
+        M.UAV_MANAGER.addInfoParamCallback('desiredPath', this.updateUavParam.bind(this));
+        M.UAV_MANAGER.addInfoParamCallback('state', this.updateUavParam.bind(this));
 
-        this.uavListId = Object.assign([], M.UAV_MANAGER.getUavList());
-        this.uavDict = Object.assign({}, M.UAV_MANAGER.getUavDict());
+        this.uavListId = Object.assign([], M.UAV_MANAGER.getInfoList());
+        this.uavDict = Object.assign({}, M.UAV_MANAGER.getInfoDict());
 
         this.UAV_LIST = new SmartList();
     }
@@ -18,12 +18,15 @@ class UavDrawer
         }
     }
 
-    updateUavParam(id, param, value) {
+    updateUavParam(param, value, args) {
+        let id = args[0];
+
         if ((this.UAV_LIST.getList().indexOf(id) === -1)) {
             this.UAV_LIST.addObject(id, {'id': id});
         }
 
         if (param in this.UAV_LIST.getDictById(id)) {
+            console.log("Draw update");
             switch (param) {
                 case 'pose':
                     this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.setLatLng([value['lat'], value['lng']]);
@@ -42,6 +45,7 @@ class UavDrawer
             }
 
         } else {
+            console.log("First draw");
             switch (param) {
                 case 'pose':
                     this._checkLayer(id, 'layerPose');
@@ -60,7 +64,7 @@ class UavDrawer
                     break;
                 case 'state':
                     this._checkLayer(id, 'layerPose');
-                    let pose = M.UAV_MANAGER.getUavDictById(id)['pose'];
+                    let pose = M.UAV_MANAGER.getInfoDictById(id)['pose'];
 
                     this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
                     this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [pose['lat'], pose['lng']]);
@@ -70,6 +74,5 @@ class UavDrawer
             }
         }
         this.UAV_LIST.getDictById(id)[param] = value;
-        
     }
 }

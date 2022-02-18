@@ -77,7 +77,11 @@ class SmartList
     }
 
     getDictById(id) {
-        return this.objectDict[id];
+        if (this.getList().indexOf(id) !== -1) {
+            return this.objectDict[id];
+        } else {
+            return null;
+        }
     }
 
     removeObject(id) {
