@@ -4,16 +4,27 @@ class MissionPlanner
         this.htmlId = 'sideBar-left-missionPlanner-content';
 
         this.initialized = false;
-        M.UAV_MANAGER.addInfoAddCallback(this.updateUavListCallback.bind(this), this);
-        M.MISSION_MANAGER.addMissionListCallback(this.updateMissionListCallback.bind(this), this);
+        M.UAV_MANAGER.addInfoAddCallback(this.updateUavListCallback.bind(this));
+        M.MISSION_MANAGER.addInfoAddCallback(this.updateMissionListCallback.bind(this));
+
+        M.addPmCreateCallback(this.pmCreateCallback.bind(this));
 
         this.selectedMission = 'New Mission';
         this.selectedUavs = {};
         this.selectedHeight = [0, 70];
 
         this.addDrawTypes();
+
+        this.landPointPopup = L.popup()
+            .setContent(
+                `
+                <div class=${this.htmlId}-LandPointPopup>
+                    <p>No UAV</p>
+                </div>
+                `
+            );
+
         this.addPlannerHTML();
-        
     }
 
     _checkInitalize() {
@@ -28,14 +39,26 @@ class MissionPlanner
         let fillColor = '#b3b3b3';
         let borderColor = '#7f7f7f';
 
-        let userDrawOptions = {'color': M.drawColor};
-        this.pointOfInterest = new PointOfInterest(fillColor, borderColor);
-        this.wayPoint = new WayPoint(fillColor, borderColor);
-        this.path = new Path({}, userDrawOptions);
-        this.area = new Area({}, userDrawOptions);
-        this.carea = new CircularArea({}, userDrawOptions);
-        this.landPoint = new LandPoint(fillColor, borderColor);
-        this.takeOffPont = new TakeOffPoint(fillColor, borderColor);
+        let userDrawOptions = {
+            'missionPlanner': true,
+        };
+
+        this.pointOfInterest = new PointOfInterest(fillColor, borderColor, {}, userDrawOptions);
+        this.wayPoint = new WayPoint(fillColor, borderColor, {}, userDrawOptions);
+
+        let userDrawOptionsMerged = 
+            Object.assign({}, userDrawOptions, {
+                'color': M.drawColor,
+            }
+        );
+
+        this.path = new Path({}, userDrawOptionsMerged);
+        this.area = new Area({}, userDrawOptionsMerged);
+        this.carea = new CircularArea({}, userDrawOptionsMerged);
+        
+        this.landPoint = new LandPoint(fillColor, borderColor, {}, userDrawOptions);
+        this.takeOffPont = new TakeOffPoint(fillColor, borderColor, {}, userDrawOptions);
+
     }
 
     addPlannerHTML() {
@@ -101,13 +124,13 @@ class MissionPlanner
         Utils.addButtonCallback(`${this.htmlId}-rotate`,  DrawController.drawRotate, []);
         
         // Buttons for draw mission
-        Utils.addButtonCallback(`${this.htmlId}-takeOff`,   this.userDrawCallbacks.bind(this), [this.takeOffPont]);
-        Utils.addButtonCallback(`${this.htmlId}-PoI`,   this.userDrawCallbacks.bind(this), [this.pointOfInterest]);
-        Utils.addButtonCallback(`${this.htmlId}-WP`,    this.userDrawCallbacks.bind(this), [this.wayPoint]);
-        Utils.addButtonCallback(`${this.htmlId}-path`,  this.userDrawCallbacks.bind(this), [this.path]);
-        Utils.addButtonCallback(`${this.htmlId}-area`,  this.userDrawCallbacks.bind(this), [this.area]);
-        Utils.addButtonCallback(`${this.htmlId}-cArea`, this.userDrawCallbacks.bind(this), [this.carea]);
-        Utils.addButtonCallback(`${this.htmlId}-land`,  this.userDrawCallbacks.bind(this), [this.landPoint]);
+        Utils.addButtonCallback(`${this.htmlId}-takeOff`, this.userDrawCallbacks.bind(this), [this.takeOffPont]);
+        Utils.addButtonCallback(`${this.htmlId}-PoI`,     this.userDrawCallbacks.bind(this), [this.pointOfInterest]);
+        Utils.addButtonCallback(`${this.htmlId}-WP`,      this.userDrawCallbacks.bind(this), [this.wayPoint]);
+        Utils.addButtonCallback(`${this.htmlId}-path`,    this.userDrawCallbacks.bind(this), [this.path]);
+        Utils.addButtonCallback(`${this.htmlId}-area`,    this.userDrawCallbacks.bind(this), [this.area]);
+        Utils.addButtonCallback(`${this.htmlId}-cArea`,   this.userDrawCallbacks.bind(this), [this.carea]);
+        Utils.addButtonCallback(`${this.htmlId}-land`,    this.userDrawCallbacks.bind(this), [this.landPoint]);
 
         Utils.addButtonCallback(`${this.htmlId}-remove`,  DrawController.drawRemoveAll, []);
 
@@ -134,7 +157,29 @@ class MissionPlanner
     }
 
     userDrawCallbacks(args=[]) {
-        args[0].userDraw({'height': this.selectedHeight});
+        args[0].userDraw({'height': this.selectedHeight}, args);
+    }
+
+    pmCreateCallback(myargs, e) {
+        console.log('pmCreateCallback');
+        console.log(e);
+
+        let options = e.layer.pm.options;
+
+        if (options['missionPlanner']) {
+
+            if (options['name'] == 'LandPoint') {
+                let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, 'radio', M.UAV_MANAGER.getInfoList());
+                console.log(HTMLUtils.dictToHTML(uavPickerList));
+                /*
+                
+                landPointPopups[i].innerHTML = "";
+                HTMLUtils.addHTML(landPointPopups[i], [uavPickerList]);
+
+                e.marker.bindPopup(this.landPointPopup).openPopup();
+                */
+            }
+        }
     }
 
     // #endregion
@@ -147,18 +192,18 @@ class MissionPlanner
 
         // Mission Dropdown list
         let missionList = ['New mission'];
-        let missionListTotal = missionList.concat(M.MISSION_MANAGER.getMissionList());
+        let missionListTotal = missionList.concat(M.MISSION_MANAGER.getInfoList());
         mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV picker
-        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, M.UAV_MANAGER.getInfoList());
+        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, 'checkbox', M.UAV_MANAGER.getInfoList());
         mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
 
 
         // Buttons for confirm mission
         let splitBtnConfirm = [];
         splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-SaveMission`, {'class': 'btn btn-primary'},  'Save Mission'));
-        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, {'class': 'btn btn-success'},  'Confirm mission'));
+        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, {'class': 'btn btn-success', disabled: true},  'Confirm mission'));
         mConfirmList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtnConfirm, {'class': 'row m-1'}));
         
         // Confirm collapse
@@ -216,7 +261,7 @@ class MissionPlanner
 
 
         if (drawLayers.length > 0 && uavList.length > 0) {
-            M.WS.requestConfirmMission(
+            M.WS.requestMissionConfirm(
                 this.selectedMission,
                 this.selectedUavs,
                 drawLayers
@@ -232,12 +277,14 @@ class MissionPlanner
 
     updateUavListCallback(myargs, args) {
         this._checkInitalize();
-        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker`, M.UAV_MANAGER.getInfoList());
+        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker`, 'checkbox', M.UAV_MANAGER.getInfoList());
 
         let uavList = M.UAV_MANAGER.getInfoList();
         this.selectedUavs = {};
         for (let i=0; i<uavList.length; i++) {
+            // Manage checkbox and its callback
             this.selectedUavs[uavList[i]] = false;
+
             let input = document.getElementById(`${this.htmlId}-UAVPicker-checkBox-Input-${uavList[i]}`);
 
             let callback = this.clickUavListCallback.bind(this);
@@ -250,12 +297,23 @@ class MissionPlanner
 
                 callback(uavId, value);
             });
+
+            // Change button color
+            let label = document.getElementById(`${this.htmlId}-UAVPicker-checkBox-Label-${uavList[i]}`);
+            label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(uavList[i])[1]}`, "important");
         }
+        
+        // Update land point popup
+        let landPointPopups = document.getElementsByClassName(`${this.htmlId}-LandPointPopup`);
+        for (let i=0; i<landPointPopups.length; i++) {
+            HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker`, 'checkbox', M.UAV_MANAGER.getInfoList());
+        }
+        
     }
 
     updateMissionListCallback(myargs, args) {
         if (this.initialized) {
-            HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, ['New Mission'].concat(M.MISSION_MANAGER.getMissionList()));
+            HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, ['New Mission'].concat(M.MISSION_MANAGER.getInfoList()));
             this.addBntDropDownMissionCallback();
         }
     }
@@ -268,7 +326,29 @@ class MissionPlanner
 
     clickUavListCallback(uavId, value) {
         this.selectedUavs[uavId] = value;
+
+        // If there is no UAV selected, disable the confirm button
+        let confirmBtn = document.getElementById(`${this.htmlId}-confirm`);
+        confirmBtn.disabled = true;
+        for (let key in this.selectedUavs) {
+            if (this.selectedUavs[key]) {
+                document.getElementById(`${this.htmlId}-confirm`).disabled = false;
+                return;
+            }
+        }
     }
     // #endregion
     // #endregion
 }
+
+
+
+
+/*
+if ('color' in e.layer.pm.options) {
+                e.layer.setStyle({color: e.layer.pm.options['color']});
+                if ('color' in e.layer.options) {
+                    e.layer.options['color'] = e.layer.options['color'];
+                }
+            }
+            */

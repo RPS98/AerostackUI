@@ -7,7 +7,8 @@ class CheckBox extends HTMLUtils
             attributes,
             {
                 'id': id,
-                'name': args[0],
+                'type': args[0],
+                'name': args[1],
             }
         );
     }
@@ -18,7 +19,7 @@ class CheckBox extends HTMLUtils
         let input = document.createElement('input');
         let label = document.createElement('label');
 
-        input.setAttribute('type', 'checkbox');
+        input.setAttribute('type', content['type']);
         input.setAttribute('class', 'form-check-input');
         input.setAttribute('id', `${content.id}-Input-${content.name}`);
 
@@ -46,7 +47,8 @@ class CheckBoxes extends HTMLUtils
             attributes,
             {
                 'id': id,
-                'list': args[0],
+                'type': args[0],
+                'list': args[1],
             }
         );
     }
@@ -56,7 +58,7 @@ class CheckBoxes extends HTMLUtils
         let divGlobal = document.createElement('div');
 
         for (let i=0; i<content.list.length; i++) {
-            super.addHTML(divGlobal, HTMLUtils.addDict('checkBox', content.id, {}, content.list[i]));
+            super.addHTML(divGlobal, HTMLUtils.addDict('checkBox', content.id, {}, content.type, content.list[i]));
         }        
         return divGlobal;
     }

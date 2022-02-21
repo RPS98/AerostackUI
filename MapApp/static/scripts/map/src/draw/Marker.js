@@ -415,7 +415,9 @@ class UAVMarker extends Marker
         });
 
         options['icon'] = newIcon;
-        return super.codeDraw(values, options);
+        let marker = super.codeDraw(values, options);
+        marker.pm.setOptions({draggable: false});
+        return marker;
     }
 
     showInfo() {

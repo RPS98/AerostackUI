@@ -64,7 +64,7 @@ class MissionManager(InfoManager):
         
     async def initialize(self):
         await super().initialize()
-        await serverManager.addCallback('request', 'confirmMission', self.on_confirm_mission)
+        await serverManager.addCallback('request', 'missionConfirm', self.on_confirm_mission)
         
     async def on_confirm_mission(self, id, rol, msg):
         

@@ -232,9 +232,9 @@ class WebSocketManager {
         this.sendRequest('getMissionList', {});
     }
 
-    requestConfirmMission(missionId, uavList, layers) {
+    requestMissionConfirm(missionId, uavList, layers) {
         this.sendRequest(
-            'confirmMission', 
+            'missionConfirm', 
             {
                 'status': 'request',
                 'id': missionId,

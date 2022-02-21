@@ -18,6 +18,25 @@ blocksClassList = [
     // ['ul', Ul],
 ]
 
+/*
+window.onload = function() {
+    let map = new L.Map('mapid').setView([5, 5], 19);
+
+    map.pm.addControls({  
+        position: 'topleft',  
+        dragMode: true,  
+      }); 
+
+    var marker1 = L.marker(
+        [5, 5],
+    ).addTo(map);
+    
+    marker1.pm.setOptions({draggable: false});
+    
+    map.pm.enableDraw('Marker',{continueDrawing: false});
+}
+*/
+
 
 window.onload = function () {
 
@@ -40,13 +59,14 @@ window.onload = function () {
         new MissionPlanner(),
         new MissionController(),
         new UavDrawer(),
+        new MissionDrawer(),
     ]
 
     // For each class in sideBarsClass, instantiate it
     for (let i = 0; i < sideBarsClass.length; i++) {
         sideBarsClass[i];
     }
-};
+}
 
 
 /*

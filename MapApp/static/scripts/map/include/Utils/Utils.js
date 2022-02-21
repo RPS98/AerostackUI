@@ -58,6 +58,22 @@ class HTMLUtils
         }
     }
 
+    static dictToHTML(dict) {
+        let child = null;
+
+        for (let i=0; i<blocksClassList.length; i++) {
+            if (blocksClassList[i][0] == dict.type) {
+                child = blocksClassList[i][1].addTypeHTML(dict.content);
+                HTMLUtils._addAttribute(child, dict.id, dict.attributes);
+                return child;
+            }
+        }
+
+        console.log("Unknown type of HTML block");
+        console.log(dict)
+        throw new Error('Unknown type of HTML block');
+    }
+
     static addToExistingElement(id, blockList)
     {
         let parent = document.getElementById(id);
@@ -92,11 +108,11 @@ class HTMLUtils
         HTMLUtils.addToExistingElement(`${id}-DropDown-menu`, [dropDownExpand]);
     }
 
-    static updateCheckBoxes(idCheckBoxes, list) {
+    static updateCheckBoxes(idCheckBoxes, type, list) {
         let checkBoxes = document.getElementById(`${idCheckBoxes}`);
         checkBoxes.innerHTML = '';
         for (let i=0; i<list.length; i++) {
-            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox`, {}, list[i]);
+            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox`, {}, type, list[i]);
             HTMLUtils.addToExistingElement(`${idCheckBoxes}`, [checkBox]);
         }
     }

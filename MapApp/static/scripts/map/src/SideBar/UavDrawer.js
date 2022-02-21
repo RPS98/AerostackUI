@@ -26,7 +26,6 @@ class UavDrawer
         }
 
         if (param in this.UAV_LIST.getDictById(id)) {
-            console.log("Draw update");
             switch (param) {
                 case 'pose':
                     this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.setLatLng([value['lat'], value['lng']]);
@@ -45,7 +44,6 @@ class UavDrawer
             }
 
         } else {
-            console.log("First draw");
             switch (param) {
                 case 'pose':
                     this._checkLayer(id, 'layerPose');

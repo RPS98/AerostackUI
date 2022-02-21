@@ -14,25 +14,108 @@
         <link rel="icon" href="{% static 'scripts/map/img/CVAR.ico' %}">
         <meta name="description" content="">
         <meta name="author" content="">
+
+        <div id="include">
+
+            <!-- Bootstrap CSS -->
+            <link rel="stylesheet" href="{% static 'style/bootstrap/css/bootstrap.min.css' %}" />
+
+            <!-- Font-Awesome -->
+            <link rel="stylesheet" type="text/css" href="{% static 'scripts/map/libs/fontawesome/css/all.css' %}">
+
+            <!-- Leaflet -->
+            <link rel="stylesheet" type="text/css" href="{% static 'scripts/map/libs/leaflet/leaflet.css' %}">
+            <script src="{% static 'scripts/map/libs/leaflet/leaflet.js' %}"></script>
+
+            <!-- SideBar -->
+            <link rel="stylesheet" type="text/css" href="{% static 'scripts/map/libs/SideBar/leaflet-sidebar.css' %}">
+            <script src="{% static 'scripts/map/libs/SideBar/leaflet-sidebar.js' %}"></script>
+
+            <!-- Draw -->
+            <link rel="stylesheet" type="text/css" href="{% static 'scripts/map/libs/Draw/draw.css' %}">
+            <script src="{% static 'scripts/map/libs/Draw/draw.js' %}"></script>
+
+            <!-- Geoman -->
+            <link rel="stylesheet" type="text/css" href="{% static 'scripts/map/libs/geoman/geoman.css' %}">
+            <script src="{% static 'scripts/map/libs/geoman/geoman.js' %}"></script>
+
+            <!-- Coordinates -->
+            <link rel="stylesheet" type="text/css" href="{% static 'scripts/map/libs/Coordinates/Coordinates.css' %}">
+            <script src="{% static 'scripts/map/libs/Coordinates/Coordinates.js' %}"></script>
+
+            <!-- Overlay Images Rotate -->
+            <script src="{% static 'scripts/map/libs/DistortableImage/rotate.js' %}"></script>
+
+            <!-- Markers Rotate -->
+            <script src="{% static 'scripts/map/libs/RotateMarker/rotatedMarker.js' %}"></script>
+
+            <!-- Style -->
+            <link rel="stylesheet" type="text/css" href="{% static 'style/map.css' %}"/>
+
+            <!-- Scripts -->
+            <script src="{% static 'scripts/map/include/AerostackUI.js' %}"></script>
+
+            <script src="{% static 'scripts/map/include/Utils/Utils.js' %}"></script>
+            
+            <script src="{% static 'scripts/map/include/Utils/blocks/Button.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/CheckBoxes.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Collapse.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Div.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/DropDown.js' %}"></script>
+            {% comment %} <script src="{% static 'scripts/map/include/Utils/blocks/Form.js' %}"></script> {% endcomment %}
+            <script src="{% static 'scripts/map/include/Utils/blocks/Input.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Label.js' %}"></script>
+            {% comment %} <script src="{% static 'scripts/map/include/Utils/blocks/Li.js' %}"></script>
+            <script src="{% static 'scripts/map/include/Utils/blocks/Row.js' %}"></script> {% endcomment %}
+            <!-- <script src="{% static 'scripts/map/include/Utils/blocks/RowForm.js' %}"></script> -->
+            <script src="{% static 'scripts/map/include/Utils/blocks/SplitDivs.js' %}"></script>
+            {% comment %} <script src="{% static 'scripts/map/include/Utils/blocks/Ul.js' %}"></script> {% endcomment %}
+            
+            <script src="{% static 'scripts/map/include/MapManager.js' %}"></script>
+            <script src="{% static 'scripts/map/include/WebSocketManager.js' %}"></script>
+            <script src="{% static 'scripts/map/include/DrawManager.js' %}"></script>
+            <script src="{% static 'scripts/map/include/DrawController.js' %}"></script>
+            
+            <script src="{% static 'scripts/map/src/draw/Circle.js' %}"></script>
+            <script src="{% static 'scripts/map/src/draw/CircleMarker.js' %}"></script>
+            <script src="{% static 'scripts/map/src/draw/Line.js' %}"></script>
+            <script src="{% static 'scripts/map/src/draw/Marker.js' %}"></script>
+            <script src="{% static 'scripts/map/src/draw/Polygon.js' %}"></script>
+            <script src="{% static 'scripts/map/src/draw/Rectangle.js' %}"></script>
+
+
+            <script src="{% static 'scripts/map/src/SideBar/Home.js' %}"></script>
+            <script src="{% static 'scripts/map/src/SideBar/MissionPlanner.js' %}"></script>
+            <script src="{% static 'scripts/map/src/SideBar/MissionController.js' %}"></script>
+            <script src="{% static 'scripts/map/src/SideBar/UavDrawer.js' %}"></script>
+            <script src="{% static 'scripts/map/src/SideBar/MissionDrawer.js' %}"></script>
+        </div>
+
+        
+
     </head>
 
     <body>
+        
+        <style>
+            .icon-button {
+                float: right;
+            }
+            .icon-collap-toggle {
+              float: right;
+            }
+        </style>
 
-        <!-- <object class="svgClass" type="image/svg+xml" data="/static/scripts/map/img/icons/PointOfInterest.svg"></object> -->
+        <article class="mx-auto center" id="main_article">
 
-        <script>
-            let element = document.createElement('object');
+            <div id="mapid"></div>
+            
+        </article>
+        
+        <script type="module" src="{% static 'scripts/map/map.js' %}"></script>
 
-            element.setAttribute('class', 'svgClass');
-            element.setAttribute('type', 'image/svg+xml');
-            element.setAttribute('data', '/static/scripts/map/img/icons/PointOfInterest.svg');
-
-            console.log(element.firstElementChild);
-
-            console.log(element.getSVGDocument()); //.getElementById("svgInternalID").setAttribute("fill", "red")
-
-        </script>
+        <!-- Bootstrap core JavaScript-->
+        <script src="{% static 'style/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     </body>
 
 </html>
-

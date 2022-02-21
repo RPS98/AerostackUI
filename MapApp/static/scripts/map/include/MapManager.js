@@ -151,6 +151,7 @@ class ManagerPrototype {
      * @access private
      */
      _onInfo(payload, type) {
+
         if (!this.LIST.getList().includes(payload['id'])) {
             this.LIST.addObject(payload['id'], payload);
             Utils.callCallbacks(this._infoAddCallbacks, payload['id']);
@@ -176,86 +177,43 @@ class ManagerPrototype {
      */
     _onInfoGet(payload) {
         for (let key in payload['list']) {
-            this._onInfo(payload['list'][key], 'infoAdd');
+            this._onInfo(payload['list'][key], 'infoSet');
         }
     }
     // #endregion
 }
 
 
-class MissionManager
-{
+/**
+ * Mission Manager that extends the ManagerPrototype to manage confirm and reject mission messages.
+ */
+class MissionManager extends ManagerPrototype {
 
-    constructor() {
-        this.MISSION_LIST = new SmartList();
-        this.missionCallbacks = [];     // When a mission is modified
-        this.missionListCallbacks = [];     // When a mission is added or removed
+    /**
+     * Constructor of the MissionManager class.
+     * @param {string} missionConfirm - Name of the header of the info message that will be received from server when a mission is confirmed/rejected.
+     * @param {string} missionAdd - Name of the header of the info message that will be received from server when a parameter of the mission is add/modified.
+     * @param {string} missionSet - Name of the header of the info message that will be received from server when a mission is set/reset.
+     * @param {string} missionGet - Name of the header of the request message that will be received from server when the mission list is requested.
+     */
+    constructor(missionConfirm, missionAdd, missionSet, missionGet) {
+        super(missionAdd, missionSet, missionGet);
+        M.WS.addCallback('request', missionConfirm, this._onMissionConfirm.bind(this));
     }
 
-    _callCallbacks(callbackList, ...args) {
-        for (let i = 0; i < callbackList.length; i++) {
-            callbackList[i][0](callbackList[i][1], ...args);
+    // #region Private methods
+    _onMissionConfirm(payload) {
+
+        if (payload['status'] == 'confirmed') {
+            super._onInfo(payload, 'infoAdd');
+        } else if (payload['status'] == 'rejected') {
+            // TODO: manage reject
+            console.log('Mission rejected');
         }
     }
-
-    // #region Mission List
-    addMissionCallback(callback, ...args) {
-        this.missionCallbacks.push([callback, args]);
-    }
-
-    addMissionListCallback(callback, ...args) {
-        this.missionListCallbacks.push([callback, args]);
-    }
-
-    getMissionDicById(id)
-    {
-        if (id in this.getMissionList()) {
-            return this.MISSION_LIST.getDictById(id);
-        } else {
-            return null;
-        }
-    }
-
-    getMissionList() {
-        return this.MISSION_LIST.getList();
-    }
-
-    getMissionDict() {
-        return this.MISSION_LIST.getDict();
-    }
-
-    removeMission(id) {
-        this.MISSION_LIST.removeObject(id);
-        this._callCallbacks(this.missionListCallbacks);
-    }
-
-    addMission(id, state, uavList, layers) {
-        if (id in this.getMissionList()) {
-            this.getMissionDicById(id).setMission(id, state, uavList, layers);
-            this._callCallbacks(this.missionCallbacks, id);
-        } else {
-            this.MISSION_LIST.addObject(id, new Mission(id, state, uavList, layers) );
-            this._callCallbacks(this.missionListCallbacks);
-        }
-    }
-
-    setMissionState(id, state) {
-        this.getMissionDicById(id).setMissionState(state);
-        this._callCallbacks(this.missionCallbacks, id);
-    }
-
-    setMissionUavList(id, uavList) {
-        this.getMissionDicById(id).setMissionUavList(uavList);
-        this._callCallbacks(this.missionCallbacks, id);
-    }
-
-    setMissionLayers(id, layers) {
-        this.getMissionDicById(id).setMissionLayers(layers);
-        this._callCallbacks(this.missionCallbacks, id);
-    }
-    // #endregion
 
 }
+
 
 class MissionDrawManager
 {
@@ -370,51 +328,34 @@ class MapManager
         ];
 
         // Color grey
-        this.drawColor = '#B3B3B3'
-        
+        this.drawColor = '#B3B3B3';
+
+        this.mapPmCreateCallbacks = [];
+
         this.MAP.on('pm:create', function (e) {
-            console.log("Layer created")        
+
             if ('color' in e.layer.pm.options) {
                 e.layer.setStyle({color: e.layer.pm.options['color']});
                 if ('color' in e.layer.options) {
                     e.layer.options['color'] = e.layer.options['color'];
                 }
             }
+
+            Utils.callCallbacks(M.mapPmCreateCallbacks, e);
         });
 
-        /*
-        this.MAP.on("layeradd",function(e){
-            let layers = M.getLayers();
-            console.log("In layeradd");
-            for (let i=0; i<layers.length; i++) {
-                console.log(layers[i]);
-
-                if (layers[i].options['dragging'] != undefined && layers[i].options['dragging'] == false) {
-                    // layers[i].dragging.disable();
-                    //layers[i]._pmTempLayer = true;
-                    //layers[i]._dragDisabled = true;
-                    //layers[i].pm._layerDragEnabled = false;
-
-                    console.log(layers[i].dragging);
-                    layers[i].dragging.disable();
-                    console.log(layers[i].pm);
-                    layers[i].pm.disableLayerDrag();
-                }
-            }
-        });
-        */
+        
     }
 
     initialize() {
         this.UAV_MANAGER = new ManagerPrototype('uavInfo', 'uavInfoSet', 'getUavList');
-        this.MISSION_MANAGER = new MissionManager();
+        this.MISSION_MANAGER = new MissionManager('missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
         this.MISSIOn_DRAW_MANAGER = new MissionDrawManager();
     }
 
-    _callCallbacks(callbackList, ...args) {
-        for (let i = 0; i < callbackList.length; i++) {
-            callbackList[i][0](callbackList[i][1], ...args);
-        }
+
+    addPmCreateCallback(callback, ...args) {
+        this.mapPmCreateCallbacks.push([callback, args]);
     }
 
     // #region WebScoket Callbacks
@@ -423,15 +364,8 @@ class MapManager
             this.WS.requestGetUavList();
             this.WS.requestGetMissionList();
         }
-        /*
-        this.UAV_MANAGER.addUav('PX 1', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
-        this.UAV_MANAGER.addUav('PX 2', 'landed', {'lat': 0, 'lng': 0, 'yaw': 0}, [], [], {});
-
-        this.MISSION_MANAGER.addMission('Mission 1', 'landed', ['PX 1'], []);
-        this.MISSION_MANAGER.addMission('Mission 2', 'landed', ['PX 2'], []);
-        */
-        
     }
+
     // #endregion
     
     // #region Side Bars

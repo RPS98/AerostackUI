@@ -1,11 +1,11 @@
-class UavDrawer
+class MissionDrawer
 {
     constructor() {
-        M.MISSION_MANAGER.addMissionParamCallback('status',  this.updateMissionParam.bind(this));
-        M.MISSION_MANAGER.addMissionParamCallback('layers', this.updateMissionParam.bind(this));
+        M.MISSION_MANAGER.addInfoParamCallback('status',  this.updateMissionParam.bind(this));
+        M.MISSION_MANAGER.addInfoParamCallback('layers',  this.updateMissionParam.bind(this));
 
-        this.missionListId = Object.assign([], M.MISSION_MANAGER.getMissionList());
-        this.missionDict = Object.assign({}, M.MISSION_MANAGER.getMissionDict());
+        this.missionListId = Object.assign([], M.MISSION_MANAGER.getInfoList());
+        this.missionDict   = Object.assign({}, M.MISSION_MANAGER.getInfoDict());
 
         this.MISSION_LIST = new SmartList();
     }
@@ -16,7 +16,14 @@ class UavDrawer
         }
     }
 
-    updateMissionParam(id, param, value) {
+    updateMissionParam(param, value, args) {
+        let id = args[0];
+        
+        console.log("UPDATE MISSION PARAM");
+        console.log(id);
+        console.log(param);
+        console.log(value);
+        /*
         if ((this.MISSION_LIST.getList().indexOf(id) === -1)) {
             this.MISSION_LIST.addObject(id, {'id': id});
         }
@@ -43,7 +50,7 @@ class UavDrawer
                     break;
             }
         }
-        this.MISSION_LIST.getDictById(id)[param] = value;
-        
+        this.MISSION_LIST.getDictById(id)[param] = value;   
+        */
     }
 }
