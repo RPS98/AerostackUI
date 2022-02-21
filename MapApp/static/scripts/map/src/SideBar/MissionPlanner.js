@@ -1,3 +1,87 @@
+class TakeOffUav {
+    constructor(map, uav, uavId) {
+    
+    }
+}
+
+class LandPointPopup {
+    constructor(htmlId) {
+        this.htmlId = `${htmlId}-landPointPopup`;
+        this.landPointPopupCont = 0;
+
+        this.markers = new SmartList();
+
+        M.addPmCreateCallback(this.pmCreateCallback.bind(this));
+        M.UAV_MANAGER.addInfoAddCallback(this.updateUavListCallback.bind(this));
+    }
+
+    pmCreateCallback(myargs, e) {
+
+        let options = e.layer.pm.options;
+
+        if (options['missionPlanner'] && options['name'] == 'LandPoint') {
+            e.layer.pm.options['landUav'] = 'none';
+            let popup = this.getLandPointPopup(this.landPointPopupCont);
+            e.marker.bindPopup(popup).openPopup();
+
+            this.markers.addObject(
+                this.landPointPopupCont.toString(), 
+                {
+                    'popup': popup,
+                    'layer': e.layer,
+                }
+            );
+
+            this.addListener(`${this.htmlId}-${this.landPointPopupCont}`);
+            
+            this.landPointPopupCont += 1;
+        }
+    }
+
+    addListener(markerId) {
+        let uavList = M.UAV_MANAGER.getInfoList();
+        for (let i=0; i<uavList.length; i++) {
+            let input = document.getElementById(`${markerId}-Input-${uavList[i]}`);
+
+            let callback = this.clickLandPointPopupCallback.bind(this);
+            input.addEventListener('change', function() {
+                let id    = this.id.split('-');
+                let uavId = id[id.length-1];
+                let markerId = id[id.length-3];
+                callback(markerId, uavId);
+                
+            });
+        }
+    }
+
+    updateUavListCallback() {
+        let markerList = this.markers.getList();
+        for (let i=0; i<markerList.length; i++) {
+            let markerId = markerList[i];
+            let popup = this.markers.getDictById(markerId).popup;
+            console.log("updateUavListCallback")
+            console.log(markerId);
+            console.log(popup);
+            popup.setContent(this.getLandPointPopup(markerId));
+        }
+    }
+
+    getLandPointPopup(id) {
+        let uavList = Object.assign([], M.UAV_MANAGER.getInfoList())
+        if (uavList.length == 0) {
+            uavList.push('None');
+        }
+
+        return  L.popup().setContent(
+            HTMLUtils.dictToHTML(HTMLUtils.addDict('checkBoxes', `${this.htmlId}-${id}`, {'class': `${this.htmlId}`}, 'radio', uavList))
+        );
+    }
+
+    clickLandPointPopupCallback(markerId, uavId) {
+        this.markers.getDictById(markerId).layer.pm.options['landUav'] = uavId;
+    }
+}
+
 class MissionPlanner
 {
     constructor() {
@@ -7,24 +91,15 @@ class MissionPlanner
         M.UAV_MANAGER.addInfoAddCallback(this.updateUavListCallback.bind(this));
         M.MISSION_MANAGER.addInfoAddCallback(this.updateMissionListCallback.bind(this));
 
-        M.addPmCreateCallback(this.pmCreateCallback.bind(this));
-
         this.selectedMission = 'New Mission';
         this.selectedUavs = {};
         this.selectedHeight = [0, 70];
 
         this.addDrawTypes();
 
-        this.landPointPopup = L.popup()
-            .setContent(
-                `
-                <div class=${this.htmlId}-LandPointPopup>
-                    <p>No UAV</p>
-                </div>
-                `
-            );
-
         this.addPlannerHTML();
+
+        this.landPointPopup = new LandPointPopup(this.htmlId);
     }
 
     _checkInitalize() {
@@ -160,27 +235,6 @@ class MissionPlanner
         args[0].userDraw({'height': this.selectedHeight}, args);
     }
 
-    pmCreateCallback(myargs, e) {
-        console.log('pmCreateCallback');
-        console.log(e);
-
-        let options = e.layer.pm.options;
-
-        if (options['missionPlanner']) {
-
-            if (options['name'] == 'LandPoint') {
-                let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, 'radio', M.UAV_MANAGER.getInfoList());
-                console.log(HTMLUtils.dictToHTML(uavPickerList));
-                /*
-                
-                landPointPopups[i].innerHTML = "";
-                HTMLUtils.addHTML(landPointPopups[i], [uavPickerList]);
-
-                e.marker.bindPopup(this.landPointPopup).openPopup();
-                */
-            }
-        }
-    }
 
     // #endregion
 
@@ -196,7 +250,7 @@ class MissionPlanner
         mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV picker
-        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker`, {}, 'checkbox', M.UAV_MANAGER.getInfoList());
+        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker-SideBar`, {}, 'checkbox', M.UAV_MANAGER.getInfoList());
         mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
 
 
@@ -237,6 +291,10 @@ class MissionPlanner
                 switch(options.type) {
                     case 'Marker':
                         layer_info['layer'] = layers[i]._latlng;
+
+                        if (options.name == 'LandPoint') {
+                            layer_info['landUav'] = layers[i].options['landUav'];
+                        }
                         break;
                     case 'Circle':
                     case 'CircleMarker':
@@ -259,6 +317,7 @@ class MissionPlanner
             }
         }
 
+        
 
         if (drawLayers.length > 0 && uavList.length > 0) {
             M.WS.requestMissionConfirm(
@@ -277,7 +336,7 @@ class MissionPlanner
 
     updateUavListCallback(myargs, args) {
         this._checkInitalize();
-        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker`, 'checkbox', M.UAV_MANAGER.getInfoList());
+        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker-SideBar`, 'checkbox', M.UAV_MANAGER.getInfoList());
 
         let uavList = M.UAV_MANAGER.getInfoList();
         this.selectedUavs = {};
@@ -285,7 +344,7 @@ class MissionPlanner
             // Manage checkbox and its callback
             this.selectedUavs[uavList[i]] = false;
 
-            let input = document.getElementById(`${this.htmlId}-UAVPicker-checkBox-Input-${uavList[i]}`);
+            let input = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Input-${uavList[i]}`);
 
             let callback = this.clickUavListCallback.bind(this);
 
@@ -299,14 +358,8 @@ class MissionPlanner
             });
 
             // Change button color
-            let label = document.getElementById(`${this.htmlId}-UAVPicker-checkBox-Label-${uavList[i]}`);
+            let label = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Label-${uavList[i]}`);
             label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(uavList[i])[1]}`, "important");
-        }
-        
-        // Update land point popup
-        let landPointPopups = document.getElementsByClassName(`${this.htmlId}-LandPointPopup`);
-        for (let i=0; i<landPointPopups.length; i++) {
-            HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker`, 'checkbox', M.UAV_MANAGER.getInfoList());
         }
         
     }
@@ -337,6 +390,8 @@ class MissionPlanner
             }
         }
     }
+
+
     // #endregion
     // #endregion
 }

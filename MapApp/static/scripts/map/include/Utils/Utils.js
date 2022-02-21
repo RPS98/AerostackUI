@@ -26,7 +26,11 @@ class HTMLUtils
             element.setAttribute('id', id);
         }
         for (let key in attributes) {
-            element.setAttribute(key, attributes[key]);
+            if (element.getAttribute(key) == null) {
+                element.setAttribute(key, attributes[key]);
+            } else {
+                element.setAttribute(key, element.getAttribute(key) + ' ' + attributes[key]);
+            }
         }
         return element;
     }    
@@ -108,11 +112,11 @@ class HTMLUtils
         HTMLUtils.addToExistingElement(`${id}-DropDown-menu`, [dropDownExpand]);
     }
 
-    static updateCheckBoxes(idCheckBoxes, type, list) {
+    static updateCheckBoxes(idCheckBoxes, type, list, attributes={}) {
         let checkBoxes = document.getElementById(`${idCheckBoxes}`);
         checkBoxes.innerHTML = '';
         for (let i=0; i<list.length; i++) {
-            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox`, {}, type, list[i]);
+            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox`, attributes, type, list[i]);
             HTMLUtils.addToExistingElement(`${idCheckBoxes}`, [checkBox]);
         }
     }
