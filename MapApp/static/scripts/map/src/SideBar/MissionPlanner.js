@@ -1,6 +1,6 @@
 class TakeOffUav {
     constructor(map, uav, uavId) {
-    
+
     }
 }
 
@@ -9,7 +9,7 @@ class LandPointPopup {
         this.htmlId = `${htmlId}-landPointPopup`;
         this.landPointPopupCont = 0;
 
-        this.markers = new SmartList();
+        this.markersSList = new SmartList();
 
         M.addPmCreateCallback(this.pmCreateCallback.bind(this));
         M.UAV_MANAGER.addInfoAddCallback(this.updateUavListCallback.bind(this));
@@ -21,69 +21,71 @@ class LandPointPopup {
 
         if (options['missionPlanner'] && options['name'] == 'LandPoint') {
             e.layer.pm.options['landUav'] = 'none';
-            let popup = this.getLandPointPopup(this.landPointPopupCont);
+
+            let popup = L.popup().setContent(
+                this.getLandPointHtmlPopup(this.landPointPopupCont)
+            );
+
             e.marker.bindPopup(popup).openPopup();
 
-            this.markers.addObject(
-                this.landPointPopupCont.toString(), 
+            this.markersSList.addObject(
+                this.landPointPopupCont.toString(),
                 {
                     'popup': popup,
                     'layer': e.layer,
+                    'marker': e.marker
                 }
             );
 
             this.addListener(`${this.htmlId}-${this.landPointPopupCont}`);
-            
+
             this.landPointPopupCont += 1;
         }
     }
 
-    addListener(markerId) {
-        let uavList = M.UAV_MANAGER.getInfoList();
-        for (let i=0; i<uavList.length; i++) {
-            let input = document.getElementById(`${markerId}-Input-${uavList[i]}`);
-
-            let callback = this.clickLandPointPopupCallback.bind(this);
-            input.addEventListener('change', function() {
-                let id    = this.id.split('-');
-                let uavId = id[id.length-1];
-                let markerId = id[id.length-3];
-                callback(markerId, uavId);
-                
-            });
-        }
-    }
-
     updateUavListCallback() {
-        let markerList = this.markers.getList();
-        for (let i=0; i<markerList.length; i++) {
-            let markerId = markerList[i];
-            let popup = this.markers.getDictById(markerId).popup;
-            console.log("updateUavListCallback")
-            console.log(markerId);
-            console.log(popup);
-            popup.setContent(this.getLandPointPopup(markerId));
+        let markerList = this.markersSList.getList();
+        for (let i = 0; i < markerList.length; i++) {
+
+            this.markersSList.getDictById(markerList[i])['marker']
+                .getPopup().setContent(
+                    this.getLandPointHtmlPopup(markerList[i])
+                ).update()
+                ;
         }
     }
 
-    getLandPointPopup(id) {
+    getLandPointHtmlPopup(id) {
         let uavList = Object.assign([], M.UAV_MANAGER.getInfoList())
         if (uavList.length == 0) {
             uavList.push('None');
         }
 
-        return  L.popup().setContent(
-            HTMLUtils.dictToHTML(HTMLUtils.addDict('checkBoxes', `${this.htmlId}-${id}`, {'class': `${this.htmlId}`}, 'radio', uavList))
-        );
+        return HTMLUtils.dictToHTML(HTMLUtils.addDict('checkBoxes', `${this.htmlId}-${id}`, { 'class': `${this.htmlId}` }, 'radio', uavList));
+    }
+
+    addListener(markerId) {
+        let uavList = M.UAV_MANAGER.getInfoList();
+        for (let i = 0; i < uavList.length; i++) {
+            let input = document.getElementById(`${markerId}-Input-${uavList[i]}`);
+
+            let callback = this.clickLandPointPopupCallback.bind(this);
+            input.addEventListener('change', function () {
+                let id = this.id.split('-');
+                let uavId = id[id.length - 1];
+                let markerId = id[id.length - 3];
+                callback(markerId, uavId);
+            });
+        }
     }
 
     clickLandPointPopupCallback(markerId, uavId) {
-        this.markers.getDictById(markerId).layer.pm.options['landUav'] = uavId;
+        this.markersSList.getDictById(markerId)['landUav'] = uavId;
+        this.markersSList.getDictById(markerId).layer.pm.options['landUav'] = uavId;
     }
 }
 
-class MissionPlanner
-{
+class MissionPlanner {
     constructor() {
         this.htmlId = 'sideBar-left-missionPlanner-content';
 
@@ -121,61 +123,60 @@ class MissionPlanner
         this.pointOfInterest = new PointOfInterest(fillColor, borderColor, {}, userDrawOptions);
         this.wayPoint = new WayPoint(fillColor, borderColor, {}, userDrawOptions);
 
-        let userDrawOptionsMerged = 
+        let userDrawOptionsMerged =
             Object.assign({}, userDrawOptions, {
                 'color': M.drawColor,
             }
-        );
+            );
 
         this.path = new Path({}, userDrawOptionsMerged);
         this.area = new Area({}, userDrawOptionsMerged);
         this.carea = new CircularArea({}, userDrawOptionsMerged);
-        
-        this.landPoint = new LandPoint(fillColor, borderColor, {}, userDrawOptions);
-        this.takeOffPont = new TakeOffPoint(fillColor, borderColor, {}, userDrawOptions);
 
+        this.landPoint = new LandPoint(fillColor, borderColor, {}, userDrawOptions);
+        this.takeOffPoint = new TakeOffPoint(fillColor, borderColor, {}, userDrawOptions);
     }
 
     addPlannerHTML() {
         let mPlannerList = [];
 
         // Heigh input
-        let heightInput = HTMLUtils.addDict('input',  `${this.htmlId}-heightInput`, {'class': 'form-control', 'required': 'required',}, 'text', '1');
-        let heightBtn   = HTMLUtils.addDict('button', `${this.htmlId}-heighBtn`, {'class': 'btn btn-primary'}, 'Set Height (m)');
-        let heightRow  = HTMLUtils.addDict('splitDivs', 'none', {'class': 'row my-1 mx-1'}, [heightInput, heightBtn], {'class': 'col-md-6'});
+        let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, { 'class': 'form-control', 'required': 'required', }, 'text', '1');
+        let heightBtn = HTMLUtils.addDict('button', `${this.htmlId}-heighBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
+        let heightRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [heightInput, heightBtn], { 'class': 'col-md-6' });
         mPlannerList.push(heightRow);
 
-        let heightInputMin  = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMin`, {'class': 'form-control', 'required': 'required',}, 'text', 'Min');
-        let heightInputMax  = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMax`, {'class': 'form-control', 'required': 'required',}, 'text', 'Max');
-        let heightRangeBtn  = HTMLUtils.addDict('button', `${this.htmlId}-heighRangeBtn`, {'class': 'btn btn-primary'}, 'Set Height (m)');
-        let heightRangeRow  = HTMLUtils.addDict('splitDivs', 'none', {'class': 'row my-1 mx-1'}, [heightInputMin, heightInputMax, heightRangeBtn], {'class': 'col heightRange'});
+        let heightInputMin = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Min');
+        let heightInputMax = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Max');
+        let heightRangeBtn = HTMLUtils.addDict('button', `${this.htmlId}-heighRangeBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
+        let heightRangeRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [heightInputMin, heightInputMax, heightRangeBtn], { 'class': 'col heightRange' });
         mPlannerList.push(heightRangeRow);
 
 
         // Buttons for change draw mode
-        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-mouse`,  {'class': 'btn btn-primary m-1',}, `<i class="fas fa-mouse-pointer"></i>`));
-        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-edit`,   {'class': 'btn btn-primary m-1',}, `<i class="fas fa-edit"></i>`));
-        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-delete`, {'class': 'btn btn-primary m-1',}, `<i class="fas fa-eraser"></i>`));
-        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-move`,   {'class': 'btn btn-primary m-1',}, `<i class="fas fa-arrows-alt"></i>`));
-        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-rotate`, {'class': 'btn btn-primary m-1',}, `<i class="fas fa-sync-alt"></i>`));
+        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-mouse`, { 'class': 'btn btn-primary m-1', }, `<i class="fas fa-mouse-pointer"></i>`));
+        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-edit`, { 'class': 'btn btn-primary m-1', }, `<i class="fas fa-edit"></i>`));
+        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-delete`, { 'class': 'btn btn-primary m-1', }, `<i class="fas fa-eraser"></i>`));
+        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-move`, { 'class': 'btn btn-primary m-1', }, `<i class="fas fa-arrows-alt"></i>`));
+        mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-rotate`, { 'class': 'btn btn-primary m-1', }, `<i class="fas fa-sync-alt"></i>`));
 
         // Buttons for draw mission
         let splitBtn = [];
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-takeOff`, {'class': 'btn btn-primary',}, `Take off <i class="fa-solid fa-t"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-PoI`,     {'class': 'btn btn-primary',}, `Point of interest  <i class="fas fa-map-marker-alt"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-WP`,      {'class': 'btn btn-primary',}, `WayPoint  <i class="fa-solid fa-circle"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-path`,    {'class': 'btn btn-primary',}, `Path <i class="fas fa-long-arrow-alt-up"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-area`,    {'class': 'btn btn-primary',}, `Area <i class="fas fa-draw-polygon"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-cArea`,   {'class': 'btn btn-primary',}, `Circular area <i class="far fa-circle"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-land`,    {'class': 'btn btn-primary',}, `Land point <i class="fas fa-h-square"></i>`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-remove`,  {'class': 'btn btn-warning'},  'Remove all draw'));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-save`,    {'class': 'btn btn-success'},  'Save Mission in file'));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-load`,    {'class': 'btn btn-success'},  'Load Mission from file'));
-        mPlannerList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtn, {'class': 'row m-1'}));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-takeOff`, { 'class': 'btn btn-primary', }, `Take off <i class="fa-solid fa-t"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-PoI`, { 'class': 'btn btn-primary', }, `Point of interest  <i class="fas fa-map-marker-alt"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-WP`, { 'class': 'btn btn-primary', }, `WayPoint  <i class="fa-solid fa-circle"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-path`, { 'class': 'btn btn-primary', }, `Path <i class="fas fa-long-arrow-alt-up"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-area`, { 'class': 'btn btn-primary', }, `Area <i class="fas fa-draw-polygon"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-cArea`, { 'class': 'btn btn-primary', }, `Circular area <i class="far fa-circle"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-land`, { 'class': 'btn btn-primary', }, `Land point <i class="fas fa-h-square"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-remove`, { 'class': 'btn btn-warning' }, 'Remove all draw'));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-save`, { 'class': 'btn btn-success' }, 'Save Mission in file'));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-load`, { 'class': 'btn btn-success' }, 'Load Mission from file'));
+        mPlannerList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtn, { 'class': 'row m-1' }));
 
         // Planner collapse
         let missionPlannerCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-PlannerCollapse`, {}, 'Planner', true, mPlannerList);
-        
+
         HTMLUtils.addToExistingElement(`${this.htmlId}`, [missionPlannerCollapse]);
 
         // Makes height range button looks pretty
@@ -192,25 +193,25 @@ class MissionPlanner
         Utils.addFormCallback(`${this.htmlId}-heighRangeBtn`, [`${this.htmlId}-heightInputMin`, `${this.htmlId}-heightInputMax`], ['heightMin', 'heightMax'], this.heightRangeCallback.bind(this));
 
         // Buttons for change draw mode
-        Utils.addButtonCallback(`${this.htmlId}-mouse`,   DrawController.drawMouse, []);
-        Utils.addButtonCallback(`${this.htmlId}-edit`,    DrawController.drawEdit, []);
-        Utils.addButtonCallback(`${this.htmlId}-delete`,  DrawController.drawDelete, []);
-        Utils.addButtonCallback(`${this.htmlId}-move`,    DrawController.drawMove, []);
-        Utils.addButtonCallback(`${this.htmlId}-rotate`,  DrawController.drawRotate, []);
-        
-        // Buttons for draw mission
-        Utils.addButtonCallback(`${this.htmlId}-takeOff`, this.userDrawCallbacks.bind(this), [this.takeOffPont]);
-        Utils.addButtonCallback(`${this.htmlId}-PoI`,     this.userDrawCallbacks.bind(this), [this.pointOfInterest]);
-        Utils.addButtonCallback(`${this.htmlId}-WP`,      this.userDrawCallbacks.bind(this), [this.wayPoint]);
-        Utils.addButtonCallback(`${this.htmlId}-path`,    this.userDrawCallbacks.bind(this), [this.path]);
-        Utils.addButtonCallback(`${this.htmlId}-area`,    this.userDrawCallbacks.bind(this), [this.area]);
-        Utils.addButtonCallback(`${this.htmlId}-cArea`,   this.userDrawCallbacks.bind(this), [this.carea]);
-        Utils.addButtonCallback(`${this.htmlId}-land`,    this.userDrawCallbacks.bind(this), [this.landPoint]);
+        Utils.addButtonCallback(`${this.htmlId}-mouse`, DrawController.drawMouse, []);
+        Utils.addButtonCallback(`${this.htmlId}-edit`, DrawController.drawEdit, []);
+        Utils.addButtonCallback(`${this.htmlId}-delete`, DrawController.drawDelete, []);
+        Utils.addButtonCallback(`${this.htmlId}-move`, DrawController.drawMove, []);
+        Utils.addButtonCallback(`${this.htmlId}-rotate`, DrawController.drawRotate, []);
 
-        Utils.addButtonCallback(`${this.htmlId}-remove`,  DrawController.drawRemoveAll, []);
+        // Buttons for draw mission
+        Utils.addButtonCallback(`${this.htmlId}-takeOff`, this.userDrawCallbacks.bind(this), [this.takeOffPoint]);
+        Utils.addButtonCallback(`${this.htmlId}-PoI`, this.userDrawCallbacks.bind(this), [this.pointOfInterest]);
+        Utils.addButtonCallback(`${this.htmlId}-WP`, this.userDrawCallbacks.bind(this), [this.wayPoint]);
+        Utils.addButtonCallback(`${this.htmlId}-path`, this.userDrawCallbacks.bind(this), [this.path]);
+        Utils.addButtonCallback(`${this.htmlId}-area`, this.userDrawCallbacks.bind(this), [this.area]);
+        Utils.addButtonCallback(`${this.htmlId}-cArea`, this.userDrawCallbacks.bind(this), [this.carea]);
+        Utils.addButtonCallback(`${this.htmlId}-land`, this.userDrawCallbacks.bind(this), [this.landPoint]);
+
+        Utils.addButtonCallback(`${this.htmlId}-remove`, DrawController.drawRemoveAll, []);
 
         // add listener to reset draw when press ESC key
-        document.addEventListener('keydown', function(e){
+        document.addEventListener('keydown', function (e) {
             switch (e.key) {
                 case 'Escape':
                     //console.log('ESC pressed');
@@ -231,8 +232,8 @@ class MissionPlanner
         this.selectedHeight = [input['heightMin'], input['heightMax']];
     }
 
-    userDrawCallbacks(args=[]) {
-        args[0].userDraw({'height': this.selectedHeight}, args);
+    userDrawCallbacks(args = []) {
+        args[0].userDraw({ 'height': this.selectedHeight }, args);
     }
 
 
@@ -247,7 +248,7 @@ class MissionPlanner
         // Mission Dropdown list
         let missionList = ['New mission'];
         let missionListTotal = missionList.concat(M.MISSION_MANAGER.getInfoList());
-        mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, missionListTotal, 'New Mission'));
+        mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId}-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV picker
         let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker-SideBar`, {}, 'checkbox', M.UAV_MANAGER.getInfoList());
@@ -256,10 +257,10 @@ class MissionPlanner
 
         // Buttons for confirm mission
         let splitBtnConfirm = [];
-        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-SaveMission`, {'class': 'btn btn-primary'},  'Save Mission'));
-        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, {'class': 'btn btn-success', disabled: true},  'Confirm mission'));
-        mConfirmList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtnConfirm, {'class': 'row m-1'}));
-        
+        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-SaveMission`, { 'class': 'btn btn-primary' }, 'Save Mission'));
+        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, { 'class': 'btn btn-success', disabled: true }, 'Confirm mission'));
+        mConfirmList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtnConfirm, { 'class': 'row m-1' }));
+
         // Confirm collapse
         let missionConfirmCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-ConfirmCollapse`, {}, 'Confirm', false, mConfirmList);
 
@@ -272,13 +273,13 @@ class MissionPlanner
         Utils.addButtonCallback(`${this.htmlId}-confirm`, this.confirmBtnCallback.bind(this), []);
     }
 
-    confirmBtnCallback(args=[]) {
+    confirmBtnCallback(args = []) {
         // TODO: websocket -> send mission to server
         console.log('confirm mission');
         let layers = M.getLayers();
 
         let drawLayers = [];
-        for (let i=0; i<layers.length; i++) {
+        for (let i = 0; i < layers.length; i++) {
             let options = layers[i].pm.options;
             if (options.status == 'draw') {
 
@@ -288,9 +289,9 @@ class MissionPlanner
                 };
 
                 // add layer info to a list
-                switch(options.type) {
+                switch (options.type) {
                     case 'Marker':
-                        layer_info['layer'] = layers[i]._latlng;
+                        layer_info['values'] = layers[i]._latlng;
 
                         if (options.name == 'LandPoint') {
                             layer_info['landUav'] = layers[i].options['landUav'];
@@ -298,16 +299,17 @@ class MissionPlanner
                         break;
                     case 'Circle':
                     case 'CircleMarker':
-                        layer_info['layer'] = [layers[i]._latlng, layers[i]._mRadius];
+                        layer_info['values'] = [layers[i]._latlng, layers[i]._mRadius];
                         break;
                     case 'Line':
                     case 'Polygon':
                     case 'Rectangle':
-                        layer_info['layer'] = layers[i]._latlngs;
+                        layer_info['values'] = layers[i]._latlngs;
                         break;
                 }
-                drawLayers.push(layer_info)
-            }   
+                drawLayers.push(layer_info);
+                layers[i].pm.options['missionId'] = this.selectedMission;
+            }
         }
 
         let uavList = [];
@@ -317,21 +319,18 @@ class MissionPlanner
             }
         }
 
-        
-
         if (drawLayers.length > 0 && uavList.length > 0) {
             M.WS.requestMissionConfirm(
                 this.selectedMission,
-                this.selectedUavs,
+                uavList,
                 drawLayers
-            );      
+            );
         }
-        
     }
 
     // #region Callbacks
     addBntDropDownMissionCallback() {
-        Utils.addButtonsCallback(`${this.htmlId }-MissionList-item`, this.clickMissionListCallback.bind(this));
+        Utils.addButtonsCallback(`${this.htmlId}-MissionList-item`, this.clickMissionListCallback.bind(this));
     }
 
     updateUavListCallback(myargs, args) {
@@ -340,7 +339,7 @@ class MissionPlanner
 
         let uavList = M.UAV_MANAGER.getInfoList();
         this.selectedUavs = {};
-        for (let i=0; i<uavList.length; i++) {
+        for (let i = 0; i < uavList.length; i++) {
             // Manage checkbox and its callback
             this.selectedUavs[uavList[i]] = false;
 
@@ -348,10 +347,10 @@ class MissionPlanner
 
             let callback = this.clickUavListCallback.bind(this);
 
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
 
                 let id = this.id.split('-');
-                let uavId = id[id.length-1];
+                let uavId = id[id.length - 1];
                 let value = this.checked;
 
                 callback(uavId, value);
@@ -361,7 +360,7 @@ class MissionPlanner
             let label = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Label-${uavList[i]}`);
             label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(uavList[i])[1]}`, "important");
         }
-        
+
     }
 
     updateMissionListCallback(myargs, args) {

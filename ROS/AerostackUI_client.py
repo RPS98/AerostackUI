@@ -12,76 +12,76 @@ def nullFunction(*args):
     return
 
 
-class UAV:
-    """
-    UAV object
-    """
-    def __init__(self, id, state, pose, odom=[], desired_path=[], sensors={}):
-        self.id = id
-        self.pose = pose
-        self.state = state
-        self.odom = odom
-        self.desired_path = desired_path
-        self.sensors = sensors
+# class UAV:
+#     """
+#     UAV object
+#     """
+#     def __init__(self, id, state, pose, odom=[], desired_path=[], sensors={}):
+#         self.id = id
+#         self.pose = pose
+#         self.state = state
+#         self.odom = odom
+#         self.desired_path = desired_path
+#         self.sensors = sensors
     
-    def newPose(self, pose):
-        """
-        Add new UAV pose
+#     def newPose(self, pose):
+#         """
+#         Add new UAV pose
 
-        Args:
-            pose (dict): UAV pose with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
-        """
-        self.pose = pose
-        self.odom.append(pose)
+#         Args:
+#             pose (dict): UAV pose with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
+#         """
+#         self.pose = pose
+#         self.odom.append(pose)
         
-    def newOdom(self, odom):
-        """
-        Set new UAV odometry with a list of poses
+#     def newOdom(self, odom):
+#         """
+#         Set new UAV odometry with a list of poses
 
-        Args:
-            odom (list): List of poses with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
-        """
-        self.odom = odom
+#         Args:
+#             odom (list): List of poses with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
+#         """
+#         self.odom = odom
         
-    def newDesiredPath(self, desired_path):
-        """
-        Set new desired path with a list of poses
+#     def newDesiredPath(self, desired_path):
+#         """
+#         Set new desired path with a list of poses
 
-        Args:
-            desired_path (list): List of poses with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
-        """
-        self.desired_path = desired_path
+#         Args:
+#             desired_path (list): List of poses with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
+#         """
+#         self.desired_path = desired_path
         
-    def newDesiredPose(self, pose):
-        """
-        Add new desired pose to the desired path
+#     def newDesiredPose(self, pose):
+#         """
+#         Add new desired pose to the desired path
 
-        Args:
-            pose (dict): UAV pose with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
-        """
-        self.desired_path.append(pose)
+#         Args:
+#             pose (dict): UAV pose with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
+#         """
+#         self.desired_path.append(pose)
         
-    def newSensorList(self, sensor_list):
-        self.sensor_list = sensor_list
+#     def newSensorList(self, sensor_list):
+#         self.sensor_list = sensor_list
         
-    def newSensor(self, key, value):
-        self.sensors[key] = value
+#     def newSensor(self, key, value):
+#         self.sensors[key] = value
         
-    def getInfo(self):
-        """
-        Return UAV information in a dictionary
+#     def getInfo(self):
+#         """
+#         Return UAV information in a dictionary
 
-        Returns:
-            [dict]: UAV information in a dictionary with format {'id': id, 'state': state, 'pose': pose, 'odom': odom, 'desired_path': desired_path}
-        """
-        return {
-            'id': self.id,
-            'state': self.state,
-            'pose': self.pose,
-            'odom': self.odom,
-            'desiredPath': self.desired_path,
-            'sensors': self.sensors
-        }
+#         Returns:
+#             [dict]: UAV information in a dictionary with format {'id': id, 'state': state, 'pose': pose, 'odom': odom, 'desired_path': desired_path}
+#         """
+#         return {
+#             'id': self.id,
+#             'state': self.state,
+#             'pose': self.pose,
+#             'odom': self.odom,
+#             'desiredPath': self.desired_path,
+#             'sensors': self.sensors
+#         }
 
 
 # Asynchronous client to websockets server
@@ -106,6 +106,7 @@ class WebSocketClient:
         self.new_mission_function = None
         
         self.uav_id_list = []
+        self.mission_id_list = []
         
         self.msg_id = 0
         self.mission_id = 1 # Can not be 0
@@ -298,6 +299,25 @@ class WebSocketClient:
             self.sendInfo('uavInfoSet', payload)
         else:
             self.sendInfo('uavInfo', payload)
+    
+    def send_mission_info(self, mission_info, override=False):
+        
+        if not ('id' in mission_info):
+            raise Exception("Mission info must contain the key 'id'")
+        
+        id = mission_info['id']
+        
+        if (not (id in self.mission_id_list)):
+            self.mission_id_list.append(id)
+            if (not ('id' in mission_info and 'uavList' in mission_info and 'layers' in mission_info)):
+                raise Exception('Invalid Mission info. For the firt time a Mission is send, it must contain the keys "id", "uavList" and "layers"')
+        
+        payload = mission_info 
+        
+        if override:
+            self.sendInfo('missionInfoSet', payload)
+        else:
+            self.sendInfo('missionInfo', payload)
 
     #endregion
     
@@ -319,17 +339,15 @@ class WebSocketClient:
         }
         self.send(msg, to)
     
-    def missionConfirm(self, new_mission_id, status, layers, old_msg, extra=[]):
-        payload = {
+    def missionConfirm(self, new_mission_id, status, oldId, author, extra=[]):
+        confirm_payload = {
             'id': new_mission_id, 
             'status': status,
-            'layers': layers,
-            'oldId': old_msg['payload']['id'],
+            'oldId': oldId,
+            'author': author,
             'extra': extra,
-            'author': old_msg['from']
         }
-        self.sendRequest('missionConfirm', payload, to=old_msg['from'])
-    
+        self.sendRequest('missionConfirm', confirm_payload, to=author)    
     
     #endregion
 
@@ -353,21 +371,23 @@ def newMissionCallback(client, msg):
         if msg['payload']['id'] != 'New Mission':
             confirm = 'rejected'
             extra.append('Invalid id, only "New Mission" is allowed for now :)')
-             
-
-    layers = []
-    for layer in msg['payload']['layers']:
-        layer['uavList'] = msg['payload']['uavList']
-        layers.append(layer)
-
+    
     client.missionConfirm(
         client.mission_id,
         confirm,
-        layers,
-        msg
+        msg['payload']['id'],
+        msg['from'],
+        extra
     )
     
     client.mission_id += 1
+    
+    if confirm == 'confirmed':
+        new_mission_info = msg['payload']
+        new_mission_info['status'] = confirm
+        new_mission_info['id'] = client.mission_id
+        
+        client.send_mission_info(new_mission_info)
                 
 
 def main():    
@@ -378,9 +398,9 @@ def main():
  
     time.sleep(1)
 
-    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.14376, 'lng': -16.50235, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
-    client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 90, 'temperature': 20}})
-    client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': 28.14396, 'lng': -16.50255, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
+    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.144099, 'lng': -16.503337, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
+    #client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 90, 'temperature': 20}})
+    #client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': 28.14396, 'lng': -16.50255, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
  
     
     """

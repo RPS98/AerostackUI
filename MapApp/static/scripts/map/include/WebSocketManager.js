@@ -147,6 +147,8 @@ class WebSocketManager {
             }
         }
         this.webSocket.send(JSON.stringify({ 'message': msg }));
+        //console.log("Message sent");
+        //console.log(msg);
     }
 
     sendBasic(header, payload, to = null) {

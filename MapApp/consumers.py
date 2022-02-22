@@ -65,19 +65,14 @@ class MissionManager(InfoManager):
     async def initialize(self):
         await super().initialize()
         await serverManager.addCallback('request', 'missionConfirm', self.on_confirm_mission)
-        
+    
     async def on_confirm_mission(self, id, rol, msg):
         
         if msg['payload']['status'] == 'request':
             await serverManager.sendMessage(msg['from'], 1, msg)
             
-        elif msg['payload']['status'] == 'confirmed':
-            await super().on_info_set(id, rol, msg)
-            await serverManager.sendMessage(1, 'webpages', msg)
-            
-        elif msg['payload']['status'] == 'rejected':
+        elif msg['payload']['status'] == 'confirmed' or msg['payload']['status'] == 'rejected':
             await serverManager.sendMessage(1, msg['to'], msg)
-
 
 
 class ServerManager():

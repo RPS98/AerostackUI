@@ -19,6 +19,18 @@ class Marker extends DrawManager
     sendInfo() {
         throw new Error("Method not implemented.");
     }
+
+    static getIcon(iconSvgGrey, fillColor='#b3b3b3', borderColor='#7f7f7f') {
+        
+        let iconSvgModified = iconSvgGrey.replace(new RegExp('#BORDER', 'g'), borderColor).replace(new RegExp('#FILL', 'g'), fillColor);
+
+        return L.divIcon({
+            html: iconSvgModified,
+            className: "svg-icon",
+            iconSize: [24, 40],
+            iconAnchor: [12, 40],
+        });
+    }
 }
 
 class PointOfInterest extends Marker
@@ -99,7 +111,6 @@ class PointOfInterest extends Marker
     }
 }
 
-
 class WayPoint extends Marker
 {
     constructor(fillColor='#b3b3b3', borderColor='#7f7f7f', codeDrawOptions={}, userDrawOptions={}) {
@@ -157,13 +168,6 @@ class WayPoint extends Marker
         super('WayPoint', codeDrawOptions, userDrawOptions);
     }
 
-    showInfo() {
-        super.showInfo();
-    }
-
-    sendInfo() {
-        super.sendInfo();
-    }
 }
 
 class LandPoint extends Marker
@@ -221,33 +225,29 @@ class LandPoint extends Marker
         </svg>
         `;
 
-        
-        let iconSvgModified = iconSvgGrey.replace(new RegExp('#BORDER', 'g'), borderColor).replace(new RegExp('#FILL', 'g'), fillColor);
-
-        let newIcon = L.divIcon({
-            html: iconSvgModified,
-            className: "svg-icon",
-            iconSize: [24, 40],
-            iconAnchor: [12, 40],
-        });
-
-        userDrawOptions['markerStyle'] = {'icon': newIcon};
-        codeDrawOptions['markerStyle'] = {'icon': newIcon};
+        userDrawOptions['markerStyle'] = {
+            'icon': Marker.getIcon(iconSvgGrey, fillColor, borderColor)
+        };
         super('LandPoint', codeDrawOptions, userDrawOptions);
+        this.iconSvgGrey = iconSvgGrey;
     }
 
-    showInfo() {
-        super.showInfo();
-    }
+    codeDraw(id, values, options={}) {
+        let colors = M.UAV_MANAGER.getColors(id);
 
-    sendInfo() {
-        super.sendInfo();
+        let newIcon = Marker.getIcon(this.iconSvgGrey, colors[1], colors[0]);
+
+        options['icon'] = newIcon;
+        let marker = super.codeDraw(values, options);
+        marker.pm.setOptions({draggable: false});
+        return marker;
     }
 }
 
 class TakeOffPoint extends Marker
 {
     constructor(fillColor='#b3b3b3', borderColor='#7f7f7f', codeDrawOptions={}, userDrawOptions={}) {
+
         let iconSvgGrey = `
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <svg 
@@ -294,31 +294,26 @@ class TakeOffPoint extends Marker
           </g>
         </svg>        
         `;
-
         
-        let iconSvgModified = iconSvgGrey.replace(new RegExp('#BORDER', 'g'), borderColor).replace(new RegExp('#FILL', 'g'), fillColor);
-
-        let newIcon = L.divIcon({
-            html: iconSvgModified,
-            className: "svg-icon",
-            iconSize: [24, 40],
-            iconAnchor: [12, 40],
-        });
-
-        userDrawOptions['markerStyle'] = {'icon': newIcon};
-        codeDrawOptions['markerStyle'] = {'icon': newIcon};
+        userDrawOptions['markerStyle'] = {
+            'icon': Marker.getIcon(iconSvgGrey, fillColor, borderColor)
+        };
         super('TakeOffPoint', codeDrawOptions, userDrawOptions);
+        this.iconSvgGrey = iconSvgGrey;
     }
 
-    showInfo() {
-        super.showInfo();
-    }
 
-    sendInfo() {
-        super.sendInfo();
+    codeDraw(id, values, options={}) {
+        let colors = M.UAV_MANAGER.getColors(id);
+
+        let newIcon = Marker.getIcon(this.iconSvgGrey, colors[1], colors[0]);
+
+        options['icon'] = newIcon;
+        let marker = super.codeDraw(values, options);
+        marker.pm.setOptions({draggable: false});
+        return marker;
     }
 }
-
 
 class UAVMarker extends Marker
 {
@@ -418,13 +413,5 @@ class UAVMarker extends Marker
         let marker = super.codeDraw(values, options);
         marker.pm.setOptions({draggable: false});
         return marker;
-    }
-
-    showInfo() {
-        super.showInfo();
-    }
-
-    sendInfo() {
-        super.sendInfo();
     }
 }

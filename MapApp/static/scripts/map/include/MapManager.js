@@ -199,19 +199,25 @@ class MissionManager extends ManagerPrototype {
     constructor(missionConfirm, missionAdd, missionSet, missionGet) {
         super(missionAdd, missionSet, missionGet);
         M.WS.addCallback('request', missionConfirm, this._onMissionConfirm.bind(this));
+        this._missionConfirmCallbacks = [];
     }
 
+    // #region Public methods
+    addMissionConfirmCallback(callback, ...args) {
+        this._missionConfirmCallbacks.push([callback, args]);
+    }
+
+    // #endregion
     // #region Private methods
     _onMissionConfirm(payload) {
-
         if (payload['status'] == 'confirmed') {
-            super._onInfo(payload, 'infoAdd');
+            Utils.callCallbacks(this._missionConfirmCallbacks, payload);
         } else if (payload['status'] == 'rejected') {
             // TODO: manage reject
             console.log('Mission rejected');
         }
     }
-
+    // #endregion
 }
 
 

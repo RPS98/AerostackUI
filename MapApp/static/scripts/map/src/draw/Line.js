@@ -5,8 +5,9 @@ class Line extends DrawManager
     }
 
     codeDraw(values, options={}) {
-        if (values.length > 1)
-        return super.codeDraw(values, options);
+        if (values.length > 1) {
+            return super.codeDraw(values, options);
+        }
     }
 
     userDraw(options={}) {
@@ -25,7 +26,7 @@ class Line extends DrawManager
 class Path extends Line
 {
     constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('path', codeDrawOptions, userDrawOptions);
+        super('Path', codeDrawOptions, userDrawOptions);
     }
 
     showInfo() {
@@ -41,7 +42,7 @@ class Path extends Line
 class Odom extends Line
 {
     constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('odom', codeDrawOptions, userDrawOptions);
+        super('Odom', codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(id, values, options={}) {
@@ -62,7 +63,7 @@ class Odom extends Line
 class DesiredPath extends Line
 {
     constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('desiredPath', codeDrawOptions, userDrawOptions);
+        super('DesiredPath', codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(id, values, options={}) {
