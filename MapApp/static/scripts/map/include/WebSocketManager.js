@@ -102,8 +102,8 @@ class WebSocketManager {
      * @param {object} webSocket - The WebSocket object.
      */
     onMessage(msg) {
-        // console.log("Message received");
-        // console.log(msg);
+        console.log("Message received");
+        console.log(msg);
         
         let payload = null;
         for (let i = 0; i < this.callbacksList.length; i++) {

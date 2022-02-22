@@ -352,6 +352,21 @@ class WebSocketClient:
     #endregion
 
 
+def planner(client, uavId, layers):
+    trayectory = []
+    for layer in layers:
+        print(layer)
+        if layer['name'] == 'TakeOffPoint' or layer['name'] == 'LandPoint':
+            trayectory.append([layer['values']['lat'], layer['values']['lng']])
+            
+        elif layer['name'] == 'Path':
+            path = layer['values']
+            for waypoint in path:
+                trayectory.append([waypoint['lat'], waypoint['lng']])
+    
+    if len(trayectory) > 0:
+        client.send_uav_info({'id': uavId, 'desiredPath': trayectory})
+
 def newMissionCallback(client, msg):
     print(f"- Callback: Received mission:")
     print(msg)
@@ -388,6 +403,9 @@ def newMissionCallback(client, msg):
         new_mission_info['id'] = client.mission_id
         
         client.send_mission_info(new_mission_info)
+        
+        planner(client, msg['payload']['uavList'][0], msg['payload']['layers'])
+        
                 
 
 def main():    
@@ -398,7 +416,7 @@ def main():
  
     time.sleep(1)
 
-    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.144099, 'lng': -16.503337, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
+    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.144099, 'lng': -16.503337, 'height': 0, 'yaw': 0}, 'sensors': {'battey': 80, 'temperature': 40}})
     #client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 90, 'temperature': 20}})
     #client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': 28.14396, 'lng': -16.50255, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
  
