@@ -115,6 +115,7 @@ class MissionPlanner {
     addDrawTypes() {
         let fillColor = '#b3b3b3';
         let borderColor = '#7f7f7f';
+        let drawDefaultColor = '#B3B3B3';
 
         let userDrawOptions = {
             'missionPlanner': true,
@@ -125,7 +126,7 @@ class MissionPlanner {
 
         let userDrawOptionsMerged =
             Object.assign({}, userDrawOptions, {
-                'color': M.drawColor,
+                'color': drawDefaultColor,
             }
             );
 
@@ -320,7 +321,7 @@ class MissionPlanner {
         }
 
         if (drawLayers.length > 0 && uavList.length > 0) {
-            M.WS.requestMissionConfirm(
+            M.WS.sendRequestMissionConfirm(
                 this.selectedMission,
                 uavList,
                 drawLayers
@@ -395,14 +396,3 @@ class MissionPlanner {
     // #endregion
 }
 
-
-
-
-/*
-if ('color' in e.layer.pm.options) {
-                e.layer.setStyle({color: e.layer.pm.options['color']});
-                if ('color' in e.layer.options) {
-                    e.layer.options['color'] = e.layer.options['color'];
-                }
-            }
-            */

@@ -228,6 +228,7 @@ class LandPoint extends Marker
         userDrawOptions['markerStyle'] = {
             'icon': Marker.getIcon(iconSvgGrey, fillColor, borderColor)
         };
+        userDrawOptions['continueDrawing'] = false;
         super('LandPoint', codeDrawOptions, userDrawOptions);
         this.iconSvgGrey = iconSvgGrey;
     }
@@ -298,6 +299,7 @@ class TakeOffPoint extends Marker
         userDrawOptions['markerStyle'] = {
             'icon': Marker.getIcon(iconSvgGrey, fillColor, borderColor)
         };
+        userDrawOptions['continueDrawing'] = false;
         super('TakeOffPoint', codeDrawOptions, userDrawOptions);
         this.iconSvgGrey = iconSvgGrey;
     }

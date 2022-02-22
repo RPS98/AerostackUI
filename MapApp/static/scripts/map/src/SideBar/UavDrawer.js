@@ -21,8 +21,6 @@ class UavDrawer
     updateUavParam(param, value, args) {
         let id = args[0];
 
-        console.log("Uav update param");
-
         if ((this.UAV_LIST.getList().indexOf(id) === -1)) {
             this.UAV_LIST.addObject(id, {'id': id});
         }
@@ -36,8 +34,6 @@ class UavDrawer
                     this.UAV_LIST.getDictById(id)['layerOdom'].codeLayerDrawn.setLatLngs(value);
                     break;
                 case 'desiredPath':
-                    console.log("desiredPath2");
-                    console.log(value);
                     this.UAV_LIST.getDictById(id)['layerDesiredPath'].codeLayerDrawn.setLatLngs(value);
                     break;
                 case 'state':
@@ -60,8 +56,6 @@ class UavDrawer
                     this.UAV_LIST.getDictById(id)['layerOdom'].codeDraw(id, value);
                     break;
                 case 'desiredPath':
-                    console.log("desiredPath");
-                    console.log(value);
                     this._checkLayer(id, 'layerDesiredPath');
                     this.UAV_LIST.getDictById(id)['layerDesiredPath'] = new DesiredPath();
                     this.UAV_LIST.getDictById(id)['layerDesiredPath'].codeDraw(id, value);

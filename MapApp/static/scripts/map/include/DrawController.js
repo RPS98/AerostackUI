@@ -1,9 +1,14 @@
-class DrawController
-{
+/**
+ * Draw Controller for the user to draw on the map.
+ */
+class DrawController {
     /**
-     * Set default mode
+     * Disable all draw modes
+     * @return {void}
+     * @access public
+     * @static
      */
-    static drawMouse(){
+    static drawMouse() {
         M.MAP.pm.disableDraw();
         M.MAP.pm.disableGlobalEditMode();
         M.MAP.pm.disableGlobalRemovalMode();
@@ -12,51 +17,58 @@ class DrawController
     }
 
     /**
-     * Set edit mode
+     * Enable edit mode
+     * @return {void}
+     * @access public
+     * @static
      */
-    static drawEdit(){
+    static drawEdit() {
         M.MAP.pm.toggleGlobalEditMode();
     }
-    
+
     /**
-     * Set remove mode
+     * Enable delete mode
+     * @return {void}
+     * @access public
+     * @static
      */
-    static drawDelete(){
+    static drawDelete() {
         M.MAP.pm.toggleGlobalRemovalMode();
     }
-    
+
     /**
-     * Set drag mode
+     * Enable remove mode
+     * @return {void}
+     * @access public
+     * @static
      */
-    static drawMove(){
+    static drawMove() {
         M.MAP.pm.toggleGlobalDragMode();
     }
-    
+
     /**
-     * Set rotate mode
+     * Enable rotate mode
+     * @return {void}
+     * @access public
+     * @static
      */
-    static drawRotate(){
+    static drawRotate() {
         M.MAP.pm.toggleGlobalRotateMode();
     }
-    
+
     /**
-     * Remove all layers
+     * Remove all draw layers that are not confirmed in a mission
+     * @return {void}
+     * @access public
+     * @static
      */
     static drawRemoveAll() {
+        let layers = M.getLayers();
 
-        console.log('Remove all layers');
-
-        // get all layers
-        let pm_layers = L.PM.Utils.findLayers(M.MAP);
-
-        // for each layers
-        for (let i = 0; i < pm_layers.length; i++) {
-            // TODO
-            // // avoid detele the image overlay
-            // if(pm_layers[i].pm.options['author'] == 'webpage'){
-            //     // get the layer by index and remove it
-            //     pm_layers[i].remove();
-            // }
+        for (let i = 0; i < layers.length; i++) {
+            if (layers[i].pm.options.status == 'draw') {
+                layers[i].remove();
+            }
         }
     }
 }

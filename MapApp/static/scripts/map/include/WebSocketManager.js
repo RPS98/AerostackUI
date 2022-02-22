@@ -1,128 +1,60 @@
 /**
- * WebSocket manager that establish the connection and manage the communication
- */
-class WebSocketConnection {
-    constructor(host) {
-        // Listen for messages
-        this.webSocket = new WebSocket(host);
-        this.webSocket.onopen = this.onOpen;
-        this.webSocket.onclose = this.onClose;
-        this.webSocket.onerror = this.onError;
-        this.webSocket.onmessage = this.onMessage;
-    }
-
-    /**
-     * This function is called when the WebSocket connection is closed.
-     * @param {object} webSocket - The WebSocket object.
-     * @param {str} error - The error message.
-     */
-    onError(webSocket, error) {
-        M.WS.onError(webSocket, error);
-    }
-
-    /**
-     * This function is called when the WebSocket connection is closed.
-     * @param {object} webSocket - The WebSocket object.
-     * @param {str} close_status_code - The close status code.
-     * @param {str} close_msg - The close message.
-     */
-    onClose(webSocket, close_status_code, close_msg) {
-        M.WS.onClose(webSocket, close_status_code, close_msg);
-    }
-
-    /**
-     * This function is called when the WebSocket connection is opened.
-     * @param {object} webSocket - The WebSocket object.
-     */
-    onOpen(webSocket) {
-        M.WS.onOpen(webSocket);
-    }
-
-    /**
-     * This function is called when a message is received from the WebSocket.
-     * @param {object} webSocket - The WebSocket object.
-     */
-    onMessage(webSocket) {
-        M.WS.onMessage(JSON.parse(webSocket.data).message);
-    }
-}
-
-
-/**
- * WebSocket class that establish the connection and manage incoming messages
+ * WebSocket class that establish the connection and manage incoming messages.
  */
 class WebSocketManager {
+    /**
+     * Create a new instance of the class WebSocketManager.
+     * @param {string} host - Host of the server.
+     */
     constructor(host) {
-        this.WebSocketConnection = new WebSocketConnection(host);
-        this.webSocket = this.WebSocketConnection.webSocket;
-        //this.websocketinterface = new WebSocketInterface();
 
-        this.rol = "webpage";
-        this.id = null;
+        /**
+         * Web Socket object.
+         * @type {WebSocket}
+         * @access private
+         */
+        this._webSocket = new WebSocket(host);
 
-        this.callbacksList = [];
-        this.addCallback('basic', 'handshake', this.onHandshake.bind(this));
-        this.addCallback('basic', 'getId', this.onGetId.bind(this));
-        this.addCallback('basic', 'ping', this.onPing.bind(this));
-        this.addCallback('basic', 'getClientsList', this.onGetClientsList.bind(this));
+        // Conect web socket callbacks to class functions
+        this._webSocket.onopen = this._onOpen.bind(this);
+        this._webSocket.onclose = this._onClose;
+        this._webSocket.onerror = this._onError;
+        this._webSocket.onmessage = this._onMessage.bind(this);
+
+        /**
+         * Id of the webpage client connected to the server.
+         * @type {string}
+         * @access private
+         */
+        this._id = null;
+
+        /**
+         * List of the callbacks to handle the incoming messages.
+         * @type {array}
+         * @access private
+         */
+        this._callbacksList = [];
+
+        // Add basic callbacks to the list
+        this.addCallback('basic', 'handshake', this._onHandshake.bind(this));
+        this.addCallback('basic', 'getId', this._onGetId.bind(this));
+        this.addCallback('basic', 'ping', this._onPing.bind(this));
+        this.addCallback('basic', 'getClientsList', this._onGetClientsList.bind(this));
     }
 
-    /**
-     * This function is called when the WebSocket connection is closed.
-     * @param {object} webSocket - The WebSocket object.
-     * @param {str} error - The error message.
-     */
-    onError(webSocket, error) {
-        console.log("Error");
-        console.log(error);
-    }
+    // #region Public methods
 
     /**
-     * This function is called when the WebSocket connection is closed.
-     * @param {object} webSocket - The WebSocket object.
-     * @param {str} close_status_code - The close status code.
-     * @param {str} close_msg - The close message.
-     */
-    onClose(webSocket, close_status_code, close_msg) {
-        console.log("Close");
-        console.log(`Status code: ${close_status_code}`);
-        console.log(`Message: ${close_msg}`);
-    }
-
-    /**
-     * This function is called when the WebSocket connection is opened and start the handshake process.
-     * @param {object} webSocket - The WebSocket object.
-     */
-    onOpen(webSocket) {
-        this.handshake();
-    }
-
-    /**
-     * This function is called when a message is received from the WebSocket and handle it.
-     * @param {object} webSocket - The WebSocket object.
-     */
-    onMessage(msg) {
-        console.log("Message received");
-        console.log(msg);
-        
-        let payload = null;
-        for (let i = 0; i < this.callbacksList.length; i++) {
-            if (this.callbacksList[i]['type'] == msg['type'] && this.callbacksList[i]['header'] == msg['header']) {
-                payload = msg['payload'];
-                this.callbacksList[i]['callback'](payload, this.callbacksList[i]['args']);
-            }
-        }
-    }
-
-    /**
-     * Add a callback to the incomeing messages.
+     * Add a callback to the incoming messages.
      * @param {string} type - The type of the message.
      * @param {string} header - The header of the message.
      * @param {function} callback - The callback function.
      * @param  {...any} args - The arguments of the callback function.
+     * @return {void}
+     * @access public
      */
     addCallback(type, header, callback, ...args) {
-        this.callbacksList.push({
+        this._callbacksList.push({
             'type': type,
             'header': header,
             'callback': callback,
@@ -130,29 +62,18 @@ class WebSocketManager {
         });
     }
 
+    // #region Basic messages
+
     /**
-     * Send a message to the WebSocket server.
-     * @param {dict} msg - JSON-decoded message to be sent.
-     * @param {int} to - The id of the client to send the message to.
+     * Send a basic message to the Web Socket server.
+     * @param {string} header - The header of the message.
+     * @param {dict} payload - The payload of the message.
+     * @param {string} [to=0] - Optional. The id of the client to send the message to. Default: 0 (the server id).
+     * @return {void}
+     * @access public
      */
-    send(msg, to = null) {
-        // If the client is logged in, add its id to the message and the destination
-        if (this.id != null) {
-            msg['from'] = this.id;
-
-            if (to != null) {
-                msg['to'] = to;
-            } else {
-                msg['to'] = 0; // 0 means server id
-            }
-        }
-        this.webSocket.send(JSON.stringify({ 'message': msg }));
-        //console.log("Message sent");
-        //console.log(msg);
-    }
-
-    sendBasic(header, payload, to = null) {
-        this.send({
+    sendBasic(header, payload = {}, to = 0) {
+        this._send({
             'type': 'basic',
             'header': header,
             'status': 'request',
@@ -160,8 +81,56 @@ class WebSocketManager {
         }, to);
     }
 
-    sendRequest(header, payload, to = null) {
-        this.send({
+    /**
+     * Send a handshake message to the Web Socket server.
+     * @return {void}
+     * @access public
+     */
+    sendBasicHandshake() {
+        this.sendBasic('handshake', { 'rol': 'webpage' })
+    }
+
+    /**
+     * Send a request of id message to the Web Socket server.
+     * @return {void}
+     * @access public
+     */
+    sendBasicGetId() {
+        this.sendBasic('getId');
+    }
+
+    /**
+     * Send a ping message to the Web Socket server.
+     * @return {void}
+     * @access public
+     */
+    sendBasicPing() {
+        this.sendBasic('ping');
+    }
+
+    /**
+     * Send a request of clients list message to the Web Socket server.
+     * @return {void}
+     * @access public
+     */
+    sendBasicGetClientList() {
+        this.sendRequest('getClientsList');
+    }
+
+    // #endregion
+
+    // #region Request messages
+
+    /**
+     * Send a request message to the Web Socket server.
+     * @param {string} header - The header of the message.
+     * @param {dict} payload - The payload of the message.
+     * @param {string} [to=0] - Optional. The id of the client to send the message to. Default: 0 (the server id).
+     * @return {void}
+     * @access public
+     */
+    sendRequest(header, payload = {}, to = null) {
+        this._send({
             'type': 'request',
             'header': header,
             'status': 'request',
@@ -169,74 +138,35 @@ class WebSocketManager {
         }, to);
     }
 
-    // #region Basic messages
     /**
-     * Send a handshake message to the WebSocket server.
+     * Send a request of UAV list to the Web Socket server.
+     * @return {void}
+     * @access public
      */
-    handshake() {
-        this.sendBasic('handshake', { 'rol': 'webpage' })
-    }
-
-    /**
-     * Send a request of id message to the WebSocket server.
-     */
-    getId() {
-        this.sendBasic('getId', {});
+    sendRequestGetUavList() {
+        this.sendRequest('getUavList');
     }
 
     /**
-     * Send a ping message to the WebSocket server.
+     * Send a request of Mission list to the Web Socket server.
+     * @return {void}
+     * @access public
      */
-    ping() {
-        this.sendBasic('ping', {});
+    sendRequestGetMissionList() {
+        this.sendRequest('getMissionList');
     }
 
     /**
-     * Send a request of clients list message to the WebSocket server.
+     * Send a request of Confirm Mission to the Web Socket server.
+     * @param {string} missionId - Id of the mission to confirm.
+     * @param {array} uavList - List of the UAVs assigned to the mission.
+     * @param {array} layers - List of the layers assigned to the mission.
+     * @return {void}
+     * @access public
      */
-    getClientList() {
-        this.sendRequest('getClientsList', {});
-    }
-
-    onHandshake(payload) {
-        if (payload['response'] == 'success') {
-            this.id = payload['id'];
-            console.log("Handshake: id=" + this.id);
-        } else {
-            throw new Error("Handshake failed");
-        }
-    }
-
-    onGetId(payload) {
-        console.log(`Get id:`);
-        this.id = payload['id'];
-        console.log(payload);
-    }
-
-    onPing(payload) {
-        console.log(`Get:`);
-        console.log(payload);
-    }
-
-    onGetClientsList(payload) {
-        console.log(`Get client list:`);
-        console.log(payload);
-    }
-
-    // #endregion
-
-    // #region Request messages
-    requestGetUavList() {
-        this.sendRequest('getUavList', {});
-    }
-
-    requestGetMissionList() {
-        this.sendRequest('getMissionList', {});
-    }
-
-    requestMissionConfirm(missionId, uavList, layers) {
+    sendRequestMissionConfirm(missionId, uavList, layers) {
         this.sendRequest(
-            'missionConfirm', 
+            'missionConfirm',
             {
                 'status': 'request',
                 'id': missionId,
@@ -245,6 +175,148 @@ class WebSocketManager {
             }
         );
     }
+
+    // #endregion
+
+    // #endregion
+
+    // #region Private methods
+
+    /**
+     * Send a message to the WebSocket server.
+     * @param {dict} msg - JSON-decoded message to be sent.
+     * @param {int} [to=0] - Optional. The id of the client to send the message to. Default: 0 (the server id).
+     * @return {void}
+     * @access private
+     */
+    _send(msg, to = 0) {
+        // If the client is logged in, add its id to the message and the destination
+        if (this._id != null) {
+            msg['from'] = this._id;
+            msg['to'] = to;
+        }
+        this._webSocket.send(JSON.stringify({ 'message': msg }));
+
+        //console.log("Message sent");
+        //console.log(msg);
+    }
+
+    // #region WebSocket callbacks
+
+    /**
+     * This function is called when the WebSocket connection is closed.
+     * @param {WebSocket} webSocket - The WebSocket object (Renference: https://websockets.readthedocs.io/).
+     * @param {string} error - The error message.
+     * @return {void}
+     * @access private
+     */
+    _onError(webSocket, error) {
+        console.log("Error");
+        console.log(error);
+    }
+
+    /**
+     * This function is called when the WebSocket connection is closed.
+     * @param {WebSocket} webSocket - The WebSocket object (Renference: https://websockets.readthedocs.io/).
+     * @param {string} close_status_code - The close status code.
+     * @param {string} close_msg - The close message.
+     * @return {void}
+     * @access private
+     */
+    _onClose(webSocket, close_status_code, close_msg) {
+        console.log("Close");
+        console.log(`Status code: ${close_status_code}`);
+        console.log(`Message: ${close_msg}`);
+    }
+
+    /**
+     * This function is called when the WebSocket connection is opened.
+     * @param {WebSocket} webSocket - The WebSocket object (Renference: https://websockets.readthedocs.io/).
+     * @return {void}
+     * @access private
+     */
+    _onOpen(webSocket) {
+        this.sendBasicHandshake();
+    }
+
+    /**
+     * This function is called when a message is received from the WebSocket and call the callbacks associated to the message.
+     * @param {WebSocket} webSocket - The WebSocket object (Renference: https://websockets.readthedocs.io/).
+     * @return {void}
+     * @access private
+     */
+    _onMessage(webSocket) {
+        // Get json message
+        let msg = JSON.parse(webSocket.data).message;
+
+        // console.log("Message received");
+        // console.log(msg);
+
+        for (let i = 0; i < this._callbacksList.length; i++) {
+            if (this._callbacksList[i].type == msg.type && this._callbacksList[i].header == msg.header) {
+                this._callbacksList[i].callback(msg.payload, this._callbacksList[i].args);
+            }
+        }
+    }
+
+    // #endregion
+
+    // #region Basic messages callbacks
+
+    /**
+     * Callback for the handshake message.
+     * @param {dict} payload - The payload of the message.
+     * @param {array} args - The own arguments of the callback.
+     * @return {void}
+     * @access private
+     */
+    _onHandshake(payload, args) {
+        if (payload['response'] == 'success') {
+            this._id = payload['id'];
+            console.log("Handshake with id=" + this._id);
+        } else {
+            throw new Error("Handshake failed");
+        }
+    }
+
+    /**
+     * Callback for the get id message.
+     * @param {dict} payload - The payload of the message.
+     * @param {array} args - The own arguments of the callback.
+     * @return {void}
+     * @access private
+     */
+    _onGetId(payload, args) {
+        console.log(`Get id:`);
+        this._id = payload['id'];
+        console.log(payload);
+    }
+
+    /**
+     * Callback for the ping message.
+     * @param {dict} payload - The payload of the message.
+     * @param {array} args - The own arguments of the callback.
+     * @return {void}
+     * @access private
+     */
+    _onPing(payload, args) {
+        console.log(`Get:`);
+        console.log(payload);
+    }
+
+    /**
+     * Callback for the get client list message.
+     * @param {dict} payload - The payload of the message.
+     * @param {array} args - The own arguments of the callback.
+     * @return {void}
+     * @access private
+     */
+    _onGetClientsList(payload, args) {
+        console.log(`Get client list:`);
+        console.log(payload);
+    }
+
+    // #endregion
+
+    // #endregion
 }
-
-

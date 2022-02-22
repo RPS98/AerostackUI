@@ -2,8 +2,9 @@
  * UAV and Mission Manager prototype, that manage income information from server and call desired callbacks.
  */
 class ManagerPrototype {
+
     /**
-     * Create a new instance of the ManagerPrototype.
+     * Create a new instance of the class ManagerPrototype.
      * @param {string} infoAdd - Name of the header of the info message that will be received from server when a parameter is add/modified.
      * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
      * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
@@ -31,33 +32,33 @@ class ManagerPrototype {
 
         /**
          * List of callbacks when a parameter is modified
-         * @type {Array}
+         * @type {array}
          * @private
          */
         this._infoChangeCallbacks = [];
 
         /**
          * List of callbacks when a object is added or removed
-         * @type {Array}
+         * @type {array}
          * @private
          */
         this._infoAddCallbacks = [];
 
         /**
          * List of callbacks when the a parameter is changed
-         * @type {Array}
+         * @type {array}
          * @private
          */
         this._paramChangeCallbacks = [];
 
         // Callbacks for income information from server
-        M.WS.addCallback('info',    infoAdd, this._onInfo.bind(this), 'infoAdd');
-        M.WS.addCallback('info',    infoSet, this._onInfo.bind(this), 'infoSet');
+        M.WS.addCallback('info', infoAdd, this._onInfo.bind(this), 'infoAdd');
+        M.WS.addCallback('info', infoSet, this._onInfo.bind(this), 'infoSet');
         M.WS.addCallback('request', infoGet, this._onInfoGet.bind(this));
     }
 
     // #region Public methods
-    
+
     /**
      * Return a list of two colors for each id of the information.
      * @param {any} id - Id of the information.
@@ -103,7 +104,7 @@ class ManagerPrototype {
 
     /**
      * Get the list of id of the information.
-     * @return {Array} - List of id of the information.
+     * @return {array} - List of id of the information.
      */
     getInfoList() {
         return this.LIST.getList();
@@ -127,7 +128,7 @@ class ManagerPrototype {
     getInfoDictById(id) {
         return this.LIST.getDictById(id);
     }
-    
+
     /**
      * Remove the information with the given id.
      * @param {any} id - Id of the information.
@@ -150,7 +151,7 @@ class ManagerPrototype {
      * @return {void} 
      * @access private
      */
-     _onInfo(payload, type) {
+    _onInfo(payload, type) {
 
         if (!this.LIST.getList().includes(payload['id'])) {
             this.LIST.addObject(payload['id'], payload);
@@ -190,7 +191,7 @@ class ManagerPrototype {
 class MissionManager extends ManagerPrototype {
 
     /**
-     * Constructor of the MissionManager class.
+     * Create a new instance of the class MissionManager.
      * @param {string} missionConfirm - Name of the header of the info message that will be received from server when a mission is confirmed/rejected.
      * @param {string} missionAdd - Name of the header of the info message that will be received from server when a parameter of the mission is add/modified.
      * @param {string} missionSet - Name of the header of the info message that will be received from server when a mission is set/reset.
@@ -198,17 +199,41 @@ class MissionManager extends ManagerPrototype {
      */
     constructor(missionConfirm, missionAdd, missionSet, missionGet) {
         super(missionAdd, missionSet, missionGet);
-        M.WS.addCallback('request', missionConfirm, this._onMissionConfirm.bind(this));
+
+        /**
+         * List of callbacks when a mission is confirmed/rejected.
+         * @type {array}
+         * @private
+         */
         this._missionConfirmCallbacks = [];
+
+        // Callback for confirm mission information from server
+        M.WS.addCallback('request', missionConfirm, this._onMissionConfirm.bind(this));
     }
 
     // #region Public methods
+
+    /**
+     * Add a function callback when a mission is confirmed by the server.
+     * @param {function} callback - Function to be called when the mission is confirmed/rejected.
+     * @param  {...any} args - Arguments to be passed to the callback.
+     * @return {void} 
+     * @access public
+     */
     addMissionConfirmCallback(callback, ...args) {
         this._missionConfirmCallbacks.push([callback, args]);
     }
 
     // #endregion
+
     // #region Private methods
+
+    /**
+     * Callback to request message with header missionConfirm, that get the response of the mission confirmation.
+     * @param {dict} payload - payload of the request message
+     * @return {void} 
+     * @access private
+     */
     _onMissionConfirm(payload) {
         if (payload['status'] == 'confirmed') {
             Utils.callCallbacks(this._missionConfirmCallbacks, payload);
@@ -217,170 +242,153 @@ class MissionManager extends ManagerPrototype {
             console.log('Mission rejected');
         }
     }
+
     // #endregion
 }
 
 
-class MissionDrawManager
-{
-    constructor() {
-        this.MISSION_DRAW_LIST = new SmartList();
-        this.missionDrawCallbacks = []; // When a mission drawn is modified
-        this.missionDrawListCallbacks = []; // When a mission drawn is added or removed
-    }
+/**
+ * Map manager that create the map, start the communication with the server and manage sidebars.
+ */
+class MapManager {
 
-    // #region Mission Draw List
-    addMissionDrawCallback(callback, ...args) {
-        this.missionDrawCallbacks.push([callback, args]);
-    }
+    /**
+     * Create the instance of the MapManager.
+     * @param {list} mapCenter - List of the coordinates [latitude, longitude] of the center of the map.
+     * @param {number} zoom - Initial zoom of the map.
+     * @param {string} host - Host of the server.
+     */
+    constructor(mapCenter, zoom, host) {
 
-    addMissionDrawListCallback(callback, ...args) {
-        this.missionDrawListCallbacks.push([callback, args]);
-    }
+        /**
+         * Smart list with the information recived from server.
+         * @type {L.Map} - Map of the library Leaflet (Reference: https://leafletjs.com/).
+         * @public
+         */
+        this.MAP = new L.Map('mapid').setView(mapCenter, zoom);
 
-    getMissionDrawDicById(id)
-    {
-        if (id in this.getMissionDrawList()) {
-            return this.MISSION_DRAW_LIST.getDictById(id);
-        } else {
-            return null;
-        }
-    }
-
-    getMissionDrawList() {
-        return this.MISSION_DRAW_LIST.getList();
-    }
-
-    getMissionDrawDict() {
-        return this.MISSION_DRAW_LIST.getDict();
-    }
-
-    removeMissionDraw(id) {
-        this.MISSION_DRAW_LIST.removeObject(id);
-        this._callCallbacks(this.missionDrawListCallbacks);
-    }
-
-    addMissionDraw(id, state, uavList, layers) {
-        if (id in this.getMissionDrawList()) {
-            this.getMissionDrawDicById(id).setMissionDraw(id, state, uavList, layers);
-            this._callCallbacks(this.missionDrawCallbacks, id);
-        } else {
-            this.MISSION_DRAW_LIST.addObject(id, new Mission(id, state, uavList, layers) );
-            this._callCallbacks(this.missionDrawListCallbacks);
-        }
-    }
-
-    setMissionDrawState(id, state) {
-        this.getMissionDrawDicById(id).setMissionDrawState(state);
-        this._callCallbacks(this.missionDrawCallbacks, id);
-    }
-
-    setMissionDrawUavList(id, uavList) {
-        this.getMissionDrawDicById(id).setMissionDrawUavList(uavList);
-        this._callCallbacks(this.missionDrawCallbacks, id);
-    }
-
-    setMissionDrawLayers(id, layers) {
-        this.getMissionDrawDicById(id).setMissionDrawLayers(layers);
-        this._callCallbacks(this.missionDrawCallbacks, id);
-    }
-    // #endregion
-}
-
-class MapManager
-{
-    constructor(map_center, zoom, host)
-    {
-        this.MAP = new L.Map('mapid').setView(map_center, zoom);
-
-        this.uavTilesAll = {'All': L.featureGroup().addTo(this.MAP)};
-        
-        // add tile layers
-        this.layer_control = L.control.layers({
-            "hybrid": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+        /**
+         * Layer control of the map.
+         * @type {L.control} - Control of the library Leaflet (Reference: https://leafletjs.com/).
+         * @private
+         */
+        this._layer_control = L.control.layers({
+            "hybrid": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
                 maxZoom: 22,
-                subdomains:['mt0','mt1','mt2','mt3']
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
             }).addTo(this.MAP),
-            "streets": L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+            "streets": L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                 maxZoom: 22,
-                subdomains:['mt0','mt1','mt2','mt3']
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
             }),
-            "satellite": L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+            "satellite": L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
                 maxZoom: 22,
-                subdomains:['mt0','mt1','mt2','mt3'],
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
             }),
-            "terrain": L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+            "terrain": L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
                 maxZoom: 22,
-                subdomains:['mt0','mt1','mt2','mt3']
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
             })
-            
-        }, this.uavTilesAll, { position: 'topleft', collapsed: false }).addTo(this.MAP);
 
-        // {% include 'include/SideBar/SideBar.html' %}
+        }, {}, { position: 'topleft', collapsed: false }).addTo(this.MAP);
 
-        this.initializeSideBars();
-        
+        // Create sidebars HTML elements
+        this._initializeSideBars();
+
         // Initialize connection to server
+        /**
+         * Web Socket Manager instance to manage the connection with the server.
+         * @type {WebSocketManager}
+         * @public
+         */
         this.WS = new WebSocketManager(host);
-        this.WS.addCallback('basic', 'handshake', this.onHandshake.bind(this));
 
-        this.colors = [
-            '#DAE8FC', // blue
-            '#D5E8D4', // green
-            '#FFE6CC', // orange
-            '#FFF2CC', // yellow
-            '#F8CECC', // red
-            '#E1D5E7', // violet
-        ];
+        // Add callbacks to the WebSocketManager when a basic message of handshake is received
+        this.WS.addCallback('basic', 'handshake', this._onHandshake.bind(this));
 
-        // Color grey
-        this.drawColor = '#B3B3B3';
-
-        this.mapPmCreateCallbacks = [];
+        // Layers created manager
+        /**
+         * List of callbacks when a layer is created.
+         * @type {array}
+         * @private
+         */
+        this._mapPmCreateCallbacks = [];
 
         this.MAP.on('pm:create', function (e) {
 
+            // Change layer color if the option color is set
             if ('color' in e.layer.pm.options) {
-                e.layer.setStyle({color: e.layer.pm.options['color']});
+                e.layer.setStyle({ color: e.layer.pm.options['color'] });
                 if ('color' in e.layer.options) {
                     e.layer.options['color'] = e.layer.options['color'];
                 }
             }
 
-            Utils.callCallbacks(M.mapPmCreateCallbacks, e);
+            Utils.callCallbacks(M._mapPmCreateCallbacks, e);
         });
-
-        
     }
 
+    // #region Public methods
+
+    /**
+     * Initialize UAV Manager and Mission Manager.
+     * @return {void}
+     * @access public
+     */
     initialize() {
         this.UAV_MANAGER = new ManagerPrototype('uavInfo', 'uavInfoSet', 'getUavList');
         this.MISSION_MANAGER = new MissionManager('missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
-        this.MISSIOn_DRAW_MANAGER = new MissionDrawManager();
     }
 
+    /**
+     * Get all layers of the map and return them in a list.
+     * @returns {array} - List of layers.
+     * @access public
+     */
+    getLayers() {
+        return L.PM.Utils.findLayers(this.MAP);
+    }
 
+    /**
+     * Add a function callback when a layer is created.
+     * @param {function} callback - Function to be called when the layer is created.
+     * @param  {...any} args - Arguments to be passed to the callback.
+     * @return {void} 
+     * @access public
+     */
     addPmCreateCallback(callback, ...args) {
-        this.mapPmCreateCallbacks.push([callback, args]);
+        this._mapPmCreateCallbacks.push([callback, args]);
     }
 
-    // #region WebScoket Callbacks
-    onHandshake(payload) {
+    // #endregion
+
+    // #region Private methods
+
+    // #region Web Socket Callbacks
+
+    /**
+     * Callback to basic message with header handshake, and ask for the mission and UAVs state.
+     * @param {dict} payload - payload of the handshake message
+     * @return {void}
+     * @access private
+     */
+    _onHandshake(payload) {
         if (payload['response'] == 'success') {
-            this.WS.requestGetUavList();
-            this.WS.requestGetMissionList();
+            this.WS.sendRequestGetUavList();
+            this.WS.sendRequestGetMissionList();
         }
     }
 
     // #endregion
-    
+
     // #region Side Bars
-    initializeSideBars() {
-        this.initializeLefSideBar();
-        this.initializeRightSideBar();
+
+    _initializeSideBars() {
+        this._initializeLefSideBar();
+        this._initializeRightSideBar();
     }
 
-    initializeLefSideBar() {
+    _initializeLefSideBar() {
         this.sidebar_left = L.control.sidebar({
             autopan: true,             // whether to maintain the centered map point when opening the sidebar
             closeButton: true,         // whether t add a close button to the panes
@@ -389,7 +397,7 @@ class MapManager
         }).addTo(this.MAP);
     }
 
-    initializeRightSideBar() {
+    _initializeRightSideBar() {
         this.sidebar_right = L.control.sidebar({
             autopan: false,
             closeButton: true,
@@ -398,8 +406,7 @@ class MapManager
         }).addTo(this.MAP);
     }
 
-    getLayers() {
-        return L.PM.Utils.findLayers(this.MAP);
-    }
+    // #endregion
+
     // #endregion
 }

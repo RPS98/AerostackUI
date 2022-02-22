@@ -128,10 +128,11 @@ class Utils
 
     /**
      * Call each function in the list with the arguments
-     * @param {Array} callbackList - list of functions to be called 
+     * @param {array} callbackList - list of functions to be called 
      * @param {...any} args - other arguments to be passed to the functions
      * @return {void} 
      * @access public
+     * @static
      */
     static callCallbacks(callbackList, ...args) {
         for (let i = 0; i < callbackList.length; i++) {
@@ -148,6 +149,7 @@ class Utils
      * @param {...any} args - other arguments to be passed to the functions
      * @return {void} 
      * @access public
+     * @static
      */
     static callCallbackByParam(callbackList, param, value, ...args) {
         for (let i=0; i<callbackList.length; i++) {
@@ -274,3 +276,94 @@ class Utils
         return output;
     }
  }
+
+
+ /**
+  * Class that own a list of id and a dictionary of values for each id
+  */
+ class SmartList {
+    /**
+     * Create a new instance of the class SmartList
+     */
+    constructor() {
+        /**
+         * List of id
+         * @type {array}
+         * @access private
+         */
+        this._objectList = [];
+
+        /**
+         * Dictionary of values for each id (key: id, value: value)
+         * @type {dict}
+         * @access private
+         */
+        this._objectDict = {};
+    }
+
+    /**
+     * Add an id and its value
+     * @param {string} id - Id to be added
+     * @param {dict} object - Value to be added
+     * @returns {void}
+     * @access public
+     */
+     addObject(id, object) {
+        this._objectList.push(id);
+        this._objectDict[id] = object;
+    }
+
+    /**
+     * Change the value of an id
+     * @param {string} id - Id to be changed
+     * @param {dict} objectInfo - Value to be added
+     * @returns {void}
+     * @access public
+     */
+    updateObject(id, objectInfo) {
+        this._objectDict[id] = Object.assign({}, this._objectDict[id], objectInfo);
+    }
+
+    /**
+     * Return the list of id
+     * @returns {array} - List of id
+     * @access public
+     */
+    getList() {
+        return this._objectList;
+    }
+
+    /**
+     * Return the dictionary of values for each id
+     * @returns {dict} - Dictionary of values for each id
+     * @access public
+     */
+    getDict() {
+        return this._objectDict;
+    }
+
+    /**
+     * Get the value of an id
+     * @param {string} id - Id to be added
+     * @returns {void}
+     * @access public
+     */
+    getDictById(id) {
+        if (this.getList().indexOf(id) !== -1) {
+            return this._objectDict[id];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Remove an id and its value
+     * @param {string} id - Id to be removed
+     * @returns {void}
+     * @access public
+     */
+    removeObject(id) {
+        this._objectList.splice(this._objectList.indexOf(id), 1);
+        delete this._objectDict[id];
+    }
+}
