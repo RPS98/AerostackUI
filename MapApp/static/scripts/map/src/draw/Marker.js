@@ -354,8 +354,8 @@ class UAVMarker extends Marker
                id="path10" />
             <path
                style="fill:#FILL;fill-opacity:1;fill-rule:nonzero;stroke:#BORDER;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1"
-               d="M 52.000181,52.000204 211.99981,132.00002 52.000181,211.99983 Z m 0,0"
-               transform="matrix(0,-0.74717,0.74717,0,0.373585,197.6264)"
+               d="M 52.000204,52.000204 211.99983,132.00002 52.000204,211.99983 Z m 0,0"
+               transform="matrix(0.74717,0,0,0.74717,0.373585,0.373585)"
                id="path12" />
             <path
                style="fill:#FILL;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -396,7 +396,8 @@ class UAVMarker extends Marker
                transform="matrix(0.74717,0,0,0.74717,0.373585,0.373585)"
                id="path28" />
           </g>
-        </svg>        
+        </svg>
+           
         `;
     }
 

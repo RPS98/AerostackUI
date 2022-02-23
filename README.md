@@ -1,3 +1,3 @@
 # AerostackUI
 
-![AerostackUI Structure](ROS/AerostackUI.png)
+![AerostackUI Structure](ROS/ImAerostackUI.png)

@@ -1,0 +1,10 @@
+cd ~/aerostack2_ws/src/aerostack2/projects/simulation_pixhawk
+
+# Launch qgroundcontrol
+
+as2_set_ros2_env
+./launch_simulator.bash
+
+as2_set_ros2_env
+./main_launcher.bash
+

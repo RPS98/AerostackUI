@@ -29,6 +29,7 @@ class UavDrawer
             switch (param) {
                 case 'pose':
                     this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.setLatLng([value['lat'], value['lng']]);
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.options.rotationAngle = this._angleWrap(value['yaw']);
                     break;
                 case 'odom':
                     this.UAV_LIST.getDictById(id)['layerOdom'].codeLayerDrawn.setLatLngs(value);
@@ -48,12 +49,16 @@ class UavDrawer
                 case 'pose':
                     this._checkLayer(id, 'layerPose');
                     this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
-                    this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']]);
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']], {'rotationAngle': this._angleWrap(value['yaw'])});
                     break;
                 case 'odom':
                     this._checkLayer(id, 'layerOdom'); 
                     this.UAV_LIST.getDictById(id)['layerOdom'] = new Odom();
-                    this.UAV_LIST.getDictById(id)['layerOdom'].codeDraw(id, value);
+                    let odomValue = value;
+                    if (value.length < 2) {
+                        odomValue = [value, value];
+                    }
+                    this.UAV_LIST.getDictById(id)['layerOdom'].codeDraw(id, odomValue);
                     break;
                 case 'desiredPath':
                     this._checkLayer(id, 'layerDesiredPath');
@@ -72,5 +77,20 @@ class UavDrawer
             }
         }
         this.UAV_LIST.getDictById(id)[param] = value;
+    }
+
+
+    _angleWrap(angle) {
+
+        console.log("Angle: " + angle);
+        angle = angle * 180 / Math.PI ;
+
+        // reduce the angle  
+        angle =  angle % 360; 
+
+        // force it to be the positive remainder, so that 0 <= angle < 360  
+        angle = - (angle + 360) % 360;  
+        
+        return angle;
     }
 }

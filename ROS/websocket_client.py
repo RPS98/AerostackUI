@@ -12,78 +12,6 @@ def nullFunction(*args):
     return
 
 
-# class UAV:
-#     """
-#     UAV object
-#     """
-#     def __init__(self, id, state, pose, odom=[], desired_path=[], sensors={}):
-#         self.id = id
-#         self.pose = pose
-#         self.state = state
-#         self.odom = odom
-#         self.desired_path = desired_path
-#         self.sensors = sensors
-    
-#     def newPose(self, pose):
-#         """
-#         Add new UAV pose
-
-#         Args:
-#             pose (dict): UAV pose with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
-#         """
-#         self.pose = pose
-#         self.odom.append(pose)
-        
-#     def newOdom(self, odom):
-#         """
-#         Set new UAV odometry with a list of poses
-
-#         Args:
-#             odom (list): List of poses with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
-#         """
-#         self.odom = odom
-        
-#     def newDesiredPath(self, desired_path):
-#         """
-#         Set new desired path with a list of poses
-
-#         Args:
-#             desired_path (list): List of poses with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
-#         """
-#         self.desired_path = desired_path
-        
-#     def newDesiredPose(self, pose):
-#         """
-#         Add new desired pose to the desired path
-
-#         Args:
-#             pose (dict): UAV pose with format {'lat': x, 'lng': y, 'alt': h, 'yaw': theta}
-#         """
-#         self.desired_path.append(pose)
-        
-#     def newSensorList(self, sensor_list):
-#         self.sensor_list = sensor_list
-        
-#     def newSensor(self, key, value):
-#         self.sensors[key] = value
-        
-#     def getInfo(self):
-#         """
-#         Return UAV information in a dictionary
-
-#         Returns:
-#             [dict]: UAV information in a dictionary with format {'id': id, 'state': state, 'pose': pose, 'odom': odom, 'desired_path': desired_path}
-#         """
-#         return {
-#             'id': self.id,
-#             'state': self.state,
-#             'pose': self.pose,
-#             'odom': self.odom,
-#             'desiredPath': self.desired_path,
-#             'sensors': self.sensors
-#         }
-
-
 # Asynchronous client to websockets server
 class WebSocketClient:
     """
@@ -408,7 +336,8 @@ def newMissionCallback(client, msg):
         
                 
 
-def main():    
+def main():
+    import math
     
     client = WebSocketClient("ws://127.0.0.1:8000/ws/user/")
     print(client.mission_id)
@@ -416,7 +345,15 @@ def main():
  
     time.sleep(1)
 
-    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.144099, 'lng': -16.503337, 'height': 0, 'yaw': 0}, 'sensors': {'battey': 80, 'temperature': 40}})
+    yaw = -25 * math.pi / 180
+
+    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.144099, 'lng': -16.503337, 'height': 0, 'yaw': yaw}, 'sensors': {'battey': 80, 'temperature': 40}})
+    # time.sleep(1)
+    # client.send_uav_info({'id': 'UAV 0', 'pose': {'lat': 28.1445, 'lng': -16.503337, 'height': 0, 'yaw': 0},})
+    # time.sleep(1)
+    # client.send_uav_info({'id': 'UAV 0', 'pose': {'lat': 28.145, 'lng': -16.503337, 'height': 0, 'yaw': 90},})
+    # time.sleep(1)
+    # client.send_uav_info({'id': 'UAV 0', 'pose': {'lat': 28.1455, 'lng': -16.503337, 'height': 0, 'yaw': 135},})
     #client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 90, 'temperature': 20}})
     #client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': 28.14396, 'lng': -16.50255, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
  
