@@ -176,6 +176,22 @@ class WebSocketManager {
         );
     }
 
+    /**
+     * Send a request of Start Mission to the Web Socket server.
+     * @param {string} missionId - Id of the mission to start.
+     * @return {void}
+     * @access public
+     */
+     sendStartMissionConfirm(missionId) {
+        this.sendRequest(
+            'missionStart',
+            {
+                'id': missionId,
+            },
+            'manager'
+        );
+    }
+
     // #endregion
 
     // #endregion

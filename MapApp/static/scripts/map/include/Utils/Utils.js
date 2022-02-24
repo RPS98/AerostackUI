@@ -1,10 +1,9 @@
 // List class of [type, fileName]
 var blocksClassList = []
 
-class HTMLUtils
-{
+class HTMLUtils {
 
-    static setDict(type, id='none', attributes={}, content) {
+    static setDict(type, id = 'none', attributes = {}, content) {
         return {
             'type': type,
             'id': id,
@@ -13,9 +12,9 @@ class HTMLUtils
         }
     }
 
-    static addTypeDict(type, id='none', attributes={}, ...args) {
+    static addTypeDict(type, id = 'none', attributes = {}, ...args) {
         throw new Error('Not implemented');
-    }   
+    }
 
     static addTypeHTML(content) {
         throw new Error('Not implemented');
@@ -33,10 +32,10 @@ class HTMLUtils
             }
         }
         return element;
-    }    
+    }
 
-    static addDict(type, id='none', attributes={}, ...args) {
-        for (let i=0; i<blocksClassList.length; i++) {
+    static addDict(type, id = 'none', attributes = {}, ...args) {
+        for (let i = 0; i < blocksClassList.length; i++) {
             if (blocksClassList[i][0] == type) {
                 return blocksClassList[i][1].addTypeDict(type, id, attributes, ...args);
             }
@@ -46,7 +45,7 @@ class HTMLUtils
     static addHTML(parent, childDict) {
         let child = null;
         let flag = true;
-        for (let i=0; i<blocksClassList.length; i++) {
+        for (let i = 0; i < blocksClassList.length; i++) {
             if (blocksClassList[i][0] == childDict.type) {
                 child = blocksClassList[i][1].addTypeHTML(childDict.content);
                 HTMLUtils._addAttribute(child, childDict.id, childDict.attributes);
@@ -65,7 +64,7 @@ class HTMLUtils
     static dictToHTML(dict) {
         let child = null;
 
-        for (let i=0; i<blocksClassList.length; i++) {
+        for (let i = 0; i < blocksClassList.length; i++) {
             if (blocksClassList[i][0] == dict.type) {
                 child = blocksClassList[i][1].addTypeHTML(dict.content);
                 HTMLUtils._addAttribute(child, dict.id, dict.attributes);
@@ -78,25 +77,24 @@ class HTMLUtils
         throw new Error('Unknown type of HTML block');
     }
 
-    static addToExistingElement(id, blockList)
-    {
+    static addToExistingElement(id, blockList) {
         let parent = document.getElementById(id);
 
-        for (let i=0; i<blockList.length; i++) {
+        for (let i = 0; i < blockList.length; i++) {
             HTMLUtils.addHTML(parent, blockList[i]);
         }
     }
 
     static initDropDown(id, list, defaultValue) {
-        let dropDownBtn = HTMLUtils.addDict('dropDownBtn', `${id}-DropDown-Btn`, {'class': 'btn btn-info'}, defaultValue);
-        
+        let dropDownBtn = HTMLUtils.addDict('dropDownBtn', `${id}-DropDown-Btn`, { 'class': 'btn btn-info' }, defaultValue);
+
         let dropDownExpandList = [];
-        for (let i=0; i<list.length; i++) {
-            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, {'class': `btn btn-secondary ${id}-item w-75`, 'style': "background: #dae8fc"}, list[i]));
+        for (let i = 0; i < list.length; i++) {
+            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, { 'class': `btn btn-secondary ${id}-item w-75`, 'style': "background: #dae8fc" }, list[i]));
         }
 
         let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
-        return HTMLUtils.addDict('dropDown', `${id}-DropDown`, {'class': 'row m-1 gap-2'}, dropDownBtn, dropDownExpand);
+        return HTMLUtils.addDict('dropDown', `${id}-DropDown`, { 'class': 'row m-1 gap-2' }, dropDownBtn, dropDownExpand);
     }
 
     static updateDropDown(id, list) {
@@ -104,18 +102,18 @@ class HTMLUtils
         expand.innerHTML = '';
 
         let dropDownExpandList = [];
-        for (let i=0; i<list.length; i++) {
-            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, {'class': `btn btn-secondary ${id}-item w-75`, 'style': "background: #dae8fc"}, list[i]));
+        for (let i = 0; i < list.length; i++) {
+            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, { 'class': `btn btn-secondary ${id}-item w-75`, 'style': "background: #dae8fc" }, list[i]));
         }
 
         let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
         HTMLUtils.addToExistingElement(`${id}-DropDown-menu`, [dropDownExpand]);
     }
 
-    static updateCheckBoxes(idCheckBoxes, type, list, attributes={}) {
+    static updateCheckBoxes(idCheckBoxes, type, list, attributes = {}) {
         let checkBoxes = document.getElementById(`${idCheckBoxes}`);
         checkBoxes.innerHTML = '';
-        for (let i=0; i<list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
             let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox`, attributes, type, list[i]);
             HTMLUtils.addToExistingElement(`${idCheckBoxes}`, [checkBox]);
         }
@@ -123,8 +121,7 @@ class HTMLUtils
 }
 
 
-class Utils 
-{
+class Utils {
 
     /**
      * Call each function in the list with the arguments
@@ -152,65 +149,65 @@ class Utils
      * @static
      */
     static callCallbackByParam(callbackList, param, value, ...args) {
-        for (let i=0; i<callbackList.length; i++) {
+        for (let i = 0; i < callbackList.length; i++) {
             if (callbackList[i][0] == param || callbackList[i][0] == '*') {
                 callbackList[i][1](param, value, args);
             }
         }
     }
 
-     /**
-      * Dumb function to initialize callbacks
-      * @param {Object} input - functions inputs 
-      */
+    /**
+     * Dumb function to initialize callbacks
+     * @param {Object} input - functions inputs 
+     */
     static _nullFunct(input) {
         console.log("Dumb callback function");
     };
- 
-     /**
-      * Add a callback function to a toggle button
-      * @param {string}   button_id  - id of the button
-      * @param {function} callback   - callback when press button
-      * @param {list}     args       - arguments list pass to callback
-      */
-    static addButtonCallback(button_id, callback=Utils._nullFunct, args=[]) {
+
+    /**
+     * Add a callback function to a toggle button
+     * @param {string}   button_id  - id of the button
+     * @param {function} callback   - callback when press button
+     * @param {list}     args       - arguments list pass to callback
+     */
+    static addButtonCallback(button_id, callback = Utils._nullFunct, args = []) {
         // get button element
         const btn = document.getElementById(button_id);
 
         // add an event listener to the button
         btn.addEventListener('click', (e) => {
             // disable the refresh on the page when submit
-            e.preventDefault(); 
+            e.preventDefault();
 
             // call the button callback
             callback(args);
         });
     }
 
-    static addButtonsCallback(button_class, callback=Utils._nullFunct, args=[]) {
+    static addButtonsCallback(button_class, callback = Utils._nullFunct, args = []) {
         const btns = document.getElementsByClassName(button_class);
 
         // add an event listener to the button
-        for (let i=0; i<btns.length; i++) {
+        for (let i = 0; i < btns.length; i++) {
             btns[i].addEventListener('click', (e) => {
                 // disable the refresh on the page when submit
-                e.preventDefault(); 
+                e.preventDefault();
 
                 // call the button callback
                 callback(e.target, args);
             });
         }
     }
- 
-     /**
-      * Add a listener for number inputs by a button
-      * @param {string}   button_id - id of the button
-      * @param {string}   inputs_id - list of form inputs id
-      * @param {string}   names_id  - name of elements in the list
-      * @param {function} callback  - callback when press button
-      * @param {list}     args      - arguments list pass to callback
-      */ 
-    static addFormCallback(button_id, inputs_id, names_id, callback=Utils._nullFunct, args=[]) {
+
+    /**
+     * Add a listener for number inputs by a button
+     * @param {string}   button_id - id of the button
+     * @param {string}   inputs_id - list of form inputs id
+     * @param {string}   names_id  - name of elements in the list
+     * @param {function} callback  - callback when press button
+     * @param {list}     args      - arguments list pass to callback
+     */
+    static addFormCallback(button_id, inputs_id, names_id, callback = Utils._nullFunct, args = []) {
 
         // get button element
         const btn = document.getElementById(button_id);
@@ -236,9 +233,8 @@ class Utils
         });
     }
 
-    static setColor(map, UAV_color) 
-    {
-        map.pm.setPathOptions({color: UAV_color});
+    static setColor(map, UAV_color) {
+        map.pm.setPathOptions({ color: UAV_color });
     }
 
     static onlyUnique(value, index, self) {
@@ -248,40 +244,44 @@ class Utils
     static readFileText(path) {
         let output = null;
         fetch(path)
-        .then(response => response.text())
-        .then(data => {
-            output = data;
-            //console.log(output)
-        });
+            .then(response => response.text())
+            .then(data => {
+                output = data;
+                //console.log(output)
+            });
         return output;
     }
 
     static readFileImage(path) {
         let output = null;
         fetch(path)
-        .then(response => response.blob())
-        .then(data => {
-            output = data;
-        });
+            .then(response => response.blob())
+            .then(data => {
+                output = data;
+            });
         return output;
     }
-      
+
     static readFileJson(path) {
         let output = null;
         fetch(path)
-        .then(response => response.json())
-        .then(data => {
-            output = data;
-        });
+            .then(response => response.json())
+            .then(data => {
+                output = data;
+            });
         return output;
     }
- }
+
+    static round(value, decimals) {
+        return Number(Math.round((value + Number.EPSILON) + 'e' + decimals) + 'e-' + decimals);
+    }
+}
 
 
- /**
-  * Class that own a list of id and a dictionary of values for each id
-  */
- class SmartList {
+/**
+ * Class that own a list of id and a dictionary of values for each id
+ */
+class SmartList {
     /**
      * Create a new instance of the class SmartList
      */
@@ -308,7 +308,7 @@ class Utils
      * @returns {void}
      * @access public
      */
-     addObject(id, object) {
+    addObject(id, object) {
         this._objectList.push(id);
         this._objectDict[id] = object;
     }

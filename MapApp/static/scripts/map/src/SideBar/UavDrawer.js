@@ -30,6 +30,7 @@ class UavDrawer
                 case 'pose':
                     this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.setLatLng([value['lat'], value['lng']]);
                     this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.options.rotationAngle = this._angleWrap(value['yaw']);
+                    this.updatePopup(id);
                     break;
                 case 'odom':
                     this.UAV_LIST.getDictById(id)['layerOdom'].codeLayerDrawn.setLatLngs(value);
@@ -50,6 +51,7 @@ class UavDrawer
                     this._checkLayer(id, 'layerPose');
                     this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
                     this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']], {'rotationAngle': this._angleWrap(value['yaw'])});
+                    this.updatePopup(id);
                     break;
                 case 'odom':
                     this._checkLayer(id, 'layerOdom'); 
@@ -79,10 +81,38 @@ class UavDrawer
         this.UAV_LIST.getDictById(id)[param] = value;
     }
 
+    updatePopup(id) {
+        let marker = this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn;
+        let uavDict = M.UAV_MANAGER.getInfoDictById(id);
+        let height = uavDict['pose']['height'];
+        let state = uavDict['state'];
+
+        let popupContent = `
+        <p>Height = ${Utils.round(height, 2)} m</p>
+        <p>State = ${state}</p>
+        `;
+
+        if (marker.getPopup() == undefined) {
+            marker.bindPopup(popupContent).openPopup(); // .closePopup()
+            
+            // marker.on('mouseover', function (e) {
+            //     this.openPopup();
+            // });
+            // marker.on('mouseout', function (e) {
+            //     this.closePopup();
+            // });
+            
+        } else {
+            let open = marker.getPopup().isOpen();
+            marker.getPopup().setContent(popupContent).update();
+            if (!open) {
+                marker.closePopup();
+            }
+        }
+    }
+
 
     _angleWrap(angle) {
-
-        console.log("Angle: " + angle);
         angle = angle * 180 / Math.PI ;
 
         // reduce the angle  

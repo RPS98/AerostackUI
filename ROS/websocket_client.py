@@ -30,14 +30,16 @@ class WebSocketClient:
         self.rol = 'manager'
         self.id = None
         
-        self.on_message_function = None
-        self.new_mission_function = None
+        #self.on_message_function = None
+        #self.new_mission_function = None
         
         self.uav_id_list = []
         self.mission_id_list = []
         
         self.msg_id = 0
         self.mission_id = 1 # Can not be 0
+        
+        self.message_callback_list = []
 
         # Execute run in a thread
         self.thread = threading.Thread(target=self.run)
@@ -108,16 +110,19 @@ class WebSocketClient:
                 
             elif msg['header'] == 'getClientList':
                 print(msg['payload'])
+        
+            """ 
+            elif msg['type'] == 'request':
                 
-        elif msg['type'] == 'request':
-            
-            if msg['header'] == 'missionConfirm' and msg['status'] == 'request':
-                self.new_mission_function(self, msg)
+                if msg['header'] == 'missionConfirm' and msg['status'] == 'request':
+                    print("WebSocketClient - Confirm mission")
+                    self.new_mission_function(msg)
+            """
         
         else:
             print("Unknown message")
             print(msg)
-            self.on_message_function(msg)
+            self.callMsgCallback(msg)
         
     def send(self, msg, to=None):
         """
@@ -141,6 +146,19 @@ class WebSocketClient:
         message = json.dumps({'message': msg})
             
         self.ws.send('%s' % message)
+        
+    def callMsgCallback(self, msg):
+        for callback in self.message_callback_list:
+            if callback['header'] == msg['header'] and callback['type'] == msg['type']:
+                callback['function'](msg, callback['args'])
+        
+    def addMsgCallback(self, type, header, function, *args):
+        self.message_callback_list.append({
+            'type': type,
+            'header': header,
+            'function': function,
+            'args': args
+        })
     
     #region Basic communication
     
@@ -334,10 +352,15 @@ def newMissionCallback(client, msg):
         
         planner(client, msg['payload']['uavList'][0], msg['payload']['layers'])
         
+        
+    
+import math
+def getYaw(angle):
+    return angle * math.pi / 180
                 
 
 def main():
-    import math
+    
     
     client = WebSocketClient("ws://127.0.0.1:8000/ws/user/")
     print(client.mission_id)
@@ -345,67 +368,27 @@ def main():
  
     time.sleep(1)
 
-    yaw = -25 * math.pi / 180
-
-    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.144099, 'lng': -16.503337, 'height': 0, 'yaw': yaw}, 'sensors': {'battey': 80, 'temperature': 40}})
-    # time.sleep(1)
-    # client.send_uav_info({'id': 'UAV 0', 'pose': {'lat': 28.1445, 'lng': -16.503337, 'height': 0, 'yaw': 0},})
-    # time.sleep(1)
-    # client.send_uav_info({'id': 'UAV 0', 'pose': {'lat': 28.145, 'lng': -16.503337, 'height': 0, 'yaw': 90},})
-    # time.sleep(1)
-    # client.send_uav_info({'id': 'UAV 0', 'pose': {'lat': 28.1455, 'lng': -16.503337, 'height': 0, 'yaw': 135},})
-    #client.send_uav_info({'id': 'UAV 1', 'state': 'landed', 'pose': {'lat': 28.14386, 'lng': -16.50245, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 90, 'temperature': 20}})
-    #client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': 28.14396, 'lng': -16.50255, 'height': 0, 'yaw': 0}, 'odom': [], 'desiredPath': [], 'sensors': {'battey': 80, 'temperature': 40}})
- 
-    
-    """
+    client.send_uav_info({'id': 'UAV 0', 'state': 'landed', 'pose': {'lat': 28.144099, 'lng': -16.503337, 'height': 1, 'yaw': getYaw(0)}, 'sensors': {'battey': 80, 'temperature': 40}})
+  
     time.sleep(1)
     
+    lat = 28.144099
+    lng = -16.503337
+    height = 1
     
-    lat = 28.14396
-    lng = -16.50255
-    incr = 0.000001
+    incr = 0.00001
+    odom = []
+    yaw = 0
     
-    odom = [
-        [lat-incr*5, lng-incr*5],
-        [lat, lng],
-    ]
-        
-    desiredPath = [
-        [lat, lng],
-        [lat+incr*500, lng+incr*500],
-        [lat+incr*1500, lng+incr*1000],
-    ]
-    
-    client.send_uav_info({'id': 'UAV 2', 'state': 'landed', 'pose': {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0}, 'odom': odom, 'desiredPath': desiredPath, 'sensors': {'battey': 70, 'temperature': 60}})
-    
-    
-    while True:
-        time.sleep(1. / 10)
+    for i in range(1000):
+        time.sleep(1. / 5)
         lat += incr
         lng += incr
+        yaw += incr * 1000000
+        height += incr * 10000
         odom.append([lat, lng])
-        client.send_uav_info({'id': 'UAV 2', 'pose': {'lat': lat, 'lng': lng, 'alt': 0, 'yaw': 0}, 'odom': odom})
+        client.send_uav_info({'id': 'UAV 0', 'pose': {'lat': lat, 'lng': lng, 'height': height, 'yaw': getYaw(yaw)}, 'odom': odom})
 
-    
-    time.sleep(2)
-    client.sendUAVPose('UAV 0', 'fly', {'lat': 28.14406, 'lng': -16.50265, 'alt': 0, 'yaw': 0})
-    
-    
-    
-    client.newUAVList([
-        {'id': 'UAV 0', 'state': 'fly', 'pose': {'lat': 0, 'lng': 0, 'alt': 0, 'yaw': 0}, 'odom': [], 'desiredPath': []},
-        {'id': 'UAV 1', 'state': 'fly', 'pose': {'lat': 0, 'lng': 0, 'alt': 0, 'yaw': 0}, 'odom': [], 'desiredPath': []} 
-    ])
-    
-    time.sleep(4)
-    
-    client.newUAVList([
-        {'id': 'UAV 2', 'state': 'fly', 'pose': {'lat': 0, 'lng': 0, 'alt': 0, 'yaw': 0}, 'odom': [], 'desiredPath': []},
-        {'id': 'UAV 3', 'state': 'fly', 'pose': {'lat': 0, 'lng': 0, 'alt': 0, 'yaw': 0}, 'odom': [], 'desiredPath': []} 
-    ])
-    """
-    
 
 if __name__ == "__main__":
     main()

@@ -14,7 +14,10 @@ blocksClassList = [
     ['input', Input],
     ['label', Label],
     ['splitDivs', SplitDivs],
+    ['table', Table],
+    ['tr', Tr],
 ]
+
 
 window.onload = function () {
 
@@ -35,7 +38,7 @@ window.onload = function () {
         mapZoom,
         connectionString
     );
-    
+
     M.initialize();
 
     /**
@@ -47,6 +50,7 @@ window.onload = function () {
         new MissionController(),
         new UavDrawer(),
         new MissionDrawer(),
+        new UavInfo(),
     ]
 
     // Instantiate sidebars elements
@@ -54,3 +58,83 @@ window.onload = function () {
         sideBarsClass[i];
     }
 }
+
+
+
+// function generateNxNArray(n, m) {
+//     var grid = [];
+//     let iMax = n;
+//     let jMax = m;
+//     let count = 0;
+
+//     for (let i = 0; i < iMax; i++) {
+//         grid[i] = [];
+
+//         for (let j = 0; j < jMax; j++) {
+//             grid[i][j] = "";
+//             count++;
+//         }
+//     }
+//     return grid;
+// } 
+
+
+/*
+
+function arrayToObject(array) {
+    let obj = {};
+    for (let i = 0; i < array.length; i++) {
+        if (Array.isArray(array[i])) {
+            obj[array[i][0]] = array[i][1];
+        } else {
+            obj[array[i]] = "";
+        }
+    }
+    return obj;
+}
+
+
+function objectToArray(val) {
+    //By default (val is not object or array, return the original value)
+    var result = val;
+    // If object passed the result is the return value of Object.entries()
+    if (typeof val === 'object' && !Array.isArray(val)) {
+        result = Object.entries(val);
+        // If one of the results is an array or object, run this function on them again recursively
+        result.forEach((attr) => {
+            attr[1] = Tr.objectToArray(attr[1]);
+        });
+    }
+    //If array passed, run this function on each value in it recursively
+    else if (Array.isArray(val)) {
+        val.forEach((v, i, a) => {
+            a[i] = Tr.objectToArray(v)
+        });
+    }
+
+    // Return the result
+    return result;
+}
+
+function addTd(array) {
+    for (let i = 0; i < array.length; i++) {
+        if (!Array.isArray(array[i])) {
+            let td = document.createElement('td');
+            td.innerHTML = array[i];
+            array[i] = td;
+        } else if (Array.isArray(array[i])) {
+            array[i] = addTd(array[i]);
+        }
+    }
+    return array;
+}
+
+
+
+let dict = {
+    'id': 'UAV 0',
+    'state': 'landed',
+    'pose': { 'lat': 28.144099, 'lng': -16.503337 },
+}
+
+*/

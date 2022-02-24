@@ -8,3 +8,10 @@ as2_set_ros2_env
 as2_set_ros2_env
 ./main_launcher.bash
 
+
+
+ros2 service call /drone_sim_14/set_offboard_mode std_srvs/srv/SetBool data:\ true\
+
+ros2 service call /drone_sim_14/set_arming_state std_srvs/srv/SetBool data:\ true\
+
+COM_RCL_EXCEPT=4

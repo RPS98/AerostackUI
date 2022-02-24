@@ -1,7 +1,0 @@
-class UAVInfo
-{
-    constructor()
-    {
-
-    }
-}

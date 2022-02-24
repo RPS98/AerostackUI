@@ -65,6 +65,7 @@ class MissionManager(InfoManager):
     async def initialize(self):
         await super().initialize()
         await serverManager.addCallback('request', 'missionConfirm', self.on_confirm_mission)
+        await serverManager.addCallback('request', 'missionStart', self.on_start_mission)
     
     async def on_confirm_mission(self, id, rol, msg):
         
@@ -73,6 +74,9 @@ class MissionManager(InfoManager):
             
         elif msg['payload']['status'] == 'confirmed' or msg['payload']['status'] == 'rejected':
             await serverManager.sendMessage(1, msg['to'], msg)
+            
+    async def on_start_mission(self, id, rol, msg):
+        await serverManager.sendMessage(msg['from'], 1, msg)
 
 
 class ServerManager():
