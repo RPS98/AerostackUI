@@ -8,7 +8,7 @@ class MissionController
     }
 
     addHTML() {
-        this.selectedMissionId = null;
+        this.selectedMissionId = M.MISSION_MANAGER.getInfoList()[0];
 
         let missionControllerHtmlList = [];
 
@@ -48,6 +48,7 @@ class MissionController
         this._checkInitalize();
         HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, M.MISSION_MANAGER.getInfoList());
         this.addDropDownMissionCallback();
+        this.selectedMissionId = M.MISSION_MANAGER.getInfoList()[0];
     }
 
     clickMissionListCallback(e, args) {

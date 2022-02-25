@@ -1,3 +1,10 @@
+cd ~/aerostack2_ws/src/aerostack2/scripts/
+code .
+export AEROSTACK2_SIMULATION_DRONE_ID=drone_sim_14
+
+cd ~/aerostack2_ws/src/aerostack2/stack/user_interface/python_interface
+code .
+
 cd ~/aerostack2_ws/src/aerostack2/projects/simulation_pixhawk
 
 # Launch qgroundcontrol
@@ -9,7 +16,7 @@ as2_set_ros2_env
 ./main_launcher.bash
 
 
-
+as2_set_ros2_env
 ros2 service call /drone_sim_14/set_offboard_mode std_srvs/srv/SetBool data:\ true\
 
 ros2 service call /drone_sim_14/set_arming_state std_srvs/srv/SetBool data:\ true\

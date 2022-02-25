@@ -22,11 +22,17 @@ class UavInfo
         
         let list = [
             ['Id', dict['id']],
-            ['State', dict['state']],
-            ['Pose', 'lat', dict['pose']['lat']],
-            ['', 'lng', dict['pose']['lng']],
-            ['', 'height', dict['pose']['height']],
-            ['', 'yaw', dict['pose']['yaw']],
+            ['Info', 'Connected',       dict['state']['connected']],
+            ['',     'Armed',           dict['state']['armed']],
+            ['',     'Offboard',        dict['state']['offboard']],
+            ['',     'State',           dict['state']['state']],
+            ['',     'Yaw mode',        dict['state']['yaw_mode']],
+            ['',     'Control mode',    dict['state']['control_mode']],
+            ['',     'Reference frame', dict['state']['reference_frame']],
+            ['Pose', 'lat',     Utils.round(dict['pose']['lat']   , 2)],
+            ['',     'lng',     Utils.round(dict['pose']['lng']   , 2)],
+            ['',      'height', Utils.round(dict['pose']['height'], 2)],
+            ['',      'yaw',    Utils.round(dict['pose']['yaw']   , 2)],
         ];
         
         let uavInfoHtml = HTMLUtils.addDict('table', `${this.htmlId}-UAV-${uavId}`, {}, header, list);
@@ -43,11 +49,17 @@ class UavInfo
 
         let list = [
             ['Id', dict['id']],
-            ['State', dict['state']],
-            ['Pose', 'lat', Utils.round(dict['pose']['lat']     , 2)],
-            ['', 'lng',     Utils.round(dict['pose']['lng']     , 2)],
-            ['', 'height',  Utils.round(dict['pose']['height']  , 2)],
-            ['', 'yaw',     Utils.round(dict['pose']['yaw']     , 2)],
+            ['Info', 'Connected',       dict['state']['connected']],
+            ['',     'Armed',           dict['state']['armed']],
+            ['',     'Offboard',        dict['state']['offboard']],
+            ['',     'State',           dict['state']['state']],
+            ['',     'Yaw mode',        dict['state']['yaw_mode']],
+            ['',     'Control mode',    dict['state']['control_mode']],
+            ['',     'Reference frame', dict['state']['reference_frame']],
+            ['Pose', 'lat',     Utils.round(dict['pose']['lat']   , 2)],
+            ['',     'lng',     Utils.round(dict['pose']['lng']   , 2)],
+            ['',      'height', Utils.round(dict['pose']['height'], 2)],
+            ['',      'yaw',    Utils.round(dict['pose']['yaw']   , 2)],
         ];
 
         for (let i = 0; i < list.length; i++) {

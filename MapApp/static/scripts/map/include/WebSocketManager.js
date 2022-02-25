@@ -265,8 +265,8 @@ class WebSocketManager {
         // Get json message
         let msg = JSON.parse(webSocket.data).message;
 
-        // console.log("Message received");
-        // console.log(msg);
+        //console.log("Message received");
+        //console.log(msg);
 
         for (let i = 0; i < this._callbacksList.length; i++) {
             if (this._callbacksList[i].type == msg.type && this._callbacksList[i].header == msg.header) {

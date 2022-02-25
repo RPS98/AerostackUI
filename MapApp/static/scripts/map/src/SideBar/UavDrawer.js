@@ -89,7 +89,7 @@ class UavDrawer
 
         let popupContent = `
         <p>Height = ${Utils.round(height, 2)} m</p>
-        <p>State = ${state}</p>
+        <p>State = ${state['state']}</p>
         `;
 
         if (marker.getPopup() == undefined) {

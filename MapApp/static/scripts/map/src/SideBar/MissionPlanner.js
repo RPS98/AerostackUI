@@ -95,7 +95,7 @@ class MissionPlanner {
 
         this.selectedMission = 'New Mission';
         this.selectedUavs = {};
-        this.selectedHeight = [0, 70];
+        this.selectedHeight = [3, 4];
 
         this.addDrawTypes();
 
