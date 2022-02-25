@@ -10,6 +10,18 @@ class UavDrawer
         this.uavDict = Object.assign({}, M.UAV_MANAGER.getInfoDict());
 
         this.UAV_LIST = new SmartList();
+
+        M.MAP.on('pm:drawstart', (e) => {
+            for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
+                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose'].codeLayerDrawn.getPopup().closePopup();
+            }
+        });
+
+        M.MAP.on('pm:drawend', (e) => {
+            for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
+                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose'].codeLayerDrawn.getPopup().openPopup();
+            }
+        });
     }
 
     _checkLayer(id, name) {
@@ -21,7 +33,7 @@ class UavDrawer
     updateUavParam(param, value, args) {
         let id = args[0];
 
-        if ((this.UAV_LIST.getList().indexOf(id) === -1)) {
+        if (this.UAV_LIST.getList().indexOf(id) === -1) {
             this.UAV_LIST.addObject(id, {'id': id});
         }
 
@@ -87,10 +99,8 @@ class UavDrawer
         let height = uavDict['pose']['height'];
         let state = uavDict['state'];
 
-        let popupContent = `
-        <p>Height = ${Utils.round(height, 2)} m</p>
-        <p>State = ${state['state']}</p>
-        `;
+        let popupContent = `<p>Height = ${Utils.round(height, 2)} m</p>`;
+        //<p>State = ${state['state']}</p>
 
         if (marker.getPopup() == undefined) {
             marker.bindPopup(popupContent).openPopup(); // .closePopup()

@@ -29,8 +29,8 @@ class UavInfo
             ['',     'Yaw mode',        dict['state']['yaw_mode']],
             ['',     'Control mode',    dict['state']['control_mode']],
             ['',     'Reference frame', dict['state']['reference_frame']],
-            ['Pose', 'lat',     Utils.round(dict['pose']['lat']   , 2)],
-            ['',     'lng',     Utils.round(dict['pose']['lng']   , 2)],
+            ['Pose', 'lat',     Utils.round(dict['pose']['lat']   , 5)],
+            ['',     'lng',     Utils.round(dict['pose']['lng']   , 5)],
             ['',      'height', Utils.round(dict['pose']['height'], 2)],
             ['',      'yaw',    Utils.round(dict['pose']['yaw']   , 2)],
         ];
@@ -56,8 +56,8 @@ class UavInfo
             ['',     'Yaw mode',        dict['state']['yaw_mode']],
             ['',     'Control mode',    dict['state']['control_mode']],
             ['',     'Reference frame', dict['state']['reference_frame']],
-            ['Pose', 'lat',     Utils.round(dict['pose']['lat']   , 2)],
-            ['',     'lng',     Utils.round(dict['pose']['lng']   , 2)],
+            ['Pose', 'lat',     Utils.round(dict['pose']['lat']   , 5)],
+            ['',     'lng',     Utils.round(dict['pose']['lng']   , 5)],
             ['',      'height', Utils.round(dict['pose']['height'], 2)],
             ['',      'yaw',    Utils.round(dict['pose']['yaw']   , 2)],
         ];

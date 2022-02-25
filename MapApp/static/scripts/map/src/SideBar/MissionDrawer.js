@@ -15,7 +15,7 @@ class MissionDrawer
     }
 
     addDrawTypes() {
-        this.path = new Path();
+        this.path = new Path({'opacity': 0.5}, {});
         this.landPoint = new LandPoint();
         this.takeOffPoint = new TakeOffPoint();
     }

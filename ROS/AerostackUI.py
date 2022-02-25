@@ -15,12 +15,14 @@ class AerostackUI():
         self.client = WebSocketClient("ws://127.0.0.1:8000/ws/user/")
         self.client.addMsgCallback('request', 'missionConfirm', self.new_mission_callback)
         self.client.addMsgCallback('request', 'missionStart', self.start_mission_callback)
-        self.mission_list = []
+        
         
         rclpy.init()
         
         self.drone_id = "drone_sim_14"
-        self.drone_interface = DroneInterface(self.drone_id)
+        self.drone_interface = DroneInterface(self.drone_id, False)
+        self.mission_list = []
+        self.speed = 2
         
         time.sleep(1)
         
@@ -65,11 +67,12 @@ class AerostackUI():
                                 element['value'][1],
                                 element['value'][2][1]
                             ]
-                            
+
                             print("Send land point")
                             print(waypoint)
                             self.drone_interface.follow_gps_path([waypoint])
                             print("Land point done")
+
                             print("Send land")
                             self.drone_interface.land()
                             print("Land done")
@@ -80,7 +83,7 @@ class AerostackUI():
                                 waypoint.append([point[0], point[1], point[2][1]])
                             print("Send path")
                             print(waypoint)
-                            self.drone_interface.follow_gps_path(waypoint)
+                            self.drone_interface.follow_gps_wp(waypoint, self.speed)
                             print("Path done")
                 
         
@@ -213,15 +216,12 @@ class AerostackUI():
             pose = self.drone_interface.get_gps_pose()
             orientation = self.drone_interface.get_orientation()
             info = self.drone_interface.get_info()
-            
-            pose = [28.144099, -16.503337, 1, 0]
-            orientation = [0, 0, 0, 0]
         
             odom.append([pose[0], pose[1]])
             
-            # print(f"Pose: {pose}")
-            # print(f"Orientation: {orientation}")
-            # print(f"Info: {info}")
+            print(f"Pose: {pose}")
+            print(f"Orientation: {orientation}")
+            print(f"Info: {info}")
             
             self.client.send_uav_info(
                 {

@@ -15,8 +15,8 @@ class ManagerPrototype {
          * List of colors for each id of the information.
          */
         this.colors = [
-            ['#DAE8FC', '#6C8EBF'], // blue
             ['#D5E8D4', '#82B366'], // green
+            ['#DAE8FC', '#6C8EBF'], // blue
             ['#FFE6CC', '#D79B00'], // orange
             ['#FFF2CC', '#FFF2CC'], // yellow
             ['#F8CECC', '#F8CECC'], // red
