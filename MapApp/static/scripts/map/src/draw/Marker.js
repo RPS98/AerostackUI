@@ -1,41 +1,66 @@
-class Marker extends DrawManager
-{
-    constructor(name, codeDrawOptions={}, userDrawOptions={}) {
+class Marker extends DrawManager {
+    constructor(
+        name,
+        codeDrawOptions = {},
+        userDrawOptions = {},
+        iconSvgGrey,
+        fillColor = '#b3b3b3',
+        borderColor = '#7f7f7f',
+        iconSize = [24, 40],
+        iconAnchor = [12, 40]) {
+
+        let newIcon = Marker.getIcon(iconSvgGrey, fillColor, borderColor, iconSize, iconAnchor);
+
+        userDrawOptions['markerStyle'] = { 'icon': newIcon };
+        codeDrawOptions['markerStyle'] = { 'icon': newIcon };
+
         super('Marker', name, codeDrawOptions, userDrawOptions);
+
+        this.iconSvgGrey = iconSvgGrey;
+        this.iconSize = iconSize;
+        this.iconAnchor = iconAnchor;
     }
 
-    codeDraw(values, options={}) {
-        return super.codeDraw(values, options);
+    codeDraw(id, values, options = {}, iconSvgGrey=this.iconSvgGrey, iconSize=this.iconSize , iconAnchor=this.iconAnchor) {
+        let colors = M.UAV_MANAGER.getColors(id);
+        options['icon'] = Marker.getIcon(iconSvgGrey, colors[1], colors[0], iconSize, iconAnchor);
+        let marker = super.codeDraw(values, options);
+        marker.pm.setOptions({ draggable: false });
+        return marker;
     }
 
-    userDraw(options={}) {
+    userDraw(options = {}) {
         super.userDraw(options);
     }
 
-    showInfo() {
+    showUserInfo() {
         throw new Error("Method not implemented.");
     }
 
-    sendInfo() {
+    showCodeInfo() {
         throw new Error("Method not implemented.");
     }
 
-    static getIcon(iconSvgGrey, fillColor='#b3b3b3', borderColor='#7f7f7f') {
-        
+    static getIcon(
+        iconSvgGrey,
+        fillColor = '#b3b3b3',
+        borderColor = '#7f7f7f',
+        iconSize = [24, 40],
+        iconAnchor = [12, 40]) {
+
         let iconSvgModified = iconSvgGrey.replace(new RegExp('#BORDER', 'g'), borderColor).replace(new RegExp('#FILL', 'g'), fillColor);
 
         return L.divIcon({
             html: iconSvgModified,
             className: "svg-icon",
-            iconSize: [24, 40],
-            iconAnchor: [12, 40],
+            iconSize: iconSize,
+            iconAnchor: iconAnchor,
         });
     }
 }
 
-class PointOfInterest extends Marker
-{
-    constructor(fillColor='#b3b3b3', borderColor='#7f7f7f', codeDrawOptions={}, userDrawOptions={}) {
+class PointOfInterest extends Marker {
+    constructor(fillColor = undefined, borderColor = undefined, codeDrawOptions = {}, userDrawOptions = {}) {
 
         // let newIcon = new L.Icon({
         //     iconUrl: '/static/scripts/map/img/icons/PointOfInterest.svg',
@@ -86,20 +111,12 @@ class PointOfInterest extends Marker
         </svg>
         `;
 
-        
-        let iconSvgModified = iconSvgGrey.replace(new RegExp('#BORDER', 'g'), borderColor).replace(new RegExp('#FILL', 'g'), fillColor);
-
-        let newIcon = L.divIcon({
-            html: iconSvgModified,
-            className: "svg-icon",
-            iconSize: [24, 40],
-            iconAnchor: [12, 40],
-        });
-
-        userDrawOptions['markerStyle'] = {'icon': newIcon};
-        codeDrawOptions['markerStyle'] = {'icon': newIcon};
-
-        super('PointOfInterest', codeDrawOptions, userDrawOptions);
+        super('PointOfInterest',
+            codeDrawOptions,
+            userDrawOptions,
+            iconSvgGrey,
+            fillColor,
+            borderColor);
     }
 
     showInfo() {
@@ -111,9 +128,8 @@ class PointOfInterest extends Marker
     }
 }
 
-class WayPoint extends Marker
-{
-    constructor(fillColor='#b3b3b3', borderColor='#7f7f7f', codeDrawOptions={}, userDrawOptions={}) {
+class WayPoint extends Marker {
+    constructor(fillColor = undefined, borderColor = undefined, codeDrawOptions = {}, userDrawOptions = {}) {
 
         let iconSvgGrey = `
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -152,30 +168,17 @@ class WayPoint extends Marker
         </svg>
         `;
 
-        
-        userDrawOptions['markerStyle'] = {
-            'icon': Marker.getIcon(iconSvgGrey, fillColor, borderColor)
-        };
-        userDrawOptions['continueDrawing'] = true;
-        super('WayPoint', codeDrawOptions, userDrawOptions);
-        this.iconSvgGrey = iconSvgGrey;
-    }
-
-    codeDraw(id, values, options={}) {
-        let colors = M.UAV_MANAGER.getColors(id);
-
-        let newIcon = Marker.getIcon(this.iconSvgGrey, colors[1], colors[0]);
-
-        options['icon'] = newIcon;
-        let marker = super.codeDraw(values, options);
-        marker.pm.setOptions({draggable: false});
-        return marker;
+        super('WayPoint',
+            codeDrawOptions,
+            userDrawOptions,
+            iconSvgGrey,
+            fillColor,
+            borderColor);
     }
 }
 
-class LandPoint extends Marker
-{
-    constructor(fillColor='#b3b3b3', borderColor='#7f7f7f', codeDrawOptions={}, userDrawOptions={}) {
+class LandPoint extends Marker {
+    constructor(fillColor = undefined, borderColor = undefined, codeDrawOptions = {}, userDrawOptions = {}) {
         let iconSvgGrey = `
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <svg
@@ -228,29 +231,19 @@ class LandPoint extends Marker
         </svg>
         `;
 
-        userDrawOptions['markerStyle'] = {
-            'icon': Marker.getIcon(iconSvgGrey, fillColor, borderColor)
-        };
         userDrawOptions['continueDrawing'] = false;
-        super('LandPoint', codeDrawOptions, userDrawOptions);
-        this.iconSvgGrey = iconSvgGrey;
-    }
 
-    codeDraw(id, values, options={}) {
-        let colors = M.UAV_MANAGER.getColors(id);
-
-        let newIcon = Marker.getIcon(this.iconSvgGrey, colors[1], colors[0]);
-
-        options['icon'] = newIcon;
-        let marker = super.codeDraw(values, options);
-        marker.pm.setOptions({draggable: false});
-        return marker;
+        super('LandPoint',
+            codeDrawOptions,
+            userDrawOptions,
+            iconSvgGrey,
+            fillColor,
+            borderColor);
     }
 }
 
-class TakeOffPoint extends Marker
-{
-    constructor(fillColor='#b3b3b3', borderColor='#7f7f7f', codeDrawOptions={}, userDrawOptions={}) {
+class TakeOffPoint extends Marker {
+    constructor(fillColor = undefined, borderColor = undefined, codeDrawOptions = {}, userDrawOptions = {}) {
 
         let iconSvgGrey = `
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -298,34 +291,22 @@ class TakeOffPoint extends Marker
           </g>
         </svg>        
         `;
-        
-        userDrawOptions['markerStyle'] = {
-            'icon': Marker.getIcon(iconSvgGrey, fillColor, borderColor)
-        };
+
         userDrawOptions['continueDrawing'] = false;
-        super('TakeOffPoint', codeDrawOptions, userDrawOptions);
-        this.iconSvgGrey = iconSvgGrey;
-    }
 
-
-    codeDraw(id, values, options={}) {
-        let colors = M.UAV_MANAGER.getColors(id);
-
-        let newIcon = Marker.getIcon(this.iconSvgGrey, colors[1], colors[0]);
-
-        options['icon'] = newIcon;
-        let marker = super.codeDraw(values, options);
-        marker.pm.setOptions({draggable: false});
-        return marker;
+        super('TakeOffPoint',
+            codeDrawOptions,
+            userDrawOptions,
+            iconSvgGrey,
+            fillColor,
+            borderColor);
     }
 }
 
-class UAVMarker extends Marker
-{
-    constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('UAVMarker', codeDrawOptions, userDrawOptions);
+class UAVMarker extends Marker {
+    constructor(codeDrawOptions = {}, userDrawOptions = {}) {
 
-        this.iconSvgGrey = `
+        let iconSvgGrey = `
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <svg
            viewBox="0 0 198 199.92"
@@ -400,24 +381,17 @@ class UAVMarker extends Marker
                id="path28" />
           </g>
         </svg>
-           
         `;
-    }
 
-    codeDraw(id, values, options={}) {
-        let colors = M.UAV_MANAGER.getColors(id);
-        let iconSvgModified = this.iconSvgGrey.replace(new RegExp('#BORDER', 'g'), colors[1]).replace(new RegExp('#FILL', 'g'), colors[0]);
-
-        let newIcon = L.divIcon({
-            html: iconSvgModified,
-            className: "svg-icon",
-            iconSize: [30, 30],
-            iconAnchor: [15, 15],
-        });
-
-        options['icon'] = newIcon;
-        let marker = super.codeDraw(values, options);
-        marker.pm.setOptions({draggable: false});
-        return marker;
+        super(
+            'UAVMarker',
+            codeDrawOptions = {},
+            userDrawOptions = {},
+            iconSvgGrey,
+            undefined,
+            undefined,
+            [30, 30],
+            [15, 15]
+            );
     }
 }
