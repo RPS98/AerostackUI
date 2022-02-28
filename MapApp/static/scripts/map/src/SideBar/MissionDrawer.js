@@ -15,9 +15,10 @@ class MissionDrawer
     }
 
     addDrawTypes() {
-        this.path = new Path({'opacity': 0.5}, {});
+        this.path = new Path({'opacity': 0.7}, {});
         this.landPoint = new LandPoint();
         this.takeOffPoint = new TakeOffPoint();
+        this.wayPoint = new WayPoint();
     }
 
     missionConfirmCallback(myargs, args) {
@@ -53,12 +54,16 @@ class MissionDrawer
                 case 'LandPoint':
                     this.landPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
                     break;
+                case 'WayPoint':
+                    console.log("WayPoint");
+                    console.log(layer);
+                    this.wayPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
+                    break;
                 default:
                     throw new Error("Unknown layer name: " + layer.name);
                     break;
             }
         }
-        
     }
 
     /*

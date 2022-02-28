@@ -153,21 +153,24 @@ class WayPoint extends Marker
         `;
 
         
-        let iconSvgModified = iconSvgGrey.replace(new RegExp('#BORDER', 'g'), borderColor).replace(new RegExp('#FILL', 'g'), fillColor);
-
-        let newIcon = L.divIcon({
-            html: iconSvgModified,
-            className: "svg-icon",
-            iconSize: [24, 40],
-            iconAnchor: [12, 40],
-        });
-
-        userDrawOptions['markerStyle'] = {'icon': newIcon};
-        codeDrawOptions['markerStyle'] = {'icon': newIcon};
-
+        userDrawOptions['markerStyle'] = {
+            'icon': Marker.getIcon(iconSvgGrey, fillColor, borderColor)
+        };
+        userDrawOptions['continueDrawing'] = true;
         super('WayPoint', codeDrawOptions, userDrawOptions);
+        this.iconSvgGrey = iconSvgGrey;
     }
 
+    codeDraw(id, values, options={}) {
+        let colors = M.UAV_MANAGER.getColors(id);
+
+        let newIcon = Marker.getIcon(this.iconSvgGrey, colors[1], colors[0]);
+
+        options['icon'] = newIcon;
+        let marker = super.codeDraw(values, options);
+        marker.pm.setOptions({draggable: false});
+        return marker;
+    }
 }
 
 class LandPoint extends Marker

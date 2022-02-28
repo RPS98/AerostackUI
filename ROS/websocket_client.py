@@ -37,7 +37,7 @@ class WebSocketClient:
         self.mission_id_list = []
         
         self.msg_id = 0
-        self.mission_id = 1 # Can not be 0
+        self.mission_id = 0 # Can not be 0
         
         self.message_callback_list = []
 

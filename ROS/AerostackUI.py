@@ -27,15 +27,36 @@ class AerostackUI():
         time.sleep(1)
         
         self.thread = threading.Thread(target=self.run)
-        self.thread.start()
+        self.thread.start()    
+        
+        #time.sleep(1)
+        #self.send_fake_mission()
+           
+    def send_fake_mission(self):
+           
+        self.fake_mission = {
+            'status': 'confirmed', 
+            'id': self.client.mission_id, 
+            'uavList': [self.drone_id], 
+            'layers': [
+                {'name': 'TakeOffPoint', 'height': [3, 3], 'values':  {'lat': 28.144, 'lng': -16.503}}, 
+                {'name': 'Path', 'height': [3, 3],         'values': [{'lat': 28.144, 'lng': -16.503}, {'lat': 28.144, 'lng': -16.5026}, {'lat': 28.1435, 'lng': -16.5026}, 
+                                                                      {'lat': 28.144, 'lng': -16.503}]}, 
+                {'name': 'LandPoint', 'height': [3, 3],    'values':  {'lat': 28.144, 'lng': -16.503}}]
+        }
+        
+        self.client.send_mission_info(self.fake_mission)
+        self.mission_planner(self.client.mission_id, self.fake_mission['uavList'], self.fake_mission['layers'])
+        self.client.mission_id += 1
+        
         
     def start_mission_callback(self, msg, args):
   
         for mission in self.mission_list:
             
             if (str(mission['id']) == str(msg['payload']['id'])):
-                print(f"- Start mission {mission['id']}")
-                print(mission['mission'])
+                #print(f"- Start mission {mission['id']}")
+                #print(mission['mission'])
                 
                 for element in mission['mission']:
                     if element['type'] == 'id':
@@ -51,15 +72,8 @@ class AerostackUI():
                                 element['value'][2][1]
                             ]
                             
-                            print("Send takeoff")
+                            print(f"Send takeoff")
                             self.drone_interface.takeoff(height=waypoint[2])
-                            print("Takeoff done")
-                            """ 
-                            print("Send takeoff point")
-                            print(waypoint)
-                            self.drone_interface.follow_gps_path([waypoint])
-                            print("Takeoff point done")
-                            """
                         
                         elif element['type'] == 'LandPoint':
                             waypoint =[
@@ -68,23 +82,28 @@ class AerostackUI():
                                 element['value'][2][1]
                             ]
 
-                            print("Send land point")
-                            print(waypoint)
+                            print("Send land point: {waypoint}")
                             self.drone_interface.follow_gps_path([waypoint])
-                            print("Land point done")
 
                             print("Send land")
                             self.drone_interface.land()
-                            print("Land done")
                             
                         elif element['type'] == 'Path':
                             waypoint = []
                             for point in element['value']:
                                 waypoint.append([point[0], point[1], point[2][1]])
-                            print("Send path")
-                            print(waypoint)
-                            self.drone_interface.follow_gps_wp(waypoint, self.speed)
-                            print("Path done")
+                            print(f"Send path: {waypoint}")
+                            self.drone_interface.follow_gps_path(waypoint, self.speed)
+                            
+                        elif element['type'] == 'WayPoint':
+                            waypoint =[
+                                element['value'][0],
+                                element['value'][1],
+                                element['value'][2][1]
+                            ]
+                            print(f"Send waypoint: {waypoint}")
+                            self.drone_interface.follow_gps_wp([waypoint], self.speed)
+                            
                 
         
     def mission_planner(self, mission_id, uavList, layers):
@@ -100,9 +119,9 @@ class AerostackUI():
         mission.append({'type': 'id', 'value': uavList[0]})
         
         for layer in layers:
-            print(layer)
+            #print(layer)
             type = layer['name']
-            if (type == 'TakeOffPoint' or type == 'LandPoint'):
+            if (type == 'TakeOffPoint' or type == 'LandPoint' or type == 'WayPoint'):
                 mission.append(
                     {
                         'type': type, 
@@ -122,8 +141,7 @@ class AerostackUI():
                 
         if (mission[0]['type'] == 'id' and \
             mission[1]['type'] == 'TakeOffPoint' and \
-            mission[2]['type'] == 'Path' and \
-            mission[3]['type'] == 'LandPoint'):
+            mission[len(mission)-1]['type'] == 'LandPoint'):
             
             self.mission_list.append(
                 {
@@ -131,17 +149,14 @@ class AerostackUI():
                     'mission': mission
                 }
             )
-            
-            print("- Mission added")
-            print(self.mission_list)
         
         else:
             print("- Invalid mission")
         
     def mission_interpreter(self, msg):
         
-            print(f"- Mission interpreter")
-            print(msg)
+            #print(f"- Mission interpreter")
+            #print(msg)
             
             confirm = 'confirmed'
             extra = []
@@ -173,21 +188,18 @@ class AerostackUI():
                 new_mission_info = msg['payload']
                 new_mission_info['status'] = confirm
                 new_mission_info['id'] = self.client.mission_id
-
-                self.client.send_mission_info(new_mission_info)
+                self.client.send_mission_info(new_mission_info)                
                 self.mission_planner(self.client.mission_id, msg['payload']['uavList'], msg['payload']['layers'])
         
         # self.mission_list.append(msg)
         
     def new_mission_callback(self, msg, args):
-        print("AerostackUI - Confirm mission")
-        print(self)
-        print(msg)
+        #print("AerostackUI - Confirm mission")
+        #print(self)
+        #print(msg)
         self.mission_interpreter(msg)
         
-        
     def run(self):
-        odom = []
         """ 
         pose = [28.144099, -16.503337, 1, 0]
         orientation = [0, 0, 0, 0]
@@ -211,17 +223,21 @@ class AerostackUI():
             )
         """
         
+        odom = []
+        
         while rclpy.ok():
             
             pose = self.drone_interface.get_gps_pose()
-            orientation = self.drone_interface.get_orientation()
-            info = self.drone_interface.get_info()
-        
             odom.append([pose[0], pose[1]])
             
-            print(f"Pose: {pose}")
-            print(f"Orientation: {orientation}")
-            print(f"Info: {info}")
+            # self.plot_mission(path, odom)
+            
+            orientation = self.drone_interface.get_orientation()
+            info = self.drone_interface.get_info()
+            
+            # print(f"Pose: {pose}")
+            # print(f"Orientation: {orientation}")
+            # print(f"Info: {info}")
             
             self.client.send_uav_info(
                 {
@@ -232,7 +248,7 @@ class AerostackUI():
                 }
             )
             
-            time.sleep(0.2)
+            time.sleep(0.1)
             
         
 if __name__ == '__main__':

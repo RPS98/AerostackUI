@@ -95,7 +95,7 @@ class MissionPlanner {
 
         this.selectedMission = 'New Mission';
         this.selectedUavs = {};
-        this.selectedHeight = [3, 4];
+        this.selectedHeight = [3, 3];
 
         this.addDrawTypes();
 
@@ -142,7 +142,7 @@ class MissionPlanner {
         let mPlannerList = [];
 
         // Heigh input
-        let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, { 'class': 'form-control', 'required': 'required', }, 'text', '1');
+        let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, { 'class': 'form-control', 'required': 'required', }, 'text', `${this.selectedHeight[1]}`);
         let heightBtn = HTMLUtils.addDict('button', `${this.htmlId}-heighBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
         let heightRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [heightInput, heightBtn], { 'class': 'col-md-6' });
         mPlannerList.push(heightRow);

@@ -15,11 +15,11 @@ class ManagerPrototype {
          * List of colors for each id of the information.
          */
         this.colors = [
+            ['#F8CECC', '#F8CECC'], // red
             ['#D5E8D4', '#82B366'], // green
             ['#DAE8FC', '#6C8EBF'], // blue
             ['#FFE6CC', '#D79B00'], // orange
             ['#FFF2CC', '#FFF2CC'], // yellow
-            ['#F8CECC', '#F8CECC'], // red
             ['#E1D5E7', '#9673A6'], // violet
         ];
 
@@ -291,6 +291,16 @@ class MapManager {
             })
 
         }, {}, { position: 'topleft', collapsed: false }).addTo(this.MAP);
+
+        // Add a layer control to the map, with the latitude and longitude of the mouse
+        L.control.coordinates({
+			position:"bottomright",
+			decimals: 5,
+			decimalSeperator:".",
+			labelTemplateLat:"Lat: {y}",
+			labelTemplateLng:"Lng: {x}",
+            useLatLngOrder:true
+		}).addTo(this.MAP);
 
         // Create sidebars HTML elements
         this._initializeSideBars();
