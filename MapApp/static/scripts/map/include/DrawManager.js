@@ -1,9 +1,17 @@
 class DrawManager
 {
-    constructor (type, name, codeDrawOptions={}, userDrawOptions={}) {
+    constructor (type, name, globalOptions={}, codeDrawOptions={}, userDrawOptions={}) {
         this.type = type
+        this.globalOptions = Object.assign(
+            {
+                'DrawManager': this,
+            },
+            globalOptions,
+        );
+
+
         this.codeDrawOptions = Object.assign(
-            {}, 
+            this.globalOptions, 
             {
                 'author': 'manager',
                 'type': type,
@@ -12,7 +20,7 @@ class DrawManager
             codeDrawOptions
         );
         this.userDrawOptions = Object.assign(
-            {}, 
+            this.globalOptions, 
             {
                 'author': 'user',
                 'type': type,
@@ -79,11 +87,15 @@ class DrawManager
         }
     }
 
-    showInfo() {
+    showDrawInfo() {
         throw new Error("Method not implemented.");
     }
 
-    sendInfo() {
+    showCodeInfo() {
+        throw new Error("Method not implemented.");
+    }
+
+    getLayerInfo() {
         throw new Error("Method not implemented.");
     }
 }

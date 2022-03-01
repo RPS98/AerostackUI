@@ -1,7 +1,7 @@
 /**
  * UAV and Mission Manager prototype, that manage income information from server and call desired callbacks.
  */
-class ManagerPrototype {
+class ManagerPrototype extends SmartListCallbacks {
 
     /**
      * Create a new instance of the class ManagerPrototype.

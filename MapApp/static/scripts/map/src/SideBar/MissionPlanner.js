@@ -121,8 +121,8 @@ class MissionPlanner {
             'missionPlanner': true,
         };
 
-        this.pointOfInterest = new PointOfInterest(fillColor, borderColor, {}, userDrawOptions);
-        this.wayPoint = new WayPoint(fillColor, borderColor, {}, userDrawOptions);
+        this.pointOfInterest = new PointOfInterest(fillColor, borderColor, undefined, undefined, userDrawOptions);
+        this.wayPoint = new WayPoint(fillColor, borderColor, undefined, undefined, userDrawOptions);
 
         let userDrawOptionsMerged =
             Object.assign({}, userDrawOptions, {
@@ -130,12 +130,12 @@ class MissionPlanner {
             }
             );
 
-        this.path = new Path({}, userDrawOptionsMerged);
-        this.area = new Area({}, userDrawOptionsMerged);
-        this.carea = new CircularArea({}, userDrawOptionsMerged);
+        this.path = new Path(undefined, undefined, userDrawOptionsMerged);
+        this.area = new Area(undefined, undefined, userDrawOptionsMerged);
+        this.carea = new CircularArea(undefined, undefined, userDrawOptionsMerged);
 
-        this.landPoint = new LandPoint(fillColor, borderColor, {}, userDrawOptions);
-        this.takeOffPoint = new TakeOffPoint(fillColor, borderColor, {}, userDrawOptions);
+        this.landPoint = new LandPoint(fillColor, borderColor, undefined, undefined, userDrawOptions);
+        this.takeOffPoint = new TakeOffPoint(fillColor, borderColor, undefined, undefined, userDrawOptions);
     }
 
     addPlannerHTML() {
@@ -234,7 +234,7 @@ class MissionPlanner {
     }
 
     userDrawCallbacks(args = []) {
-        args[0].userDraw({ 'height': this.selectedHeight }, args);
+        args[0].userDraw({ 'height': this.selectedHeight}, args);
     }
 
 

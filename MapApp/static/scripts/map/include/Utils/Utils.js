@@ -125,7 +125,7 @@ class Utils {
 
     /**
      * Call each function in the list with the arguments
-     * @param {array} callbackList - list of functions to be called 
+     * @param {array} callbackList - list of pair with the function to be called and the arguments to be passed
      * @param {...any} args - other arguments to be passed to the functions
      * @return {void} 
      * @access public
@@ -366,4 +366,147 @@ class SmartList {
         this._objectList.splice(this._objectList.indexOf(id), 1);
         delete this._objectDict[id];
     }
+}
+
+
+/**
+ * UAV and Mission Manager prototype, that manage income information from server and call desired callbacks.
+ */
+ class SmartListCallbacks extends SmartList {
+
+    /**
+     * Create a new instance of the class ManagerPrototype.
+     * @param {string} infoAdd - Name of the header of the info message that will be received from server when a parameter is add/modified.
+     * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
+     * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
+     **/
+    constructor(infoAdd, infoSet, infoGet) {
+
+        super();
+
+        /**
+         * List of callbacks when a parameter is modified
+         * @type {array}
+         * @private
+         */
+        this._infoChangeCallbacks = [];
+
+        /**
+         * List of callbacks when a object is added or removed
+         * @type {array}
+         * @private
+         */
+        this._infoAddCallbacks = [];
+
+        /**
+         * List of callbacks when the a parameter is changed
+         * @type {array}
+         * @private
+         */
+        this._paramChangeCallbacks = [];
+    }
+
+    // #region Public methods
+
+    /**
+     * Add a function callback when any parameter is changed.
+     * @param {function} callback - Function to be called when the parameter is changed.
+     * @param  {...any} args - Arguments to be passed to the callback.
+     * @return {void} 
+     * @access public
+     */
+    addInfoChangeCallback(callback, ...args) {
+        this._infoChangeCallbacks.push([callback, args]);
+    }
+
+    /**
+     * Add a function callback when new information is added.
+     * @param {function} callback - Function to be called when the information is added.
+     * @param  {...any} args - Arguments to be passed to the callback.
+     * @return {void} 
+     * @access public
+     */
+    addInfoAddCallback(callback, ...args) {
+        this._infoAddCallbacks.push([callback, args]);
+    }
+
+    /**
+     * Add a function callback when the desired parameter is changed.
+     * @param {string} param - Parameter to be watched.
+     * @param {function} callback - Function to be called when the parameter is changed.
+     * @param  {...any} args - Arguments to be passed to the callback.
+     * @return {void} 
+     * @access public
+     */
+    addInfoParamCallback(param, callback, ...args) {
+        this._paramChangeCallbacks.push([param, callback, args]);
+    }
+
+    /**
+     * Get the list of id of the information.
+     * @return {array} - List of id of the information.
+     */
+    getInfoList() {
+        return this.LIST.getList();
+    }
+
+    /**
+     * Get the dictionary with the information for each id.
+     * @return {dict} - Dictionary with the information for each id.
+     * @access public
+     */
+    getInfoDict() {
+        return this.LIST.getDict();
+    }
+
+    /**
+     * Return the information in a dictionary of the given id.
+     * @param {any} id - Id of the information.
+     * @return {dict} - Dictionary with the information. If the id is not found, return null.
+     * @access public
+     */
+    getInfoDictById(id) {
+        return this.LIST.getDictById(id);
+    }
+
+    /**
+     * Remove the information with the given id.
+     * @param {any} id - Id of the information.
+     * @return {void}
+     * @access public 
+     */
+    removeInfoById(id) {
+        super().removeObject(id);
+        this._callCallbacks(this._infoAddCallbacks, id);
+    }
+
+    /**
+     * Add an id and its value
+     * @param {string} id - Id to be added
+     * @param {dict} object - Value to be added
+     * @returns {void}
+     * @access public
+     */
+     addObject(id, object) {
+        this._objectList.push(id);
+        this._objectDict[id] = object;
+        Utils.callCallbacks(this._infoAddCallbacks, id);
+    }
+
+    /**
+     * Change the value of an id
+     * @param {string} id - Id to be changed
+     * @param {dict} objectInfo - Value to be added
+     * @returns {void}
+     * @access public
+     */
+    updateObject(id, objectInfo) {
+        this._objectDict[id] = Object.assign({}, this._objectDict[id], objectInfo);
+        Utils.callCallbacks(this._infoChangeCallbacks, id);
+
+        for (let key in objectInfo) {
+            Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
+        }
+    }
+    // #endregion
 }

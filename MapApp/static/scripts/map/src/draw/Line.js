@@ -1,7 +1,7 @@
 class Line extends DrawManager
 {
-    constructor(name, codeDrawOptions={}, userDrawOptions={}) {
-        super('Line', name, codeDrawOptions, userDrawOptions);
+    constructor(name, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+        super('Line', name, globalOptions, codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(values, options={}) {
@@ -25,8 +25,8 @@ class Line extends DrawManager
 
 class Path extends Line
 {
-    constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('Path', codeDrawOptions, userDrawOptions);
+    constructor(globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+        super('Path', globalOptions, codeDrawOptions, userDrawOptions);
     }
 
     showInfo() {
@@ -41,8 +41,8 @@ class Path extends Line
 
 class Odom extends Line
 {
-    constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('Odom', codeDrawOptions, userDrawOptions);
+    constructor(globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+        super('Odom', globalOptions, codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(id, values, options={}) {
@@ -62,8 +62,8 @@ class Odom extends Line
 
 class DesiredPath extends Line
 {
-    constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('DesiredPath', codeDrawOptions, userDrawOptions);
+    constructor(globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+        super('DesiredPath', globalOptions, codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(id, values, options={}) {

@@ -1,7 +1,7 @@
 class Rectangle extends DrawManager
 {
-    constructor(name, codeDrawOptions={}, userDrawOptions={}) {
-        super('Rectangle', name, codeDrawOptions, userDrawOptions);
+    constructor(name, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+        super('Rectangle', name, globalOptions, codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(values, options={}) {

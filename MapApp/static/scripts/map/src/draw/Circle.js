@@ -1,7 +1,7 @@
 class Circle extends DrawManager
 {
-    constructor(name, codeDrawOptions={}, userDrawOptions={}) {
-        super('Circle', name, codeDrawOptions, userDrawOptions);
+    constructor(name, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+        super('Circle', name, globalOptions, codeDrawOptions, userDrawOptions);
     }
 
     codeDraw(values, options={}) {
@@ -23,8 +23,8 @@ class Circle extends DrawManager
 
 class CircularArea extends Circle
 {
-    constructor(codeDrawOptions={}, userDrawOptions={}) {
-        super('CircularArea', codeDrawOptions, userDrawOptions);
+    constructor(globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+        super('CircularArea', globalOptions, codeDrawOptions, userDrawOptions);
     }
 
     showInfo() {
