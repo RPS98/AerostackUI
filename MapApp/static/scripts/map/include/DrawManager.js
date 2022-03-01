@@ -1,3 +1,5 @@
+var ID = 0;
+
 class DrawManager {
     constructor(type, name, options = {}) {
         this.type = type
@@ -14,7 +16,7 @@ class DrawManager {
     }
 
     codeDraw(values, options = {}) {
-        let drawManagerOptions = Object.assign({}, this.options, {'drawUserOptions': options});
+        let drawManagerOptions = Object.assign({}, this.options, {'drawUserOptions': options, 'id': ID++});
         let drawOptions = Object.assign({'DrawManager': drawManagerOptions}, options);
 
         let draw = null;
@@ -42,11 +44,8 @@ class DrawManager {
     }
 
     userDraw(options = {}) {
-        let drawManagerOptions = Object.assign({}, this.options, {'drawCodeOptions': options});
+        let drawManagerOptions = Object.assign({}, this.options, {'drawCodeOptions': options, 'id': ID++});
         let drawOptions = Object.assign({'DrawManager': drawManagerOptions}, options, this.options);
-
-        console.log("DrawManager");
-        console.log(drawOptions);
 
         switch (this.type) {
             case 'Marker':
@@ -73,11 +72,12 @@ class DrawManager {
         }
     }
 
-    showDrawInfo() {
-        throw new Error("Method not implemented.");
+    getHtmlDrawInfo(options) {
+        //throw new Error("Method not implemented.");
+        console.log("Method not implemented.");
     }
 
-    showCodeInfo() {
+    getHtmlCodeInfo() {
         throw new Error("Method not implemented.");
     }
 

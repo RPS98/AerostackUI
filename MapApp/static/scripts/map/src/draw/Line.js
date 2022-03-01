@@ -49,14 +49,6 @@ class Odom extends Line
         options['color'] = M.UAV_MANAGER.getColors(id)[1];
         return super.codeDraw(values, options);
     }
-
-    showInfo() {
-        super.showInfo();
-    }
-
-    sendInfo() {
-        super.sendInfo();
-    }
 }
 
 
@@ -71,13 +63,5 @@ class DesiredPath extends Line
         options['opacity'] = 0.5;
 
         return super.codeDraw(values, options);
-    }
-
-    showInfo() {
-        super.showInfo();
-    }
-
-    sendInfo() {
-        super.sendInfo();
     }
 }

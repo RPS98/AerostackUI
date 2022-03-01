@@ -287,6 +287,24 @@ class Marker extends DrawManager {
       return marker;
    }
 
+   getHtmlDrawInfo(htmlId, layer) {
+      console.log('TakeOffPoint.getHtmlDrawInfo');
+      console.log(layer);
+
+      
+      let id = layer.layer.pm.options.DrawManager.id;
+      let lat = layer.layer._latlng.lat;
+      let lng = layer.layer._latlng.lng;
+
+      let latDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lat`, { 'class': 'form-control', 'required': 'required', }, 'number', lat);
+      let lngDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lng`, { 'class': 'form-control', 'required': 'required', }, 'number', lng);
+      let inputDict = HTMLUtils.addDict('button', `${htmlId}-${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
+      let row = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict, inputDict], {'class': 'col-md-4'});
+      
+      let name = layer.layer.pm.options.DrawManager.name;
+      return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, true, [row]); 
+   }
+
    static getIcon(
       iconSvgGrey,
       fillColor = '#b3b3b3',
@@ -326,6 +344,11 @@ class WayPoint extends Marker {
          iconSvgWayPoint,
          fillColor,
          borderColor);
+   }
+
+   userDraw(options = {}) {
+      options['continueDrawing'] = true;
+      return super.userDraw(options);
    }
 }
 

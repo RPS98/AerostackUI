@@ -15,18 +15,11 @@ class UavDrawer
             for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
                 this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].closePopup();
                 this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = false;
-                console.log("close popup");
             }
         });
         
         M.MAP.on('pm:drawend', (e) => {
             for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
-                console.log("open popup");
-                console.log(this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']);
-                console.log(this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker']);
-                console.log(this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popup']);
-                console.log(this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState']);
-
                 this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = true;
                 this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].openPopup();            
             }
@@ -118,21 +111,16 @@ class UavDrawer
             var callback = this.popupListenerCallback.bind(this);
 
             uavLayer['marker'].on('popupopen', function(e) {
-                console.log("Popup open");
-                console.log(e);
                 callback(id, true);
             });
 
             uavLayer['marker'].on('popupclose', function(e) {
-                console.log("Popup close");
-                console.log(e);
                 callback(id, false);
                 
             });
 
         } else {
             uavLayer['popup'].setContent(popupContent).update();
-            console.log("Update popup " + uavLayer['popupState']);
             if (uavLayer['popupState']) {
                 uavLayer['marker'].openPopup();
             } else {

@@ -22,3 +22,34 @@ ros2 service call /drone_sim_14/set_offboard_mode std_srvs/srv/SetBool data:\ tr
 ros2 service call /drone_sim_14/set_arming_state std_srvs/srv/SetBool data:\ true\
 
 COM_RCL_EXCEPT=4
+
+
+// Flightmare
+https://stackoverflow.com/questions/64493692/cc1plus-error-bad-value-tigerlake-for-march-switch-compilation-error
+
+// Compile gps_utils
+colcon build --packages-up-to as2_core
+// Compile flightros
+colcon build --packages-up-to flightros
+
+// Change world
+cd ~/aerostack2_ws/src/flightmare/flightros/src/pilot/
+code .
+
+flight_pilot.cpp -> 
+
+cd ~/aerostack2_ws/src/
+as2_set_ros2_env
+ros2 run flightros flight_pilot_node --ros-args -r __ns:=/$AEROSTACK2_SIMULATION_DRONE_ID
+
+cd ~/aerostack2_ws/src/flightmare/flightrender/RPG_Flightmare
+as2_set_ros2_env
+./RPG_Flightmare.x86_64
+
+
+
+
+/home/rafa/aerostack2_ws/src/flightmare/flightlib/include/flightlib/bridges
+
+
+
