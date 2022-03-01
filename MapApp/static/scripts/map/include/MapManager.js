@@ -11,6 +11,8 @@ class ManagerPrototype extends SmartListCallbacks {
      **/
     constructor(infoAdd, infoSet, infoGet) {
 
+        super();
+
         /**
          * List of colors for each id of the information.
          */
@@ -22,34 +24,6 @@ class ManagerPrototype extends SmartListCallbacks {
             ['#FFF2CC', '#FFF2CC'], // yellow
             ['#E1D5E7', '#9673A6'], // violet
         ];
-
-        /**
-         * Smart list with the information recived from server.
-         * @type {SmartList}
-         * @private
-         */
-        this.LIST = new SmartList();
-
-        /**
-         * List of callbacks when a parameter is modified
-         * @type {array}
-         * @private
-         */
-        this._infoChangeCallbacks = [];
-
-        /**
-         * List of callbacks when a object is added or removed
-         * @type {array}
-         * @private
-         */
-        this._infoAddCallbacks = [];
-
-        /**
-         * List of callbacks when the a parameter is changed
-         * @type {array}
-         * @private
-         */
-        this._paramChangeCallbacks = [];
 
         // Callbacks for income information from server
         M.WS.addCallback('info', infoAdd, this._onInfo.bind(this), 'infoAdd');
@@ -65,79 +39,7 @@ class ManagerPrototype extends SmartListCallbacks {
      * @returns {list} - List of two colors, one for the background and one for the border.
      */
     getColors(id) {
-        return this.colors[this.getInfoList().indexOf(id) % this.colors.length];
-    }
-
-    /**
-     * Add a function callback when any parameter is changed.
-     * @param {function} callback - Function to be called when the parameter is changed.
-     * @param  {...any} args - Arguments to be passed to the callback.
-     * @return {void} 
-     * @access public
-     */
-    addInfoChangeCallback(callback, ...args) {
-        this._infoChangeCallbacks.push([callback, args]);
-    }
-
-    /**
-     * Add a function callback when new information is added.
-     * @param {function} callback - Function to be called when the information is added.
-     * @param  {...any} args - Arguments to be passed to the callback.
-     * @return {void} 
-     * @access public
-     */
-    addInfoAddCallback(callback, ...args) {
-        this._infoAddCallbacks.push([callback, args]);
-    }
-
-    /**
-     * Add a function callback when the desired parameter is changed.
-     * @param {string} param - Parameter to be watched.
-     * @param {function} callback - Function to be called when the parameter is changed.
-     * @param  {...any} args - Arguments to be passed to the callback.
-     * @return {void} 
-     * @access public
-     */
-    addInfoParamCallback(param, callback, ...args) {
-        this._paramChangeCallbacks.push([param, callback, args]);
-    }
-
-    /**
-     * Get the list of id of the information.
-     * @return {array} - List of id of the information.
-     */
-    getInfoList() {
-        return this.LIST.getList();
-    }
-
-    /**
-     * Get the dictionary with the information for each id.
-     * @return {dict} - Dictionary with the information for each id.
-     * @access public
-     */
-    getInfoDict() {
-        return this.LIST.getDict();
-    }
-
-    /**
-     * Return the information in a dictionary of the given id.
-     * @param {any} id - Id of the information.
-     * @return {dict} - Dictionary with the information. If the id is not found, return null.
-     * @access public
-     */
-    getInfoDictById(id) {
-        return this.LIST.getDictById(id);
-    }
-
-    /**
-     * Remove the information with the given id.
-     * @param {any} id - Id of the information.
-     * @return {void}
-     * @access public 
-     */
-    removeInfoById(id) {
-        this.LIST.removeObject(id);
-        this._callCallbacks(this._infoAddCallbacks, id);
+        return this.colors[super.getList().indexOf(id) % this.colors.length];
     }
 
     // #endregion
@@ -153,20 +55,14 @@ class ManagerPrototype extends SmartListCallbacks {
      */
     _onInfo(payload, type) {
 
-        if (!this.LIST.getList().includes(payload['id'])) {
-            this.LIST.addObject(payload['id'], payload);
-            Utils.callCallbacks(this._infoAddCallbacks, payload['id']);
+        if (!super.getList().includes(payload['id'])) {
+            super.addObject(payload['id'], payload);
         } else {
             if (type[0] == 'infoAdd') {
-                this.LIST.updateObject(payload['id'], payload);
+                super.updateObject(payload['id'], payload, true);
             } else if (type[0] == 'infoSet') {
-                this.LIST.addObject(payload['id'], payload);
+                super.updateObject(payload['id'], payload, true);
             }
-            Utils.callCallbacks(this._infoChangeCallbacks, payload['id']);
-        }
-
-        for (let key in payload) {
-            Utils.callCallbackByParam(this._paramChangeCallbacks, key, payload[key], payload['id']);
         }
     }
 

@@ -3,6 +3,7 @@ import rclpy
 import threading
 import time 
 
+import websocket
 from websocket_client import WebSocketClient
 
 import sys
@@ -200,55 +201,57 @@ class AerostackUI():
         self.mission_interpreter(msg)
         
     def run(self):
-        """ 
-        pose = [28.144099, -16.503337, 1, 0]
-        orientation = [0, 0, 0, 0]
-        info = {
-                'connected': True,
-                'armed': True,
-                'offboard': True,
-                'state': 'hovering',
-                'yaw_mode': 'rate',
-                'control_mode': 'position',
-                'reference_frame': 'world',
-            }
-        
-        self.client.send_uav_info(
-                {
-                    'id': self.drone_id,
-                    'state': info, 
-                    'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
-                    # 'odom': odom 
-                }
-            )
-        """
         
         odom = []
         
+        
         while rclpy.ok():
-            
-            pose = self.drone_interface.get_gps_pose()
-            odom.append([pose[0], pose[1]])
-            
-            # self.plot_mission(path, odom)
-            
-            orientation = self.drone_interface.get_orientation()
-            info = self.drone_interface.get_info()
-            
-            # print(f"Pose: {pose}")
-            # print(f"Orientation: {orientation}")
-            # print(f"Info: {info}")
-            
-            self.client.send_uav_info(
-                {
-                    'id': self.drone_id,
-                    'state': info, 
-                    'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
-                    'odom': odom 
-                }
-            )
+            if (self.client.connection):
+                
+                # pose = [28.144099, -16.503337, 1, 0]
+                # orientation = [0, 0, 0, 0]
+                # info = {
+                #         'connected': True,
+                #         'armed': True,
+                #         'offboard': True,
+                #         'state': 'hovering',
+                #         'yaw_mode': 'rate',
+                #         'control_mode': 'position',
+                #         'reference_frame': 'world',
+                #     }
+                
+                # self.client.send_uav_info(
+                #         {
+                #             'id': self.drone_id,
+                #             'state': info, 
+                #             'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
+                #             # 'odom': odom 
+                #         }
+                #     )
+                
+                pose = self.drone_interface.get_gps_pose()
+                odom.append([pose[0], pose[1]])
+                
+                # self.plot_mission(path, odom)
+                
+                orientation = self.drone_interface.get_orientation()
+                info = self.drone_interface.get_info()
+                
+                # print(f"Pose: {pose}")
+                # print(f"Orientation: {orientation}")
+                # print(f"Info: {info}")
+                
+                self.client.send_uav_info(
+                    {
+                        'id': self.drone_id,
+                        'state': info, 
+                        'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
+                        'odom': odom 
+                    }
+                )
             
             time.sleep(0.1)
+        
             
         
 if __name__ == '__main__':

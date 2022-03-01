@@ -1,4 +1,5 @@
 from site import ENABLE_USER_SITE
+from django.db import connection
 import websocket
 import threading
 import json
@@ -26,6 +27,7 @@ class WebSocketClient:
                                          on_message=self.onMessage,
                                          on_error=self.onError,
                                          on_close=self.onClose)
+        self.connection = False
 
         self.rol = 'manager'
         self.id = None
@@ -51,7 +53,8 @@ class WebSocketClient:
         Keep websocket open
         """
         print("Running")
-        self.ws.run_forever()
+        while self.connection == False: 
+            self.ws.run_forever()
 
     def close(self):
         """
@@ -75,12 +78,13 @@ class WebSocketClient:
         print("Connection closed")
         print(f"Status: {close_status_code}")
         print(f"Close message: {close_msg}")
-        self.thread.join()
+        self.connection = False
 
     def onOpen(self, ws):
         """
         This function is called when websocket is open
         """
+        self.connection = True
         print("Connected")
         self.handshake()
         

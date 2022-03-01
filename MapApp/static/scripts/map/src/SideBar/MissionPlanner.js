@@ -56,7 +56,7 @@ class LandPointPopup {
     }
 
     getLandPointHtmlPopup(id) {
-        let uavList = Object.assign([], M.UAV_MANAGER.getInfoList())
+        let uavList = Object.assign([], M.UAV_MANAGER.getList())
         if (uavList.length == 0) {
             uavList.push('None');
         }
@@ -65,7 +65,7 @@ class LandPointPopup {
     }
 
     addListener(markerId) {
-        let uavList = M.UAV_MANAGER.getInfoList();
+        let uavList = M.UAV_MANAGER.getList();
         for (let i = 0; i < uavList.length; i++) {
             let input = document.getElementById(`${markerId}-Input-${uavList[i]}`);
 
@@ -121,8 +121,8 @@ class MissionPlanner {
             'missionPlanner': true,
         };
 
-        this.pointOfInterest = new PointOfInterest(fillColor, borderColor, undefined, undefined, userDrawOptions);
-        this.wayPoint = new WayPoint(fillColor, borderColor, undefined, undefined, userDrawOptions);
+        this.pointOfInterest = new PointOfInterest(fillColor, borderColor, userDrawOptions);
+        this.wayPoint = new WayPoint(fillColor, borderColor, userDrawOptions);
 
         let userDrawOptionsMerged =
             Object.assign({}, userDrawOptions, {
@@ -130,12 +130,12 @@ class MissionPlanner {
             }
             );
 
-        this.path = new Path(undefined, undefined, userDrawOptionsMerged);
-        this.area = new Area(undefined, undefined, userDrawOptionsMerged);
-        this.carea = new CircularArea(undefined, undefined, userDrawOptionsMerged);
+        this.path = new Path(userDrawOptionsMerged);
+        this.area = new Area(userDrawOptionsMerged);
+        this.carea = new CircularArea(userDrawOptionsMerged);
 
-        this.landPoint = new LandPoint(fillColor, borderColor, undefined, undefined, userDrawOptions);
-        this.takeOffPoint = new TakeOffPoint(fillColor, borderColor, undefined, undefined, userDrawOptions);
+        this.landPoint = new LandPoint(fillColor, borderColor, userDrawOptions);
+        this.takeOffPoint = new TakeOffPoint(fillColor, borderColor, userDrawOptions);
     }
 
     addPlannerHTML() {
@@ -248,11 +248,11 @@ class MissionPlanner {
 
         // Mission Dropdown list
         let missionList = ['New mission'];
-        let missionListTotal = missionList.concat(M.MISSION_MANAGER.getInfoList());
+        let missionListTotal = missionList.concat(M.MISSION_MANAGER.getList());
         mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId}-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV picker
-        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker-SideBar`, {}, 'checkbox', M.UAV_MANAGER.getInfoList());
+        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker-SideBar`, {}, 'checkbox', M.UAV_MANAGER.getList());
         mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
 
 
@@ -336,9 +336,9 @@ class MissionPlanner {
 
     updateUavListCallback(myargs, args) {
         this._checkInitalize();
-        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker-SideBar`, 'checkbox', M.UAV_MANAGER.getInfoList());
+        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker-SideBar`, 'checkbox', M.UAV_MANAGER.getList());
 
-        let uavList = M.UAV_MANAGER.getInfoList();
+        let uavList = M.UAV_MANAGER.getList();
         this.selectedUavs = {};
         for (let i = 0; i < uavList.length; i++) {
             // Manage checkbox and its callback
@@ -366,7 +366,7 @@ class MissionPlanner {
 
     updateMissionListCallback(myargs, args) {
         if (this.initialized) {
-            HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, ['New Mission'].concat(M.MISSION_MANAGER.getInfoList()));
+            HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, ['New Mission'].concat(M.MISSION_MANAGER.getList()));
             this.addBntDropDownMissionCallback();
         }
     }

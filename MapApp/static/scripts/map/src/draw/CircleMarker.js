@@ -1,7 +1,7 @@
 class CircleMarker extends DrawManager
 {
-    constructor(name, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
-        super('CircleMarker', name, globalOptions, codeDrawOptions, userDrawOptions);
+    constructor(name, options = undefined) {
+        super('CircleMarker', name, options);
     }
 
     codeDraw(values, options={}) {

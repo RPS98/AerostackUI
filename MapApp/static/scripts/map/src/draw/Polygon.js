@@ -1,7 +1,7 @@
 class Polygon extends DrawManager
 {
-    constructor(name, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
-        super('Polygon', name, globalOptions, codeDrawOptions, userDrawOptions);
+    constructor(name, options = undefined) {
+        super('Polygon', name, options);
     }
 
     codeDraw(values, options={}) {
@@ -23,8 +23,8 @@ class Polygon extends DrawManager
 
 class Area extends Polygon
 {
-    constructor(globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
-        super('Area', globalOptions, codeDrawOptions, userDrawOptions);
+    constructor(options = undefined) {
+        super('Area', options);
     }
 
     showInfo() {

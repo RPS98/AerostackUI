@@ -10,7 +10,7 @@ class UavInfo
     _newUavCallback(callback, uavId) {
 
         if (this.uavSList.getList().indexOf(uavId) == -1) {
-            this.uavSList.addObject(uavId, M.UAV_MANAGER.getInfoDictById(uavId));
+            this.uavSList.addObject(uavId, M.UAV_MANAGER.getDictById(uavId));
             this._addUav(uavId);
         }
     }
@@ -45,7 +45,7 @@ class UavInfo
         let parent = document.getElementById(`${this.htmlId}-UAV-${uavId}-table-body`);
         parent.innerHTML = '';
 
-        let dict = M.UAV_MANAGER.getInfoDictById(uavId);
+        let dict = M.UAV_MANAGER.getDictById(uavId);
 
         let list = [
             ['Id', dict['id']],

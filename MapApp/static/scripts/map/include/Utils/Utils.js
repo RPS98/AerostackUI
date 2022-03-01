@@ -380,7 +380,7 @@ class SmartList {
      * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
      * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
      **/
-    constructor(infoAdd, infoSet, infoGet) {
+    constructor() {
 
         super();
 
@@ -443,40 +443,13 @@ class SmartList {
     }
 
     /**
-     * Get the list of id of the information.
-     * @return {array} - List of id of the information.
-     */
-    getInfoList() {
-        return this.LIST.getList();
-    }
-
-    /**
-     * Get the dictionary with the information for each id.
-     * @return {dict} - Dictionary with the information for each id.
-     * @access public
-     */
-    getInfoDict() {
-        return this.LIST.getDict();
-    }
-
-    /**
-     * Return the information in a dictionary of the given id.
-     * @param {any} id - Id of the information.
-     * @return {dict} - Dictionary with the information. If the id is not found, return null.
-     * @access public
-     */
-    getInfoDictById(id) {
-        return this.LIST.getDictById(id);
-    }
-
-    /**
      * Remove the information with the given id.
      * @param {any} id - Id of the information.
      * @return {void}
      * @access public 
      */
-    removeInfoById(id) {
-        super().removeObject(id);
+    removeById(id) {
+        super.removeObject(id);
         this._callCallbacks(this._infoAddCallbacks, id);
     }
 
@@ -488,8 +461,7 @@ class SmartList {
      * @access public
      */
      addObject(id, object) {
-        this._objectList.push(id);
-        this._objectDict[id] = object;
+        super.addObject(id, object);
         Utils.callCallbacks(this._infoAddCallbacks, id);
     }
 
@@ -500,9 +472,14 @@ class SmartList {
      * @returns {void}
      * @access public
      */
-    updateObject(id, objectInfo) {
-        this._objectDict[id] = Object.assign({}, this._objectDict[id], objectInfo);
-        Utils.callCallbacks(this._infoChangeCallbacks, id);
+    updateObject(id, objectInfo, override = false) {
+        if (override) {
+            super.addObject(id, objectInfo);
+            Utils.callCallbacks(this._infoChangeCallbacks, id);
+        } else {
+            super.updateObject(id, objectInfo);
+            Utils.callCallbacks(this._infoChangeCallbacks, id);
+        }        
 
         for (let key in objectInfo) {
             Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);

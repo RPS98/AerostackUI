@@ -6,8 +6,8 @@ class MissionDrawer
         // M.MISSION_MANAGER.addInfoParamCallback('status',  this.updateMissionParam.bind(this));
         // M.MISSION_MANAGER.addInfoParamCallback('layers',  this.updateMissionParam.bind(this));
 
-        this.missionListId = Object.assign([], M.MISSION_MANAGER.getInfoList());
-        this.missionDict   = Object.assign({}, M.MISSION_MANAGER.getInfoDict());
+        this.missionListId = Object.assign([], M.MISSION_MANAGER.getList());
+        this.missionDict   = Object.assign({}, M.MISSION_MANAGER.getDict());
 
         this.MISSION_LIST = new SmartList();
 
@@ -15,7 +15,7 @@ class MissionDrawer
     }
 
     addDrawTypes() {
-        this.path = new Path(undefined, {'opacity': 0.7}, undefined);
+        this.path = new Path({'opacity': 0.7});
         this.landPoint = new LandPoint();
         this.takeOffPoint = new TakeOffPoint();
         this.wayPoint = new WayPoint();
@@ -37,7 +37,7 @@ class MissionDrawer
 
     newMissionCallback(myargs, args) {
         
-        let missionDict = M.MISSION_MANAGER.getInfoDictById(args);
+        let missionDict = M.MISSION_MANAGER.getDictById(args);
         let uavId = missionDict['uavList'][0];
 
         for (let i=0; i<missionDict.layers.length; i++) {

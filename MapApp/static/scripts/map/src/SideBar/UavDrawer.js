@@ -6,22 +6,32 @@ class UavDrawer
         M.UAV_MANAGER.addInfoParamCallback('desiredPath', this.updateUavParam.bind(this));
         M.UAV_MANAGER.addInfoParamCallback('state', this.updateUavParam.bind(this));
 
-        this.uavListId = Object.assign([], M.UAV_MANAGER.getInfoList());
-        this.uavDict = Object.assign({}, M.UAV_MANAGER.getInfoDict());
+        this.uavListId = Object.assign([], M.UAV_MANAGER.getList());
+        this.uavDict = Object.assign({}, M.UAV_MANAGER.getDict());
 
         this.UAV_LIST = new SmartList();
 
         M.MAP.on('pm:drawstart', (e) => {
             for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
-                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose'].codeLayerDrawn.getPopup().closePopup();
+                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].closePopup();
+                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = false;
+                console.log("close popup");
             }
         });
-
+        
         M.MAP.on('pm:drawend', (e) => {
             for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
-                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose'].codeLayerDrawn.getPopup().openPopup();
+                console.log("open popup");
+                console.log(this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']);
+                console.log(this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker']);
+                console.log(this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popup']);
+                console.log(this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState']);
+
+                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = true;
+                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].openPopup();            
             }
         });
+        
     }
 
     _checkLayer(id, name) {
@@ -81,7 +91,7 @@ class UavDrawer
                     break;
                 case 'state':
                     this._checkLayer(id, 'layerPose');
-                    let pose = M.UAV_MANAGER.getInfoDictById(id)['pose'];
+                    let pose = M.UAV_MANAGER.getDictById(id)['pose'];
 
                     this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
                     this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [pose['lat'], pose['lng']]);
@@ -94,31 +104,45 @@ class UavDrawer
     }
 
     updatePopup(id) {
-        let marker = this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn;
-        let uavDict = M.UAV_MANAGER.getInfoDictById(id);
-        let height = uavDict['pose']['height'];
-        let state = uavDict['state'];
-
+        var uavLayer = this.UAV_LIST.getDictById(id)['layerPose'];
+        
+        let height = M.UAV_MANAGER.getDictById(id)['pose']['height'];
         let popupContent = `<p>Height = ${Utils.round(height, 2)} m</p>`;
-        //<p>State = ${state['state']}</p>
 
-        if (marker.getPopup() == undefined) {
-            marker.bindPopup(popupContent).openPopup(); // .closePopup()
-            
-            // marker.on('mouseover', function (e) {
-            //     this.openPopup();
-            // });
-            // marker.on('mouseout', function (e) {
-            //     this.closePopup();
-            // });
-            
+        if (uavLayer['popup'] == undefined) {
+            uavLayer['marker'] = uavLayer.codeLayerDrawn;
+            uavLayer['marker'].bindPopup(popupContent).openPopup();
+            uavLayer['popup'] = uavLayer['marker'].getPopup();
+            uavLayer['popupState'] = true;
+
+            var callback = this.popupListenerCallback.bind(this);
+
+            uavLayer['marker'].on('popupopen', function(e) {
+                console.log("Popup open");
+                console.log(e);
+                callback(id, true);
+            });
+
+            uavLayer['marker'].on('popupclose', function(e) {
+                console.log("Popup close");
+                console.log(e);
+                callback(id, false);
+                
+            });
+
         } else {
-            let open = marker.getPopup().isOpen();
-            marker.getPopup().setContent(popupContent).update();
-            if (!open) {
-                marker.closePopup();
-            }
+            uavLayer['popup'].setContent(popupContent).update();
+            console.log("Update popup " + uavLayer['popupState']);
+            if (uavLayer['popupState']) {
+                uavLayer['marker'].openPopup();
+            } else {
+                uavLayer['marker'].closePopup();
+            }     
         }
+    }
+
+    popupListenerCallback(id, state) {
+        this.UAV_LIST.getDictById(id)['layerPose']['popupState'] = state;
     }
 
 

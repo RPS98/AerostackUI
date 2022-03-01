@@ -8,12 +8,12 @@ class MissionController
     }
 
     addHTML() {
-        this.selectedMissionId = M.MISSION_MANAGER.getInfoList()[0];
+        this.selectedMissionId = M.MISSION_MANAGER.getList()[0];
 
         let missionControllerHtmlList = [];
 
         // Mission Dropdown list
-        missionControllerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, M.MISSION_MANAGER.getInfoList(), M.MISSION_MANAGER.getInfoList()[0]));
+        missionControllerHtmlList.push(HTMLUtils.initDropDown(`${this.htmlId }-MissionList`, M.MISSION_MANAGER.getList(), M.MISSION_MANAGER.getList()[0]));
 
         // Buttons for draw mission
         let splitBtn = [];
@@ -46,9 +46,9 @@ class MissionController
 
     updateMissionListCallback(myargs, args) {
         this._checkInitalize();
-        HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, M.MISSION_MANAGER.getInfoList());
+        HTMLUtils.updateDropDown(`${this.htmlId}-MissionList`, M.MISSION_MANAGER.getList());
         this.addDropDownMissionCallback();
-        this.selectedMissionId = M.MISSION_MANAGER.getInfoList()[0];
+        this.selectedMissionId = M.MISSION_MANAGER.getList()[0];
     }
 
     clickMissionListCallback(e, args) {

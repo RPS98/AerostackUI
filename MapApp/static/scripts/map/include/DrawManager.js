@@ -1,39 +1,21 @@
-class DrawManager
-{
-    constructor (type, name, globalOptions={}, codeDrawOptions={}, userDrawOptions={}) {
+class DrawManager {
+    constructor(type, name, options = {}) {
         this.type = type
-        this.globalOptions = Object.assign(
+        this.options = Object.assign(
             {
-                'DrawManager': this,
-            },
-            globalOptions,
-        );
-
-
-        this.codeDrawOptions = Object.assign(
-            this.globalOptions, 
-            {
-                'author': 'manager',
+                'instance': this,
                 'type': type,
                 'name': name,
             },
-            codeDrawOptions
+            options,
         );
-        this.userDrawOptions = Object.assign(
-            this.globalOptions, 
-            {
-                'author': 'user',
-                'type': type,
-                'name': name,
-                'status': 'draw',
-            },
-            userDrawOptions
-        );
+
         this.codeLayerDrawn = null;
     }
 
-    codeDraw(values, options={}) {
-        let drawOptions = Object.assign({}, this.codeDrawOptions, options);
+    codeDraw(values, options = {}) {
+        let drawManagerOptions = Object.assign({}, this.options, {'drawUserOptions': options});
+        let drawOptions = Object.assign({'DrawManager': drawManagerOptions}, options);
 
         let draw = null;
 
@@ -59,8 +41,12 @@ class DrawManager
         return draw
     }
 
-    userDraw(options={}) {
-        let drawOptions = Object.assign({}, this.userDrawOptions, options);
+    userDraw(options = {}) {
+        let drawManagerOptions = Object.assign({}, this.options, {'drawCodeOptions': options});
+        let drawOptions = Object.assign({'DrawManager': drawManagerOptions}, options, this.options);
+
+        console.log("DrawManager");
+        console.log(drawOptions);
 
         switch (this.type) {
             case 'Marker':

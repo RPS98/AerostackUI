@@ -257,13 +257,10 @@ var iconSvgUav = `
 
 // #endregion
 
-
 class Marker extends DrawManager {
    constructor(
       name,
-      globalOptions = undefined,
-      codeDrawOptions = {},
-      userDrawOptions = {},
+      options = {},
       iconSvgGrey,
       fillColor = '#b3b3b3',
       borderColor = '#7f7f7f',
@@ -272,17 +269,17 @@ class Marker extends DrawManager {
 
       let newIcon = Marker.getIcon(iconSvgGrey, fillColor, borderColor, iconSize, iconAnchor);
 
-      userDrawOptions['markerStyle'] = { 'icon': newIcon };
-      codeDrawOptions['markerStyle'] = { 'icon': newIcon };
+      options['markerStyle'] = { 'icon': newIcon };
+      options['markerStyle'] = { 'icon': newIcon };
 
-      super('Marker', name, globalOptions, codeDrawOptions, userDrawOptions);
+      super('Marker', name, options);
 
       this.iconSvgGrey = iconSvgGrey;
       this.iconSize = iconSize;
       this.iconAnchor = iconAnchor;
    }
 
-   codeDraw(id, values, options = undefined, iconSvgGrey = this.iconSvgGrey, iconSize = this.iconSize, iconAnchor = this.iconAnchor) {
+   codeDraw(id, values, options = {}, iconSvgGrey = this.iconSvgGrey, iconSize = this.iconSize, iconAnchor = this.iconAnchor) {
       let colors = M.UAV_MANAGER.getColors(id);
       options['icon'] = Marker.getIcon(iconSvgGrey, colors[1], colors[0], iconSize, iconAnchor);
       let marker = super.codeDraw(values, options);
@@ -309,13 +306,11 @@ class Marker extends DrawManager {
 }
 
 class PointOfInterest extends Marker {
-   constructor(fillColor = undefined, borderColor = undefined, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+   constructor(fillColor = undefined, borderColor = undefined, options = undefined) {
 
       super(
          'PointOfInterest',
-         globalOptions,
-         codeDrawOptions,
-         userDrawOptions,
+         options,
          iconSvgPointOfInterest,
          fillColor,
          borderColor);
@@ -323,13 +318,11 @@ class PointOfInterest extends Marker {
 }
 
 class WayPoint extends Marker {
-   constructor(fillColor = undefined, borderColor = undefined, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+   constructor(fillColor = undefined, borderColor = undefined, options = undefined) {
 
       super(
          'WayPoint',
-         globalOptions,
-         codeDrawOptions,
-         userDrawOptions,
+         options,
          iconSvgWayPoint,
          fillColor,
          borderColor);
@@ -337,45 +330,45 @@ class WayPoint extends Marker {
 }
 
 class LandPoint extends Marker {
-   constructor(fillColor = undefined, borderColor = undefined, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = {}) {
-
-      userDrawOptions['continueDrawing'] = false;
+   constructor(fillColor = undefined, borderColor = undefined, options = undefined) {
 
       super(
          'LandPoint',
-         globalOptions,
-         codeDrawOptions,
-         userDrawOptions,
+         options,
          iconSvgLandPoint,
          fillColor,
          borderColor);
    }
+
+   userDraw(options = {}) {
+      options['continueDrawing'] = false;
+      return super.userDraw(options);
+   }
 }
 
 class TakeOffPoint extends Marker {
-   constructor(fillColor = undefined, borderColor = undefined, globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = {}) {
-
-      userDrawOptions['continueDrawing'] = false;
+   constructor(fillColor = undefined, borderColor = undefined, options = undefined) {
 
       super(
          'TakeOffPoint',
-         globalOptions,
-         codeDrawOptions,
-         userDrawOptions,
+         options,
          iconSvgTakeOffPoint,
          fillColor,
          borderColor);
    }
+
+   userDraw(options = {}) {
+      options['continueDrawing'] = false;
+      return super.userDraw(options);
+   }
 }
 
 class UAVMarker extends Marker {
-   constructor(globalOptions = undefined, codeDrawOptions = undefined, userDrawOptions = undefined) {
+   constructor(options = undefined) {
 
       super(
          'UAVMarker',
-         globalOptions,
-         codeDrawOptions,
-         userDrawOptions,
+         options,
          iconSvgUav,
          undefined,
          undefined,
