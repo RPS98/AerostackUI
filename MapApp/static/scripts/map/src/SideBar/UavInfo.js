@@ -22,7 +22,7 @@ class UavInfo
         
         let list = [
             ['Id', dict['id']],
-            ['Info', 'Connected',       dict['state']['connected']],
+            ['Info', 'Connected',       true], // dict['state']['connected']
             ['',     'Armed',           dict['state']['armed']],
             ['',     'Offboard',        dict['state']['offboard']],
             ['',     'State',           dict['state']['state']],
@@ -49,7 +49,7 @@ class UavInfo
 
         let list = [
             ['Id', dict['id']],
-            ['Info', 'Connected',       dict['state']['connected']],
+            ['Info', 'Connected',       true], // dict['state']['connected']
             ['',     'Armed',           dict['state']['armed']],
             ['',     'Offboard',        dict['state']['offboard']],
             ['',     'State',           dict['state']['state']],

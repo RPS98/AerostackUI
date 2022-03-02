@@ -17,10 +17,10 @@ class ManagerPrototype extends SmartListCallbacks {
          * List of colors for each id of the information.
          */
         this.colors = [
+            ['#FFE6CC', '#D79B00'], // orange
             ['#F8CECC', '#F8CECC'], // red
             ['#D5E8D4', '#82B366'], // green
             ['#DAE8FC', '#6C8EBF'], // blue
-            ['#FFE6CC', '#D79B00'], // orange
             ['#FFF2CC', '#FFF2CC'], // yellow
             ['#E1D5E7', '#9673A6'], // violet
         ];
@@ -59,7 +59,7 @@ class ManagerPrototype extends SmartListCallbacks {
             super.addObject(payload['id'], payload);
         } else {
             if (type[0] == 'infoAdd') {
-                super.updateObject(payload['id'], payload, true);
+                super.updateObject(payload['id'], payload, false);
             } else if (type[0] == 'infoSet') {
                 super.updateObject(payload['id'], payload, true);
             }

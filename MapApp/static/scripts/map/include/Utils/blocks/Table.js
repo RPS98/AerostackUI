@@ -21,11 +21,6 @@ class Table extends HTMLUtils {
         let head = document.createElement('thead');
         head.setAttribute('id', `${content['id']}-table-head`);
 
-        console.log("Table");
-        console.log(content);
-        console.log(content['header']);
-        console.log(content['list']);
-
         let numberOfColumns = content['header'].length;
 
         for (let i = 0; i < numberOfColumns; i++) {

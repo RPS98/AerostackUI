@@ -104,7 +104,7 @@ class UavDrawer
 
         if (uavLayer['popup'] == undefined) {
             uavLayer['marker'] = uavLayer.codeLayerDrawn;
-            uavLayer['marker'].bindPopup(popupContent).openPopup();
+            uavLayer['marker'].bindPopup(popupContent, { autoClose: false }).openPopup();
             uavLayer['popup'] = uavLayer['marker'].getPopup();
             uavLayer['popupState'] = true;
 

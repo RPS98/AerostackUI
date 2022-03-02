@@ -26,7 +26,7 @@ class LandPointPopup {
                 this.getLandPointHtmlPopup(this.landPointPopupCont)
             );
 
-            e.marker.bindPopup(popup).openPopup();
+            e.marker.bindPopup(popup, { autoClose: false }).openPopup();
 
             this.markersSList.addObject(
                 this.landPointPopupCont.toString(),
@@ -282,6 +282,7 @@ class MissionPlanner {
         let drawLayers = [];
         for (let i = 0; i < layers.length; i++) {
             let options = layers[i].pm.options;
+            
             if (options.status == 'draw') {
 
                 let layer_info = {
@@ -321,6 +322,7 @@ class MissionPlanner {
         }
 
         if (drawLayers.length > 0 && uavList.length > 0) {
+            console.log("Send mission");
             M.WS.sendRequestMissionConfirm(
                 this.selectedMission,
                 uavList,

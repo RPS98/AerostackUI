@@ -75,9 +75,9 @@ class WebSocketClient:
         """
         This function is called when websocket is closed
         """
-        print("Connection closed")
-        print(f"Status: {close_status_code}")
-        print(f"Close message: {close_msg}")
+        # print("Connection closed")
+        # print(f"Status: {close_status_code}")
+        # print(f"Close message: {close_msg}")
         self.connection = False
 
     def onOpen(self, ws):
@@ -92,7 +92,7 @@ class WebSocketClient:
         """
         This function is called when websocket receives a message and manage it
         """
-        # print(f"Message recived: {message}")
+        print(f"Message recived: {message}")
         msg= json.loads(message)['message']
         
         # Communication with server

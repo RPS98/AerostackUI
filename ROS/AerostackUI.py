@@ -13,14 +13,14 @@ from drone_interface import DroneInterface
 
 class AerostackUI():
     def __init__(self):
-        self.client = WebSocketClient("ws://127.0.0.1:8000/ws/user/")
+        self.client = WebSocketClient("ws://127.0.0.1:8000/ws/user/") #"ws://192.168.30.23:8000/ws/user/")
         self.client.addMsgCallback('request', 'missionConfirm', self.new_mission_callback)
         self.client.addMsgCallback('request', 'missionStart', self.start_mission_callback)
         
         
         rclpy.init()
         
-        self.drone_id = "drone_sim_14"
+        self.drone_id = "drone_sim_rafa_0" # "drone_sim_14"
         self.drone_interface = DroneInterface(self.drone_id, False)
         self.mission_list = []
         self.speed = 2
@@ -46,8 +46,13 @@ class AerostackUI():
                 {'name': 'LandPoint', 'height': [3, 3],    'values':  {'lat': 28.144, 'lng': -16.503}}]
         }
         
-        self.client.send_mission_info(self.fake_mission)
-        self.mission_planner(self.client.mission_id, self.fake_mission['uavList'], self.fake_mission['layers'])
+        send_mission = {'status': 'confirmed', 'id': 1, 'uavList': ['drone_sim_rafa_0'], 'layers': [{'name': 'TakeOffPoint', 'height': [5, 5], 'values': {'lat': 28.1439938, 'lng': -16.5032927}}, {'name': 'Path', 'height': [5, 5], 'values': [{'lat': 28.143967888457993, 'lng': -16.503202915191654}, {'lat': 28.143970253536445, 'lng': -16.502602100372318}, {'lat': 28.143880380519278, 'lng': -16.502556502819065}, {'lat': 28.14387919797907, 'lng': -16.503158658742908}]}, {'name': 'WayPoint', 'height': [5, 5], 'values': {'lat': 28.143779864555484, 'lng': -16.50313183665276}}, {'name': 'WayPoint', 'height': [5, 5], 'values': {'lat': 28.14379287250906, 'lng': -16.50254845619202}}, {'name': 'WayPoint', 'height': [5, 5], 'values': {'lat': 28.143711277137808, 'lng': -16.502514928579334}}, {'name': 'WayPoint', 'height': [5, 5], 'values': {'lat': 28.143694721547664, 'lng': -16.503106355667118}}, {'name': 'LandPoint', 'height': [5, 5], 'values': {'lat': 28.14369708663212, 'lng': -16.503161340951923}}]}
+
+        
+        self.client.send_mission_info(send_mission)
+        self.mission_planner(1, [self.drone_id], 
+                            [{'name': 'TakeOffPoint', 'height': [5, 5], 'values': {'lat': 28.1439938, 'lng': -16.5032927}}, {'name': 'Path', 'height': [5, 5], 'values': [{'lat': 28.143967888457993, 'lng': -16.503202915191654}, {'lat': 28.143970253536445, 'lng': -16.502602100372318}, {'lat': 28.143880380519278, 'lng': -16.502556502819065}, {'lat': 28.14387919797907, 'lng': -16.503158658742908}]}, {'name': 'WayPoint', 'height': [5, 5], 'values': {'lat': 28.143779864555484, 'lng': -16.50313183665276}}, {'name': 'WayPoint', 'height': [5, 5], 'values': {'lat': 28.14379287250906, 'lng': -16.50254845619202}}, {'name': 'WayPoint', 'height': [5, 5], 'values': {'lat': 28.143711277137808, 'lng': -16.502514928579334}}, {'name': 'WayPoint', 'height': [5, 5], 'values': {'lat': 28.143694721547664, 'lng': -16.503106355667118}}, {'name': 'LandPoint', 'height': [5, 5], 'values': {'lat': 28.14369708663212, 'lng': -16.503161340951923}}]
+                             )
         self.client.mission_id += 1
         
         
@@ -56,8 +61,8 @@ class AerostackUI():
         for mission in self.mission_list:
             
             if (str(mission['id']) == str(msg['payload']['id'])):
-                #print(f"- Start mission {mission['id']}")
-                #print(mission['mission'])
+                print(f"- Start mission {mission['id']}")
+                print(mission['mission'])
                 
                 for element in mission['mission']:
                     if element['type'] == 'id':
@@ -156,46 +161,57 @@ class AerostackUI():
         
     def mission_interpreter(self, msg):
         
-            #print(f"- Mission interpreter")
-            #print(msg)
+        print(f"- Mission interpreter")
+        #print(msg)
+        
+        confirm = 'confirmed'
+        extra = []
+        
+        if msg['payload']['status'] == 'request':
+            if len(msg['payload']['uavList']) == 0:
+                confirm = 'rejected'
+                extra.append('No UAVs')
             
-            confirm = 'confirmed'
-            extra = []
-            
-            if msg['payload']['status'] == 'request':
-                if len(msg['payload']['uavList']) == 0:
-                    confirm = 'rejected'
-                    extra.append('No UAVs')
+            if len(msg['payload']['layers']) == 0:
+                confirm = 'rejected'
+                extra.append('No layers')
                 
-                if len(msg['payload']['layers']) == 0:
-                    confirm = 'rejected'
-                    extra.append('No layers')
-                    
-                if msg['payload']['id'] != 'New Mission':
-                    confirm = 'rejected'
-                    extra.append('Invalid id, only "New Mission" is allowed for now :)')
+            if msg['payload']['id'] != 'New Mission':
+                confirm = 'rejected'
+                extra.append('Invalid id, only "New Mission" is allowed for now :)')
+        
+        self.client.missionConfirm(
+            self.client.mission_id,
+            confirm,
+            msg['payload']['id'],
+            msg['from'],
+            extra
+        )
+        
+        self.client.mission_id += 1
+        
+        if confirm == 'confirmed':
+            new_mission_info = msg['payload']
+            new_mission_info['status'] = confirm
+            new_mission_info['id'] = self.client.mission_id
             
-            self.client.missionConfirm(
-                self.client.mission_id,
-                confirm,
-                msg['payload']['id'],
-                msg['from'],
-                extra
-            )
+            self.client.send_mission_info(new_mission_info)                
+            self.mission_planner(self.client.mission_id, msg['payload']['uavList'], msg['payload']['layers'])
             
-            self.client.mission_id += 1
+            print("Send mission info")             
+            print(new_mission_info)
+            print()
             
-            if confirm == 'confirmed':
-                new_mission_info = msg['payload']
-                new_mission_info['status'] = confirm
-                new_mission_info['id'] = self.client.mission_id
-                self.client.send_mission_info(new_mission_info)                
-                self.mission_planner(self.client.mission_id, msg['payload']['uavList'], msg['payload']['layers'])
+            
+            print("Mission planner")
+            print(self.client.mission_id)
+            print(msg['payload']['uavList'])
+            print(msg['payload']['layers'])
         
         # self.mission_list.append(msg)
         
     def new_mission_callback(self, msg, args):
-        #print("AerostackUI - Confirm mission")
+        print("AerostackUI - Confirm mission")
         #print(self)
         #print(msg)
         self.mission_interpreter(msg)
@@ -207,27 +223,29 @@ class AerostackUI():
         
         while rclpy.ok():
             if (self.client.connection):
+                """
+                pose = [28.144099, -16.503337, 1, 0]
+                orientation = [0, 0, 0, 0]
+                info = {
+                        'connected': True,
+                        'armed': True,
+                        'offboard': True,
+                        'state': 'hovering',
+                        'yaw_mode': 'rate',
+                        'control_mode': 'position',
+                        'reference_frame': 'world',
+                    }
                 
-                # pose = [28.144099, -16.503337, 1, 0]
-                # orientation = [0, 0, 0, 0]
-                # info = {
-                #         'connected': True,
-                #         'armed': True,
-                #         'offboard': True,
-                #         'state': 'hovering',
-                #         'yaw_mode': 'rate',
-                #         'control_mode': 'position',
-                #         'reference_frame': 'world',
-                #     }
+                self.client.send_uav_info(
+                        {
+                            'id': self.drone_id,
+                            'state': info, 
+                            'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
+                            # 'odom': odom 
+                        }
+                    )
                 
-                # self.client.send_uav_info(
-                #         {
-                #             'id': self.drone_id,
-                #             'state': info, 
-                #             'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
-                #             # 'odom': odom 
-                #         }
-                #     )
+                """ 
                 
                 pose = self.drone_interface.get_gps_pose()
                 odom.append([pose[0], pose[1]])
@@ -243,13 +261,13 @@ class AerostackUI():
                 
                 self.client.send_uav_info(
                     {
-                        'id': self.drone_id,
+                        'id': str(self.drone_id),
                         'state': info, 
                         'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
                         'odom': odom 
                     }
                 )
-            
+                
             time.sleep(0.1)
         
             

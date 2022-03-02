@@ -5,9 +5,17 @@ export AEROSTACK2_SIMULATION_DRONE_ID=drone_sim_14
 cd ~/aerostack2_ws/src/aerostack2/stack/user_interface/python_interface
 code .
 
-cd ~/aerostack2_ws/src/aerostack2/projects/simulation_pixhawk
+
 
 # Launch qgroundcontrol
+cd ~/Downloads/
+./QGroundControl.AppImage
+
+cd ~/aerostack2_ws/src/aerostack2/projects/simulation_pixhawk
+
+
+
+cd ~/aerostack2_ws/src/aerostack2/projects/planta_simulation
 
 as2_set_ros2_env
 ./launch_simulator.bash
@@ -17,9 +25,9 @@ as2_set_ros2_env
 
 
 as2_set_ros2_env
-ros2 service call /drone_sim_14/set_offboard_mode std_srvs/srv/SetBool data:\ true\
+ros2 service call /drone_sim_rafa_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
 
-ros2 service call /drone_sim_14/set_arming_state std_srvs/srv/SetBool data:\ true\
+ros2 service call /drone_sim_rafa_0/set_arming_state std_srvs/srv/SetBool data:\ true\
 
 COM_RCL_EXCEPT=4
 
@@ -28,9 +36,19 @@ COM_RCL_EXCEPT=4
 https://stackoverflow.com/questions/64493692/cc1plus-error-bad-value-tigerlake-for-march-switch-compilation-error
 
 // Compile gps_utils
+cd ~/aerostack2_ws/
+as2_set_ros2_env
 colcon build --packages-up-to as2_core
+
 // Compile flightros
+cd ~/aerostack2_ws/
+as2_set_ros2_env
 colcon build --packages-up-to flightros
+
+cd ~/aerostack2_ws/
+as2_set_ros2_env
+as2 build
+
 
 // Change world
 cd ~/aerostack2_ws/src/flightmare/flightros/src/pilot/
@@ -53,3 +71,46 @@ as2_set_ros2_env
 
 
 
+
+python manage.py runserver 192.168.30.23:8000
+
+
+http://192.168.30.23:8000/interface/map/
+
+
+
+
+
+
+
+
+
+
+cd ~/Downloads/
+./QGroundControl.AppImage
+
+cd ~/aerostack2_ws/src/aerostack2/projects/planta_simulation
+./launch_simulator.bash
+
+cd ~/aerostack2_ws/src/aerostack2/projects/planta_simulation
+./main_launcher.bash
+
+cd ~/AerostackUI
+conda activate ROSinterface
+python manage.py runserver
+
+cd ~/AerostackUI/ROS
+conda activate ROSinterface
+python AerostackUI.py
+
+cd ~/aerostack2_ws/src/
+ros2 run flightros flight_pilot_node --ros-args -r __ns:=/$AEROSTACK2_SIMULATION_DRONE_ID
+
+cd ~/aerostack2_ws/src/flightmare/flightrender/RPG_Flightmare
+./RPG_Flightmare.x86_64
+
+ros2 run rqt_gui rqt_gui
+
+ros2 service call /drone_sim_rafa_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
+
+ros2 service call /drone_sim_rafa_0/set_arming_state std_srvs/srv/SetBool data:\ true\
