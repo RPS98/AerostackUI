@@ -13,7 +13,7 @@ from drone_interface import DroneInterface
 
 class AerostackUI():
     def __init__(self):
-        self.client = WebSocketClient("ws://127.0.0.1:8000/ws/user/") #"ws://192.168.30.23:8000/ws/user/")
+        self.client = WebSocketClient("ws://192.168.30.23:8000/ws/user/") #"ws://192.168.30.23:8000/ws/user/") # 127.0.0.1
         self.client.addMsgCallback('request', 'missionConfirm', self.new_mission_callback)
         self.client.addMsgCallback('request', 'missionStart', self.start_mission_callback)
         
@@ -61,7 +61,7 @@ class AerostackUI():
         for mission in self.mission_list:
             
             if (str(mission['id']) == str(msg['payload']['id'])):
-                print(f"- Start mission {mission['id']}")
+                print("- Start mission ", mission['id'])
                 print(mission['mission'])
                 
                 for element in mission['mission']:
