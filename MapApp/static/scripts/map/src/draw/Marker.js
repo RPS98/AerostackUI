@@ -287,11 +287,8 @@ class Marker extends DrawManager {
       return marker;
    }
 
-   getHtmlDrawInfo(htmlId, layer) {
-      console.log('TakeOffPoint.getHtmlDrawInfo');
-      console.log(layer);
+   getHtmlDrawInfo(htmlId, layer, name="Marker", htmlCode=[]) {
 
-      
       let id = layer.layer.pm.options.DrawManager.id;
       let lat = layer.layer._latlng.lat;
       let lng = layer.layer._latlng.lng;
@@ -300,9 +297,8 @@ class Marker extends DrawManager {
       let lngDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lng`, { 'class': 'form-control', 'required': 'required', }, 'number', lng);
       let inputDict = HTMLUtils.addDict('button', `${htmlId}-${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
       let row = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict, inputDict], {'class': 'col-md-4'});
-      
-      let name = layer.layer.pm.options.DrawManager.name;
-      return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, true, [row]); 
+
+      return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, true, [row, htmlCode]);
    }
 
    static getIcon(
@@ -333,6 +329,11 @@ class PointOfInterest extends Marker {
          fillColor,
          borderColor);
    }
+
+   getHtmlDrawInfo(htmlId, layer) {
+      let name = 'Point of Interest';
+      return super.getHtmlDrawInfo(htmlId, layer, name, undefined);
+   }
 }
 
 class WayPoint extends Marker {
@@ -349,6 +350,11 @@ class WayPoint extends Marker {
    userDraw(options = {}) {
       options['continueDrawing'] = true;
       return super.userDraw(options);
+   }
+
+   getHtmlDrawInfo(htmlId, layer) {
+      let name = 'Waypoint';
+      return super.getHtmlDrawInfo(htmlId, layer, name, undefined);
    }
 }
 
@@ -367,6 +373,11 @@ class LandPoint extends Marker {
       options['continueDrawing'] = false;
       return super.userDraw(options);
    }
+
+   getHtmlDrawInfo(htmlId, layer) {
+      let name = 'Land Point';
+      return super.getHtmlDrawInfo(htmlId, layer, name, undefined);
+   }
 }
 
 class TakeOffPoint extends Marker {
@@ -383,6 +394,11 @@ class TakeOffPoint extends Marker {
    userDraw(options = {}) {
       options['continueDrawing'] = false;
       return super.userDraw(options);
+   }
+
+   getHtmlDrawInfo(htmlId, layer) {
+      let name = 'Take Off Point';
+      return super.getHtmlDrawInfo(htmlId, layer, name, undefined);
    }
 }
 

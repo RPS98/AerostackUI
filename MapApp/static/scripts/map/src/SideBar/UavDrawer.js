@@ -12,6 +12,7 @@ class UavDrawer
         this.UAV_LIST = new SmartList();
 
         M.MAP.on('pm:drawstart', (e) => {
+            console.log("drawstart");
             for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
                 this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].closePopup();
                 this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = false;
@@ -19,6 +20,7 @@ class UavDrawer
         });
         
         M.MAP.on('pm:drawend', (e) => {
+            console.log("drawend");
             for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
                 this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = true;
                 this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].openPopup();            
@@ -34,6 +36,7 @@ class UavDrawer
     }
 
     updateUavParam(param, value, args) {
+
         let id = args[0];
 
         if (this.UAV_LIST.getList().indexOf(id) === -1) {
@@ -104,29 +107,41 @@ class UavDrawer
 
         if (uavLayer['popup'] == undefined) {
             uavLayer['marker'] = uavLayer.codeLayerDrawn;
-            uavLayer['marker'].bindPopup(popupContent, { autoClose: false }).openPopup();
+
+            let popup = L.popup({
+                closeOnClick: false,
+                autoClose: false
+            }).setContent(popupContent);
+
+            uavLayer['marker'].bindPopup(popup).openPopup();
             uavLayer['popup'] = uavLayer['marker'].getPopup();
             uavLayer['popupState'] = true;
 
             var callback = this.popupListenerCallback.bind(this);
 
             uavLayer['marker'].on('popupopen', function(e) {
+                console.log('popupopen');
+                console.log(id);
                 callback(id, true);
             });
 
             uavLayer['marker'].on('popupclose', function(e) {
+                console.log('popupclose');
+                console.log(id);
                 callback(id, false);
                 
             });
 
         } else {
             uavLayer['popup'].setContent(popupContent).update();
+
             if (uavLayer['popupState']) {
                 uavLayer['marker'].openPopup();
             } else {
                 uavLayer['marker'].closePopup();
             }     
         }
+        console.log();
     }
 
     popupListenerCallback(id, state) {

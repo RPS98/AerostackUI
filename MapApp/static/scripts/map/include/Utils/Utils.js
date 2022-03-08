@@ -45,6 +45,11 @@ class HTMLUtils {
     static addHTML(parent, childDict) {
         let child = null;
         let flag = true;
+
+        if (Object.keys(childDict).length === 0) {
+            return;
+        }
+
         for (let i = 0; i < blocksClassList.length; i++) {
             if (blocksClassList[i][0] == childDict.type) {
                 child = blocksClassList[i][1].addTypeHTML(childDict.content);
@@ -54,6 +59,7 @@ class HTMLUtils {
                 break; // If types are unique, break after first match to optimize performance
             }
         }
+        
         if (flag) {
             console.log("Unknown type of HTML block");
             console.log(childDict)
@@ -461,8 +467,14 @@ class SmartList {
      * @access public
      */
      addObject(id, object) {
+        console.log("addObject");
+        console.log(id);
         super.addObject(id, object);
         Utils.callCallbacks(this._infoAddCallbacks, id);
+
+        for (let key in object) {
+            Utils.callCallbackByParam(this._paramChangeCallbacks, key, object[key], id);
+        }
     }
 
     /**

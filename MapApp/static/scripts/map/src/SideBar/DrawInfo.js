@@ -2,6 +2,7 @@ class DrawInfo
 {
     constructor() {
         this.htmlId = 'sideBar-right-drawInfo-content';
+        this.layerList = new SmartList();
         M.addPmCreateCallback(this.createLayer.bind(this));
     }
 

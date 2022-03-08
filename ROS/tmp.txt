@@ -1,12 +1,5 @@
 TODO:
-
-1. Conectar WebSocket
-2. Colores
-3. Iconos
-4. Show 
-
-5. Arreglar servidor (Consumer.py)
-6. Arreglar interfaz (AerostackUI.py)
-
-7. Console: Log, warning, error, info
-8. Altura
+08/03 -> Draw Info and Mission Info -> (Edit layers and remove) 
+09/03 -> Save mission and Load mission 
+10/03 -> Save misssion and Load mission
+11/03 -> 
