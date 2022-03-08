@@ -55,8 +55,6 @@ class MissionDrawer
                     this.landPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
                     break;
                 case 'WayPoint':
-                    console.log("WayPoint");
-                    console.log(layer);
                     this.wayPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
                     break;
                 default:

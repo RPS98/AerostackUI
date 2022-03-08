@@ -158,7 +158,6 @@ class MissionPlanner {
         let heightRangeRow = HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1'}, [heightInputMinDiv, heightInputMaxDiv, heightRangeBtnDiv]);
         mPlannerList.push(heightRangeRow);
 
-
         // Buttons for change draw mode
         mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-mouse`, { 'class': 'btn btn-primary m-1', }, `<i class="fas fa-mouse-pointer"></i>`));
         mPlannerList.push(HTMLUtils.addDict('button', `${this.htmlId}-edit`, { 'class': 'btn btn-primary m-1', }, `<i class="fas fa-edit"></i>`));
@@ -253,9 +252,11 @@ class MissionPlanner {
         mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId}-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV picker
-        let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker-SideBar`, {}, 'checkbox', M.UAV_MANAGER.getList());
-        mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
+        // let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker-SideBar`, {}, 'checkbox', M.UAV_MANAGER.getList());
 
+        let uavPickerList = M.getUavPickerDict('checkbox', `${this.htmlId}-UAVPicker`, this.clickUavListCallback.bind(this));
+
+        mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
 
         // Buttons for confirm mission
         let splitBtnConfirm = [];
@@ -339,6 +340,7 @@ class MissionPlanner {
 
     updateUavListCallback(myargs, args) {
         this._checkInitalize();
+        /*
         HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker-SideBar`, 'checkbox', M.UAV_MANAGER.getList());
 
         let uavList = M.UAV_MANAGER.getList();
@@ -364,7 +366,7 @@ class MissionPlanner {
             let label = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Label-${uavList[i]}`);
             label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(uavList[i])[1]}`, "important");
         }
-
+        */
     }
 
     updateMissionListCallback(myargs, args) {

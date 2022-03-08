@@ -1,6 +1,5 @@
-class CheckBox extends HTMLUtils 
-{
-    static addTypeDict(type, id='none', attributes={}, ...args){
+class CheckBox extends HTMLUtils {
+    static addTypeDict(type, id = 'none', attributes = {}, ...args) {
         return super.setDict(
             type,
             id,
@@ -26,26 +25,24 @@ class CheckBox extends HTMLUtils
         }
 
         input.setAttribute('class', 'form-check-input');
-        input.setAttribute('id', `${content.id}-Input-${content.text}`);
+        input.setAttribute('id', `${content.id}-Input`);
 
         label.setAttribute('class', 'badge bg-primary text-wrap fs-6');
-        label.setAttribute('for',  `${content.id}-Input-${content.text}`);
-        label.setAttribute('id', `${content.id}-Label-${content.text}`);
+        label.setAttribute('id', `${content.id}-Label`);
+        label.setAttribute('for', `${content.id}-Input`);
         label.setAttribute('style', 'display:inline-block; width:90%');
-        
+
         label.innerHTML = content.text;
 
         div.setAttribute('class', 'form-check');
         div.appendChild(input);
         div.appendChild(label);
-
         return div;
     }
 }
 
-class CheckBoxes extends HTMLUtils 
-{
-    static addTypeDict(type, id='none', attributes={}, ...args){
+class CheckBoxes extends HTMLUtils {
+    static addTypeDict(type, id = 'none', attributes = {}, ...args) {
         return super.setDict(
             type,
             id,
@@ -62,9 +59,10 @@ class CheckBoxes extends HTMLUtils
 
         let divGlobal = document.createElement('div');
 
-        for (let i=0; i<content.list.length; i++) {
-            super.addHTML(divGlobal, HTMLUtils.addDict('checkBox', content.id, {}, content.type, content.list[i]));
-        }        
+        for (let i = 0; i < content.list.length; i++) {
+            super.addHTML(divGlobal, HTMLUtils.addDict('checkBox', `${content.id}-${content.list[i]}`, {}, content.type, content.list[i]));
+        }
+
         return divGlobal;
     }
 }

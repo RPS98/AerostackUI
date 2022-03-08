@@ -214,6 +214,8 @@ class MapManager {
 
         // Layers created manager
         this.addMapCallback('pm:create', this._pmOnCreateCallback);
+
+        this._uavPickerCallbackList = [];
     }
 
     // #region Public methods
@@ -227,7 +229,7 @@ class MapManager {
         this.UAV_MANAGER = new ManagerPrototype('uavInfo', 'uavInfoSet', 'getUavList');
         this.MISSION_MANAGER = new MissionManager('missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
 
-        // this.UAV_MANAGER.addInfoAddCallback(this.updateUavPickerListCallback.bind(this));
+        this.UAV_MANAGER.addInfoAddCallback(this._updateUavPickerListCallback.bind(this));
     }
 
     /**
@@ -252,10 +254,10 @@ class MapManager {
         });
     }
 
-
-    // getUavPickerDict(type, id) {
-    //     return HTMLUtils.addDict('checkBoxes', `${id}`, {'class': 'UavPicker'}, type, M.UAV_MANAGER.getList());
-    // }
+    getUavPickerDict(type, id, callback) {
+        this._uavPickerCallbackList.push(id, callback);
+        return HTMLUtils.addDict('checkBoxes', `${id}`, {'class': 'UavPicker'}, type, M.UAV_MANAGER.getList());
+    }
 
     // #endregion
 
@@ -317,41 +319,44 @@ class MapManager {
         }
     }
 
-    /*
-    updateUavPickerListCallback(myargs, args) {
+    
+    _updateUavPickerListCallback(myargs, args) {
         
         let pickers = document.getElementsByClassName('UavPicker');
 
         for (let i = 0; i < pickers.length; i++) {
 
-            HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker-SideBar`, 'checkbox', M.UAV_MANAGER.getList());
+            console.log("updateUavPickerListCallback");
 
-            let uavList = M.UAV_MANAGER.getList();
-            this.selectedUavs = {};
-            for (let i = 0; i < uavList.length; i++) {
-                // Manage checkbox and its callback
-                this.selectedUavs[uavList[i]] = false;
+            let id = pickers[i].id;
+            let inputId = pickers[i].children[0].id;
+            
+            let input = document.getElementById(inputId + '-Input');
+            let type = input.type;
 
-                let input = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Input-${uavList[i]}`);
+            HTMLUtils.updateCheckBoxes(pickers[i].id, type, M.UAV_MANAGER.getList());
 
-                let callback = this.clickUavListCallback.bind(this);
+            // let uavList = M.UAV_MANAGER.getList();
+            // for (let i = 0; i < uavList.length; i++) {
+            //     let input = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Input-${uavList[i]}`);
 
-                input.addEventListener('change', function () {
+            //     let callback = this.clickUavListCallback.bind(this);
 
-                    let id = this.id.split('-');
-                    let uavId = id[id.length - 1];
-                    let value = this.checked;
+            //     input.addEventListener('change', function () {
 
-                    callback(uavId, value);
-                });
+            //         let id = this.id.split('-');
+            //         let uavId = id[id.length - 1];
+            //         let value = this.checked;
 
-                // Change button color
-                let label = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Label-${uavList[i]}`);
-                label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(uavList[i])[1]}`, "important");
-            }
+            //         callback(uavId, value);
+            //     });
+
+            //     // Change button color
+            //     let label = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Label-${uavList[i]}`);
+            //     label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(uavList[i])[1]}`, "important");
+            // }
         }
     }
-    */
 
     // #endregion
 }

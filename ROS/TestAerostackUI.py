@@ -24,8 +24,15 @@ class AerostackUI():
         self.thread = threading.Thread(target=self.run)
         self.thread.start()    
         
-        #self.send_fake_mission()
-           
+    def send_fake_confirm_mission(self):
+        self.client.missionConfirm(
+            self.client.mission_id,
+            'confirmed',
+            'New mission',
+            '2',
+            []
+        )
+          
     def send_fake_mission(self):
            
         self.fake_mission = {
@@ -254,7 +261,7 @@ class AerostackUI():
                     
                     incr += incr
                     
-                    time.sleep(5)
+                    time.sleep(2)
 
         
 if __name__ == '__main__':
