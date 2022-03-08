@@ -11,21 +11,24 @@ class UavDrawer
 
         this.UAV_LIST = new SmartList();
 
-        M.MAP.on('pm:drawstart', (e) => {
-            console.log("drawstart");
-            for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
-                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].closePopup();
-                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = false;
-            }
-        });
+        M.addMapCallback('pm:drawstart', this.onDrawCallback.bind(this), false);
+        M.addMapCallback('pm:drawend', this.onDrawCallback.bind(this), true);
+
+        // M.MAP.on('pm:drawstart', (e) => {
+        //     console.log("drawstart");
+        //     for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
+        //         this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = false;
+        //         updatePopup(id);
+        //     }
+        // });
         
-        M.MAP.on('pm:drawend', (e) => {
-            console.log("drawend");
-            for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
-                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = true;
-                this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].openPopup();            
-            }
-        });
+        // M.MAP.on('pm:drawend', (e) => {
+        //     console.log("drawend");
+        //     for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
+        //         this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['popupState'] = true;
+        //         this.UAV_LIST.getDictById(this.UAV_LIST.getList()[i])['layerPose']['marker'].openPopup();
+        //     }
+        // });
         
     }
 
@@ -41,6 +44,11 @@ class UavDrawer
 
         if (this.UAV_LIST.getList().indexOf(id) === -1) {
             this.UAV_LIST.addObject(id, {'id': id});
+        }
+
+        if (param == 'odom' && value.length < 2 ||
+            param == 'desiredPath' && value.length < 2) {
+            return;
         }
 
         if (param in this.UAV_LIST.getDictById(id)) {
@@ -120,34 +128,39 @@ class UavDrawer
             var callback = this.popupListenerCallback.bind(this);
 
             uavLayer['marker'].on('popupopen', function(e) {
-                console.log('popupopen');
-                console.log(id);
+                // console.log('popupopen');
+                // console.log(id);
                 callback(id, true);
             });
 
             uavLayer['marker'].on('popupclose', function(e) {
-                console.log('popupclose');
-                console.log(id);
+                // console.log('popupclose');
+                // console.log(id);
                 callback(id, false);
-                
             });
 
         } else {
             uavLayer['popup'].setContent(popupContent).update();
 
             if (uavLayer['popupState']) {
-                uavLayer['marker'].openPopup();
+                uavLayer['marker'].openPopup(); // TODO: fix not open in onDrawCallback
             } else {
                 uavLayer['marker'].closePopup();
             }     
         }
-        console.log();
     }
 
     popupListenerCallback(id, state) {
         this.UAV_LIST.getDictById(id)['layerPose']['popupState'] = state;
     }
 
+    onDrawCallback(args, e) {
+        for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
+            let id = this.UAV_LIST.getList()[i];
+            this.UAV_LIST.getDictById(id)['layerPose']['popupState'] = args[0];
+            this.updatePopup(id);
+        }
+    }
 
     _angleWrap(angle) {
         angle = angle * 180 / Math.PI ;

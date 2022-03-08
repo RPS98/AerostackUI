@@ -1,4 +1,5 @@
-var ID = 0;
+var idCodeDraw = 0;
+var idUserDraw = 0;
 
 class DrawManager {
     constructor(type, name, options = {}) {
@@ -16,7 +17,7 @@ class DrawManager {
     }
 
     codeDraw(values, options = {}) {
-        let drawManagerOptions = Object.assign({}, this.options, {'drawUserOptions': options, 'id': ID++});
+        let drawManagerOptions = Object.assign({}, this.options, {'drawUserOptions': options, 'id': idCodeDraw++});
         let drawOptions = Object.assign({'DrawManager': drawManagerOptions}, options);
 
         let draw = null;
@@ -46,7 +47,7 @@ class DrawManager {
     userDraw(options = {}) {
         options['author'] = 'user';
         options['status'] = 'draw';
-        let drawManagerOptions = Object.assign({}, this.options, {'drawCodeOptions': options, 'id': ID++});
+        let drawManagerOptions = Object.assign({}, this.options, {'drawCodeOptions': options, 'id': idUserDraw++});
         let drawOptions = Object.assign({'DrawManager': drawManagerOptions}, options, this.options);
 
         switch (this.type) {
@@ -74,10 +75,30 @@ class DrawManager {
         }
     }
 
-    getHtmlDrawInfo(options) {
-        //throw new Error("Method not implemented.");
-        console.log("Method not implemented.");
-    }
+    getHtmlDrawInfo(htmlId, layer, name="Marker", htmlValues=[], htmlCode=undefined) {
+        let id = layer.layer.pm.options.DrawManager.id;
+
+        let heightMin = layer.layer.pm.options.height[0];
+        let heightMax = layer.layer.pm.options.height[0];
+
+        let change = HTMLUtils.addDict('button', `${htmlId}-${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
+        let remove = HTMLUtils.addDict('button', `${htmlId}-${id}-remove`, { 'class': 'btn btn-danger' }, 'Remove');
+        let changeDiv = HTMLUtils.addDict('div', `none`, {}, [change]);
+        let removeDiv = HTMLUtils.addDict('div', `none`, {}, [remove]);
+        let layerRow = HTMLUtils.addDict('div', `none`, { 'class': 'btn-group d-flex justify-content-evenly', 'role': 'group'}, [changeDiv, removeDiv]);
+
+        let heightInputMin = HTMLUtils.addDict('input',  `${this.htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', }, 'text', heightMin);
+        let heightInputMax = HTMLUtils.addDict('input',  `${this.htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', }, 'text', heightMax);
+        let heightRangeBtn = HTMLUtils.addDict('button', `${this.htmlId}-heighRangeBtn` , { 'class': 'btn btn-primary' }, 'Set Height (m)');
+
+        let heightInputMinDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col'}, [heightInputMin]);
+        let heightInputMaxDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col'}, [heightInputMax]);
+        let heightRangeBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6'}, [heightRangeBtn]);
+
+        let heightRangeRow = HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1'}, [heightInputMinDiv, heightInputMaxDiv, heightRangeBtnDiv]);
+        
+        return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, false, [htmlValues, layerRow, heightRangeRow, htmlCode]);
+     }
 
     getHtmlCodeInfo() {
         throw new Error("Method not implemented.");

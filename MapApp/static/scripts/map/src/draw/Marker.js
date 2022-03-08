@@ -289,16 +289,15 @@ class Marker extends DrawManager {
 
    getHtmlDrawInfo(htmlId, layer, name="Marker", htmlCode=[]) {
 
-      let id = layer.layer.pm.options.DrawManager.id;
+      let id = layer.layer.pm.options.DrawManager.idUserDraw;
       let lat = layer.layer._latlng.lat;
       let lng = layer.layer._latlng.lng;
 
       let latDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lat`, { 'class': 'form-control', 'required': 'required', }, 'number', lat);
       let lngDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lng`, { 'class': 'form-control', 'required': 'required', }, 'number', lng);
-      let inputDict = HTMLUtils.addDict('button', `${htmlId}-${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
-      let row = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict, inputDict], {'class': 'col-md-4'});
+      let htmlValues = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], {'class': 'col-6'});
 
-      return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, true, [row, htmlCode]);
+      return super.getHtmlDrawInfo(htmlId, layer, name, htmlValues, htmlCode)
    }
 
    static getIcon(

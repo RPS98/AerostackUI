@@ -7,12 +7,15 @@ from websocket_client import WebSocketClient
 
 class AerostackUI():
     def __init__(self):
-        self.client = WebSocketClient("ws://192.168.30.23:8000/ws/user/") #"ws://192.168.30.23:8000/ws/user/") # 127.0.0.1
+        # self.client = WebSocketClient("ws://192.168.30.23:8000/ws/user/")
+        self.client = WebSocketClient("ws://127.0.0.1:8000/ws/user/")
+        
         self.client.addMsgCallback('request', 'missionConfirm', self.new_mission_callback)
         self.client.addMsgCallback('request', 'missionStart', self.start_mission_callback)
 
         self.drone_id = "drone_sim_rafa_0" # "drone_sim_14"
-        self.uav_id_list = ['drone_sim_rafa_0', 'drone_sim_rafa_1'] # ["drone_sim_14"]
+        # self.uav_id_list = ['drone_sim_rafa_0']
+        self.uav_id_list = ['drone_sim_rafa_0', 'drone_sim_rafa_1']
         self.mission_list = []
         self.speed = 2
         
@@ -238,6 +241,7 @@ class AerostackUI():
                     # print(f"Pose: {pose}")
                     # print(f"Orientation: {orientation}")
                     # print(f"Info: {info}")
+                    # print(f"Odom: {odom[idx]}"")
                     
                     self.client.send_uav_info(
                         {
@@ -249,10 +253,9 @@ class AerostackUI():
                     )
                     
                     incr += incr
+                    
                     time.sleep(5)
-                    break
-        
-            
+
         
 if __name__ == '__main__':
     aerostackUI = AerostackUI()

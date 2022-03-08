@@ -25,7 +25,8 @@ window.onload = function () {
     // Map parameters
     let mapCenter = [28.14376, -16.50235];
     let mapZoom = 19;
-    let connectionString = 'ws://192.168.30.23:8000/ws/user/'; // 'ws://192.168.30.23:8000/ws/user/'; // 127.0.0.1
+    // let connectionString = 'ws://192.168.30.23:8000/ws/user/'; 
+    let connectionString = 'ws://127.0.0.1:8000/ws/user/';
     
     /**
      * Map Manager global variable to be accessed from other modules

@@ -25,7 +25,7 @@ SECRET_KEY = '1z6nrum9ys5&xvjlmmiiuc_ql@*=jxp#f6g%0zzfrfndiol=@+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.30.23'] # '192.168.0.152', 'localhost', '127.0.0.1'   http://192.168.0.163:8000/interface/map/
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.30.23'] # '192.168.0.152', 'localhost', '127.0.0.1'   http://192.168.0.163:8000/interface/map/
 
 
 # Application definition

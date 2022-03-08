@@ -11,7 +11,7 @@ class LandPointPopup {
 
         this.markersSList = new SmartList();
 
-        M.addPmCreateCallback(this.pmCreateCallback.bind(this));
+        M.addMapCallback('pm:create', this.pmCreateCallback.bind(this));
         M.UAV_MANAGER.addInfoAddCallback(this.updateUavListCallback.bind(this));
     }
 
@@ -147,10 +147,15 @@ class MissionPlanner {
         let heightRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [heightInput, heightBtn], { 'class': 'col-md-6' });
         mPlannerList.push(heightRow);
 
-        let heightInputMin = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Min');
-        let heightInputMax = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Max');
-        let heightRangeBtn = HTMLUtils.addDict('button', `${this.htmlId}-heighRangeBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
-        let heightRangeRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [heightInputMin, heightInputMax, heightRangeBtn], { 'class': 'col heightRange' });
+        let heightInputMin = HTMLUtils.addDict('input',  `${this.htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Min');
+        let heightInputMax = HTMLUtils.addDict('input',  `${this.htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Max');
+        let heightRangeBtn = HTMLUtils.addDict('button', `${this.htmlId}-heighRangeBtn` , { 'class': 'btn btn-primary' }, 'Set Height (m)');
+
+        let heightInputMinDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col'}, [heightInputMin]);
+        let heightInputMaxDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col'}, [heightInputMax]);
+        let heightRangeBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6'}, [heightRangeBtn]);
+
+        let heightRangeRow = HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1'}, [heightInputMinDiv, heightInputMaxDiv, heightRangeBtnDiv]);
         mPlannerList.push(heightRangeRow);
 
 
@@ -179,10 +184,6 @@ class MissionPlanner {
         let missionPlannerCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-PlannerCollapse`, {}, 'Planner', true, mPlannerList);
 
         HTMLUtils.addToExistingElement(`${this.htmlId}`, [missionPlannerCollapse]);
-
-        // Makes height range button looks pretty
-        let btnRange = document.getElementsByClassName('heightRange');
-        btnRange[2].setAttribute('class', 'col-6');
 
         this.addPlannerCallbacks();
     }

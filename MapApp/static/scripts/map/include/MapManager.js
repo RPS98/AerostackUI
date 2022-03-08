@@ -190,13 +190,13 @@ class MapManager {
 
         // Add a layer control to the map, with the latitude and longitude of the mouse
         L.control.coordinates({
-			position:"bottomright",
-			decimals: 5,
-			decimalSeperator:".",
-			labelTemplateLat:"Lat: {y}",
-			labelTemplateLng:"Lng: {x}",
-            useLatLngOrder:true
-		}).addTo(this.MAP);
+            position: "bottomright",
+            decimals: 5,
+            decimalSeperator: ".",
+            labelTemplateLat: "Lat: {y}",
+            labelTemplateLng: "Lng: {x}",
+            useLatLngOrder: true
+        }).addTo(this.MAP);
 
         // Create sidebars HTML elements
         this._initializeSideBars();
@@ -213,25 +213,7 @@ class MapManager {
         this.WS.addCallback('basic', 'handshake', this._onHandshake.bind(this));
 
         // Layers created manager
-        /**
-         * List of callbacks when a layer is created.
-         * @type {array}
-         * @private
-         */
-        this._mapPmCreateCallbacks = [];
-
-        this.MAP.on('pm:create', function (e) {
-
-            // Change layer color if the option color is set
-            if ('color' in e.layer.pm.options) {
-                e.layer.setStyle({ color: e.layer.pm.options['color'] });
-                if ('color' in e.layer.options) {
-                    e.layer.options['color'] = e.layer.options['color'];
-                }
-            }
-
-            Utils.callCallbacks(M._mapPmCreateCallbacks, e);
-        });
+        this.addMapCallback('pm:create', this._pmOnCreateCallback);
     }
 
     // #region Public methods
@@ -244,7 +226,7 @@ class MapManager {
     initialize() {
         this.UAV_MANAGER = new ManagerPrototype('uavInfo', 'uavInfoSet', 'getUavList');
         this.MISSION_MANAGER = new MissionManager('missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
-    
+
         // this.UAV_MANAGER.addInfoAddCallback(this.updateUavPickerListCallback.bind(this));
     }
 
@@ -258,19 +240,22 @@ class MapManager {
     }
 
     /**
-     * Add a function callback when a layer is created.
-     * @param {function} callback - Function to be called when the layer is created.
+     * Add a function callback to map listener
+     * @param {function} callback - Function to be called when the map event happend
      * @param  {...any} args - Arguments to be passed to the callback.
      * @return {void} 
      * @access public
      */
-    addPmCreateCallback(callback, ...args) {
-        this._mapPmCreateCallbacks.push([callback, args]);
+    addMapCallback(type, callback, ...args) {
+        this.MAP.on(type, function (e) {
+            callback(args, e);
+        });
     }
 
-    getUavPickerDict(type, id) {
-        return HTMLUtils.addDict('checkBoxes', `${id}`, {'class': 'UavPicker'}, type, M.UAV_MANAGER.getList());
-    }
+
+    // getUavPickerDict(type, id) {
+    //     return HTMLUtils.addDict('checkBoxes', `${id}`, {'class': 'UavPicker'}, type, M.UAV_MANAGER.getList());
+    // }
 
     // #endregion
 
@@ -319,6 +304,19 @@ class MapManager {
     }
 
     // #endregion
+
+    _pmOnCreateCallback(args, e) {
+        let layers = M.getLayers();
+        
+        // Change layer color if the option color is set
+        if ('color' in e.layer.pm.options) {
+            e.layer.setStyle({ color: e.layer.pm.options['color'] });
+            if ('color' in e.layer.options) {
+                e.layer.options['color'] = e.layer.options['color'];
+            }
+        }
+    }
+
     /*
     updateUavPickerListCallback(myargs, args) {
         

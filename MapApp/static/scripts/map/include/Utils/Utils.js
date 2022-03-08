@@ -46,7 +46,18 @@ class HTMLUtils {
         let child = null;
         let flag = true;
 
+        if (childDict == undefined) {
+            return;
+        }
+
         if (Object.keys(childDict).length === 0) {
+            return;
+        }
+
+        if (Array.isArray(childDict)) {
+            for (let j = 0; j < childDict.length; j++) {
+                HTMLUtils.addHTML(parent, childDict[j])
+            }
             return;
         }
 
@@ -63,6 +74,8 @@ class HTMLUtils {
         if (flag) {
             console.log("Unknown type of HTML block");
             console.log(childDict)
+            console.log(typeof childDict)
+            console.log(Array.isArray(childDict))
             throw new Error('Unknown type of HTML block');
         }
     }
@@ -466,14 +479,12 @@ class SmartList {
      * @returns {void}
      * @access public
      */
-     addObject(id, object) {
-        console.log("addObject");
-        console.log(id);
-        super.addObject(id, object);
+     addObject(id, objectInfo) {
+        super.addObject(id, objectInfo);
         Utils.callCallbacks(this._infoAddCallbacks, id);
 
-        for (let key in object) {
-            Utils.callCallbackByParam(this._paramChangeCallbacks, key, object[key], id);
+        for (let key in objectInfo) {
+            Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
         }
     }
 
@@ -485,6 +496,7 @@ class SmartList {
      * @access public
      */
     updateObject(id, objectInfo, override = false) {
+
         if (override) {
             super.addObject(id, objectInfo);
             Utils.callCallbacks(this._infoChangeCallbacks, id);
@@ -492,10 +504,21 @@ class SmartList {
             super.updateObject(id, objectInfo);
             Utils.callCallbacks(this._infoChangeCallbacks, id);
         }        
+        
+        let oldInfo = this.getDictById(id);
+        let newInfo = objectInfo;
 
         for (let key in objectInfo) {
-            Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
+            if (!(key in oldInfo)) {
+                if (oldInfo[key] !== newInfo[key]) {
+                    Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
+                }
+            }
         }
+
+        // for (let key in objectInfo) {
+        //     Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
+        // }
     }
     // #endregion
 }

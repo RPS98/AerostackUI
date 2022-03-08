@@ -13,7 +13,7 @@ class Area extends Polygon
 
     getHtmlDrawInfo(htmlId, layer) {
 
-        let id = layer.layer.pm.options.DrawManager.id;
+        let id = layer.layer.pm.options.DrawManager.idUserDraw;
 
         console.log(`${id}`);
         console.log(layer);
