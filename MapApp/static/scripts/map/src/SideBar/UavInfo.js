@@ -7,7 +7,8 @@ class UavInfo
         this.htmlId = 'sideBar-right-UAVInfo-content';
     }
 
-    _newUavCallback(callback, uavId) {
+    _newUavCallback(myargs, args) {
+        let uavId = args[0];
 
         if (this.uavSList.getList().indexOf(uavId) == -1) {
             this.uavSList.addObject(uavId, M.UAV_MANAGER.getDictById(uavId));
@@ -41,7 +42,9 @@ class UavInfo
         
     }
 
-    _changeUavInfo(myargs, uavId) {
+    _changeUavInfo(myargs, args) {
+        let uavId = args[0];
+        
         let parent = document.getElementById(`${this.htmlId}-UAV-${uavId}-table-body`);
         parent.innerHTML = '';
 

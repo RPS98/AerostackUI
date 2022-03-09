@@ -24,7 +24,7 @@ window.onload = function () {
     // TODO: Load parameters from a config file
     // Map parameters
     let mapCenter = [28.14376, -16.50235];
-    let mapZoom = 19;
+    let mapZoom = 20;
     // let connectionString = 'ws://192.168.30.23:8000/ws/user/'; 
     let connectionString = 'ws://127.0.0.1:8000/ws/user/';
     

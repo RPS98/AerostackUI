@@ -133,9 +133,14 @@ class HTMLUtils {
         let checkBoxes = document.getElementById(`${idCheckBoxes}`);
         checkBoxes.innerHTML = '';
         for (let i = 0; i < list.length; i++) {
-            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-checkBox`, attributes, type, list[i]);
+            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-${list[i]}`, attributes, type, list[i]);
             HTMLUtils.addToExistingElement(`${idCheckBoxes}`, [checkBox]);
         }
+    }
+
+    static addCheckBox(idParent, idContent, type, name, attributes = {}) {
+        let parentElement = document.getElementById(idParent);
+        HTMLUtils.addHTML(parentElement, HTMLUtils.addDict('checkBox', `${idContent}-${name}`, attributes, type, name));
     }
 }
 
@@ -152,7 +157,7 @@ class Utils {
      */
     static callCallbacks(callbackList, ...args) {
         for (let i = 0; i < callbackList.length; i++) {
-            callbackList[i][0](callbackList[i][1], ...args);
+            callbackList[i][0](callbackList[i][1], args);
         }
     }
 
@@ -469,7 +474,7 @@ class SmartList {
      */
     removeById(id) {
         super.removeObject(id);
-        this._callCallbacks(this._infoAddCallbacks, id);
+        this._callCallbacks(this._infoAddCallbacks, id, 'remove');
     }
 
     /**
@@ -481,7 +486,7 @@ class SmartList {
      */
      addObject(id, objectInfo) {
         super.addObject(id, objectInfo);
-        Utils.callCallbacks(this._infoAddCallbacks, id);
+        Utils.callCallbacks(this._infoAddCallbacks, id, 'add');
 
         for (let key in objectInfo) {
             Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);

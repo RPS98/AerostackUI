@@ -252,9 +252,9 @@ class MissionPlanner {
         mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId}-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV picker
-        // let uavPickerList = HTMLUtils.addDict('checkBoxes', `${this.htmlId}-UAVPicker-SideBar`, {}, 'checkbox', M.UAV_MANAGER.getList());
-
-        let uavPickerList = M.getUavPickerDict('checkbox', `${this.htmlId}-UAVPicker`, this.clickUavListCallback.bind(this));
+        // let uavPickerList = M.getUavPickerDict('checkbox', `${this.htmlId}-UAVPicker`, this.clickUavListCallback.bind(this));
+        let list = [['none', false], ['auto', true]];
+        let uavPickerList = M.getUavPickerDict('checkbox', `${this.htmlId}-UAVPicker`, this.clickUavListCallback.bind(this), list);
 
         mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
 
@@ -340,33 +340,7 @@ class MissionPlanner {
 
     updateUavListCallback(myargs, args) {
         this._checkInitalize();
-        /*
-        HTMLUtils.updateCheckBoxes(`${this.htmlId}-UAVPicker-SideBar`, 'checkbox', M.UAV_MANAGER.getList());
-
-        let uavList = M.UAV_MANAGER.getList();
-        this.selectedUavs = {};
-        for (let i = 0; i < uavList.length; i++) {
-            // Manage checkbox and its callback
-            this.selectedUavs[uavList[i]] = false;
-
-            let input = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Input-${uavList[i]}`);
-
-            let callback = this.clickUavListCallback.bind(this);
-
-            input.addEventListener('change', function () {
-
-                let id = this.id.split('-');
-                let uavId = id[id.length - 1];
-                let value = this.checked;
-
-                callback(uavId, value);
-            });
-
-            // Change button color
-            let label = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Label-${uavList[i]}`);
-            label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(uavList[i])[1]}`, "important");
-        }
-        */
+        this.selectedUavs[args[0]] = false;
     }
 
     updateMissionListCallback(myargs, args) {
@@ -383,6 +357,9 @@ class MissionPlanner {
     }
 
     clickUavListCallback(uavId, value) {
+        console.log("clickUavListCallback");
+        console.log(uavId);
+        console.log(value);
         this.selectedUavs[uavId] = value;
 
         // If there is no UAV selected, disable the confirm button
@@ -396,8 +373,8 @@ class MissionPlanner {
         }
     }
 
-
     // #endregion
+    
     // #endregion
 }
 

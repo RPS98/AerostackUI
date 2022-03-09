@@ -15,7 +15,7 @@ class AerostackUI():
 
         self.drone_id = "drone_sim_rafa_0" # "drone_sim_14"
         # self.uav_id_list = ['drone_sim_rafa_0']
-        self.uav_id_list = ['drone_sim_rafa_0', 'drone_sim_rafa_1']
+        self.uav_id_list = ['drone_sim_rafa_0', 'drone_sim_rafa_1', 'drone_sim_rafa_2']
         self.mission_list = []
         self.speed = 2
         
@@ -231,7 +231,7 @@ class AerostackUI():
                     # print(f"Uav List = {self.uav_id_list}")
                     # print(f"UAV = {uav}")
                     # print(f"Index = {idx}")
-                    pose = [28.144099+incr, -16.503337+incr, 1, 0]
+                    pose = [28.14376+incr, -16.50235+incr, 1, 0]
                     orientation = [0, 0, 0, 0]
                     info = {
                             'connected': True,
@@ -261,7 +261,7 @@ class AerostackUI():
                     
                     incr += incr
                     
-                    time.sleep(2)
+                    time.sleep(1)
 
         
 if __name__ == '__main__':

@@ -36,8 +36,8 @@ class MissionDrawer
     }
 
     newMissionCallback(myargs, args) {
-        
-        let missionDict = M.MISSION_MANAGER.getDictById(args);
+        let missionId = args[0];
+        let missionDict = M.MISSION_MANAGER.getDictById(missionId);
         let uavId = missionDict['uavList'][0];
 
         for (let i=0; i<missionDict.layers.length; i++) {

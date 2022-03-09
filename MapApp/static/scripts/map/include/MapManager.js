@@ -254,9 +254,17 @@ class MapManager {
         });
     }
 
-    getUavPickerDict(type, id, callback) {
-        this._uavPickerCallbackList.push(id, callback);
-        return HTMLUtils.addDict('checkBoxes', `${id}`, {'class': 'UavPicker'}, type, M.UAV_MANAGER.getList());
+    getUavPickerDict(type, id, callback, othersElements=[], ...args) {
+        this._uavPickerCallbackList.push([id, callback, othersElements, args]);
+        let uavList = M.UAV_MANAGER.getList();
+        if (othersElements.length > 0) {
+            let list = [];
+            for (let i = 0; i < othersElements.length; i++) {
+                list.push(othersElements[i][0]);
+            }
+            return HTMLUtils.addDict('checkBoxes', `${id}`, { 'class': 'UavPicker' }, type, list.concat(uavList));
+        }
+        return HTMLUtils.addDict('checkBoxes', `${id}`, { 'class': 'UavPicker' }, type, uavList);
     }
 
     // #endregion
@@ -309,7 +317,7 @@ class MapManager {
 
     _pmOnCreateCallback(args, e) {
         let layers = M.getLayers();
-        
+
         // Change layer color if the option color is set
         if ('color' in e.layer.pm.options) {
             e.layer.setStyle({ color: e.layer.pm.options['color'] });
@@ -319,43 +327,120 @@ class MapManager {
         }
     }
 
-    
-    _updateUavPickerListCallback(myargs, args) {
+    _updateUavPickerList(myargs, args, picker) {
         
+        console.log("_updateUavPickerList");
+        console.log(myargs);
+        console.log(args);
+        console.log(args[0]);
+        console.log(picker);
+
+        // Update the checkbox HTML
+        let childId = picker.children[0].id;
+        let type = document.getElementById(childId + '-Input').type;
+
+        HTMLUtils.addCheckBox(picker.id, picker.id, type, args[0]);
+
+        // Add callback to the checkbox
+        for (let j = 0; j < this._uavPickerCallbackList.length; j++) {
+            let divId = this._uavPickerCallbackList[j][0];
+            let callback = this._uavPickerCallbackList[j][1];
+            let othersElements = this._uavPickerCallbackList[j][2];
+            let userargs = this._uavPickerCallbackList[j][3];
+
+            if (divId == picker.id) {
+                let checkBoxId = picker.id + args[0] + '-Input';
+                console.log(checkBoxId);
+                console.log(args[0]);
+                document.getElementById(checkBoxId).addEventListener('change', function () {
+                    let id = this.id.split('-');
+                    let uavId = id[id.length - 1];
+                    let value = this.checked;
+
+                    callback(uavId, value, userargs);
+                });
+            }
+        }
+
+        // sideBar-left-missionPlanner-content-UAVPicker-drone_sim_rafa_2-Input
+        // sideBar-left-missionPlanner-content-UAVPicker-Input-drone_sim_rafa_2
+
+        /*
+        for (let j = 0; j < this._uavPickerCallbackList.length; j++) {
+            let divId = this._uavPickerCallbackList[j][0];
+            let callback = this._uavPickerCallbackList[j][1];
+            let args = this._uavPickerCallbackList[j][3];
+
+            let uavList = M.UAV_MANAGER.getList();
+
+            for (let k = 0; k < uavList.length; k++) {
+                
+                let uavInput = document.getElementById(`${divId}-${uavList[k]}-Input`);
+
+                uavInput.addEventListener('change', function () {
+                    let id = this.id.split('-');
+                    let uavId = id[id.length - 1];
+                    let value = this.checked;
+
+                    callback(uavId, value, args);
+                });
+            }
+        }
+        */
+    }
+
+    _updateUavPickerListCallback(myargs, args) {
+
         let pickers = document.getElementsByClassName('UavPicker');
 
         for (let i = 0; i < pickers.length; i++) {
+            this._updateUavPickerList(myargs, args, pickers[i]);
+        }
 
-            console.log("updateUavPickerListCallback");
-
-            let id = pickers[i].id;
-            let inputId = pickers[i].children[0].id;
+        /*
+            // Get old state of each checkbox
+            let oldStateList = []
+            let type = 'checkbox';
+            for (let j = 0; j < pickers[i].children.length; j++) {
+                let childId = pickers[i].children[j].id;
+                let input = document.getElementById(childId + '-Input');
+                oldStateList.push([childId + '-Input', input.checked]);
+                type = input.type;
+            }
             
-            let input = document.getElementById(inputId + '-Input');
-            let type = input.type;
-
+            // Update the checkbox HTML
             HTMLUtils.updateCheckBoxes(pickers[i].id, type, M.UAV_MANAGER.getList());
 
-            // let uavList = M.UAV_MANAGER.getList();
-            // for (let i = 0; i < uavList.length; i++) {
-            //     let input = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Input-${uavList[i]}`);
+            // Keep the old state of each checkbox
+            for (let j = 0; j < oldStateList.length; j++) {
+                let newElement = document.getElementById(oldStateList[j][0]);
+                if (newElement != undefined) {
+                    newElement.checked = oldStateList[j][1]
+                }
+            }
 
-            //     let callback = this.clickUavListCallback.bind(this);
+            // Add callback to each checkbox
+            for (let j = 0; j < this._uavPickerCallbackList.length; j++) {
+                let divId = this._uavPickerCallbackList[j][0];
+                let callback = this._uavPickerCallbackList[j][1];
+                let args = this._uavPickerCallbackList[j][3];
 
-            //     input.addEventListener('change', function () {
+                let uavList = M.UAV_MANAGER.getList();
 
-            //         let id = this.id.split('-');
-            //         let uavId = id[id.length - 1];
-            //         let value = this.checked;
+                for (let k = 0; k < uavList.length; k++) {
+                    
+                    let uavInput = document.getElementById(`${divId}-${uavList[k]}-Input`);
 
-            //         callback(uavId, value);
-            //     });
+                    uavInput.addEventListener('change', function () {
+                        let id = this.id.split('-');
+                        let uavId = id[id.length - 1];
+                        let value = this.checked;
 
-            //     // Change button color
-            //     let label = document.getElementById(`${this.htmlId}-UAVPicker-SideBar-checkBox-Label-${uavList[i]}`);
-            //     label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(uavList[i])[1]}`, "important");
-            // }
-        }
+                        callback(uavId, value, args);
+                    });
+                }
+            }
+        */
     }
 
     // #endregion

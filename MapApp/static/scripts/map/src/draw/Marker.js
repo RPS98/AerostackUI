@@ -287,7 +287,7 @@ class Marker extends DrawManager {
       return marker;
    }
 
-   getHtmlDrawInfo(htmlId, layer, name="Marker", htmlCode=[]) {
+   getHtmlDrawInfo(htmlId, layer, name="Marker", htmlCode=undefined, addUavPicker=false, uavPickerType='radio') {
 
       let id = layer.layer.pm.options.DrawManager.idUserDraw;
       let lat = layer.layer._latlng.lat;
@@ -297,7 +297,7 @@ class Marker extends DrawManager {
       let lngDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lng`, { 'class': 'form-control', 'required': 'required', }, 'number', lng);
       let htmlValues = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], {'class': 'col-6'});
 
-      return super.getHtmlDrawInfo(htmlId, layer, name, htmlValues, htmlCode)
+      return super.getHtmlDrawInfo(htmlId, layer, name, htmlValues, htmlCode, addUavPicker, uavPickerType);
    }
 
    static getIcon(
@@ -331,7 +331,9 @@ class PointOfInterest extends Marker {
 
    getHtmlDrawInfo(htmlId, layer) {
       let name = 'Point of Interest';
-      return super.getHtmlDrawInfo(htmlId, layer, name, undefined);
+      uavList = []; 
+      type = 'radio'
+      return super.getHtmlDrawInfo(htmlId, layer, name, uavList, type, undefined);
    }
 }
 
