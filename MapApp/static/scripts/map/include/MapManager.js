@@ -267,6 +267,30 @@ class MapManager {
         return HTMLUtils.addDict('checkBoxes', `${id}`, { 'class': 'UavPicker' }, type, uavList);
     }
 
+    uavPickerInitiliazeCallback(id) {
+        // Add callback to the checkbox
+        for (let i = 0; i < this._uavPickerCallbackList.length; i++) {
+            let divId = this._uavPickerCallbackList[i][0];
+            let callback = this._uavPickerCallbackList[i][1];
+            let othersElements = this._uavPickerCallbackList[i][2];
+            let userargs = this._uavPickerCallbackList[i][3];
+
+            if (divId == id) {
+                for (let j = 0; j < othersElements.length; j++) {
+                    let name = othersElements[j][0];
+                    let checkBoxId = id + '-'+ name + '-Input';
+                    this. _uavPickerAddCallback(checkBoxId, callback, userargs);
+                }
+                let uavList =  M.UAV_MANAGER.getList();
+                for (let j = 0; j < uavList.length; j++) {
+                    let uavName = uavList[j];
+                    let uavCheckBoxId = id + '-'+ uavName + '-Input';
+                    this. _uavPickerAddCallback(uavCheckBoxId, callback, userargs);
+                }
+            }
+        }
+    }
+
     // #endregion
 
     // #region Private methods
@@ -327,13 +351,17 @@ class MapManager {
         }
     }
 
+    _uavPickerAddCallback(checkBoxId, callback, userargs) {
+        document.getElementById(checkBoxId).addEventListener('change', function () {
+            let inputId = this.id.split('-');
+            let uavName = inputId[inputId.length - 1];
+            let value = this.checked;
+
+            callback(uavName, value, userargs);
+        });
+    }
+
     _updateUavPickerList(myargs, args, picker) {
-        
-        console.log("_updateUavPickerList");
-        console.log(myargs);
-        console.log(args);
-        console.log(args[0]);
-        console.log(picker);
 
         // Update the checkbox HTML
         let childId = picker.children[0].id;
@@ -342,105 +370,36 @@ class MapManager {
         HTMLUtils.addCheckBox(picker.id, picker.id, type, args[0]);
 
         // Add callback to the checkbox
-        for (let j = 0; j < this._uavPickerCallbackList.length; j++) {
-            let divId = this._uavPickerCallbackList[j][0];
-            let callback = this._uavPickerCallbackList[j][1];
-            let othersElements = this._uavPickerCallbackList[j][2];
-            let userargs = this._uavPickerCallbackList[j][3];
+        for (let i = 0; i < this._uavPickerCallbackList.length; i++) {
+            let divId = this._uavPickerCallbackList[i][0];
+            let callback = this._uavPickerCallbackList[i][1];
+            let othersElements = this._uavPickerCallbackList[i][2];
+            let userargs = this._uavPickerCallbackList[i][3];
 
             if (divId == picker.id) {
-                let checkBoxId = picker.id + args[0] + '-Input';
-                console.log(checkBoxId);
-                console.log(args[0]);
-                document.getElementById(checkBoxId).addEventListener('change', function () {
-                    let id = this.id.split('-');
-                    let uavId = id[id.length - 1];
-                    let value = this.checked;
-
-                    callback(uavId, value, userargs);
-                });
-            }
-        }
-
-        // sideBar-left-missionPlanner-content-UAVPicker-drone_sim_rafa_2-Input
-        // sideBar-left-missionPlanner-content-UAVPicker-Input-drone_sim_rafa_2
-
-        /*
-        for (let j = 0; j < this._uavPickerCallbackList.length; j++) {
-            let divId = this._uavPickerCallbackList[j][0];
-            let callback = this._uavPickerCallbackList[j][1];
-            let args = this._uavPickerCallbackList[j][3];
-
-            let uavList = M.UAV_MANAGER.getList();
-
-            for (let k = 0; k < uavList.length; k++) {
+                let checkBoxId = picker.id + '-'+ args[0] + '-Input';
                 
-                let uavInput = document.getElementById(`${divId}-${uavList[k]}-Input`);
+                this. _uavPickerAddCallback(checkBoxId, callback, userargs);
 
-                uavInput.addEventListener('change', function () {
-                    let id = this.id.split('-');
-                    let uavId = id[id.length - 1];
-                    let value = this.checked;
-
-                    callback(uavId, value, args);
-                });
+                // Remove defaults checkboxes
+                for (let i = 0; i < othersElements.length; i++) {
+                    let name = othersElements[i][0];
+                    let keep = othersElements[i][1];
+                    if (!keep) {
+                        let checkBoxId = picker.id + '-' + name;
+                        document.getElementById(checkBoxId).remove();
+                        this._uavPickerCallbackList[i][2].splice(i, 1);
+                    }
+                }
             }
         }
-        */
     }
 
     _updateUavPickerListCallback(myargs, args) {
-
         let pickers = document.getElementsByClassName('UavPicker');
-
         for (let i = 0; i < pickers.length; i++) {
             this._updateUavPickerList(myargs, args, pickers[i]);
         }
-
-        /*
-            // Get old state of each checkbox
-            let oldStateList = []
-            let type = 'checkbox';
-            for (let j = 0; j < pickers[i].children.length; j++) {
-                let childId = pickers[i].children[j].id;
-                let input = document.getElementById(childId + '-Input');
-                oldStateList.push([childId + '-Input', input.checked]);
-                type = input.type;
-            }
-            
-            // Update the checkbox HTML
-            HTMLUtils.updateCheckBoxes(pickers[i].id, type, M.UAV_MANAGER.getList());
-
-            // Keep the old state of each checkbox
-            for (let j = 0; j < oldStateList.length; j++) {
-                let newElement = document.getElementById(oldStateList[j][0]);
-                if (newElement != undefined) {
-                    newElement.checked = oldStateList[j][1]
-                }
-            }
-
-            // Add callback to each checkbox
-            for (let j = 0; j < this._uavPickerCallbackList.length; j++) {
-                let divId = this._uavPickerCallbackList[j][0];
-                let callback = this._uavPickerCallbackList[j][1];
-                let args = this._uavPickerCallbackList[j][3];
-
-                let uavList = M.UAV_MANAGER.getList();
-
-                for (let k = 0; k < uavList.length; k++) {
-                    
-                    let uavInput = document.getElementById(`${divId}-${uavList[k]}-Input`);
-
-                    uavInput.addEventListener('change', function () {
-                        let id = this.id.split('-');
-                        let uavId = id[id.length - 1];
-                        let value = this.checked;
-
-                        callback(uavId, value, args);
-                    });
-                }
-            }
-        */
     }
 
     // #endregion

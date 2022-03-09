@@ -15,7 +15,8 @@ class AerostackUI():
 
         self.drone_id = "drone_sim_rafa_0" # "drone_sim_14"
         # self.uav_id_list = ['drone_sim_rafa_0']
-        self.uav_id_list = ['drone_sim_rafa_0', 'drone_sim_rafa_1', 'drone_sim_rafa_2']
+        # self.uav_id_list = ['drone_sim_rafa_0', 'drone_sim_rafa_1', 'drone_sim_rafa_2']
+        self.uav_id_list = ['drone_sim_rafa_0', 'drone_sim_rafa_1']
         self.mission_list = []
         self.speed = 2
         
@@ -261,7 +262,7 @@ class AerostackUI():
                     
                     incr += incr
                     
-                    time.sleep(1)
+                    time.sleep(10)
 
         
 if __name__ == '__main__':

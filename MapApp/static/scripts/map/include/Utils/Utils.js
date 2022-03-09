@@ -130,6 +130,8 @@ class HTMLUtils {
     }
 
     static updateCheckBoxes(idCheckBoxes, type, list, attributes = {}) {
+        console.log("updateCheckBoxes")
+        console.log(list)
         let checkBoxes = document.getElementById(`${idCheckBoxes}`);
         checkBoxes.innerHTML = '';
         for (let i = 0; i < list.length; i++) {
@@ -139,6 +141,8 @@ class HTMLUtils {
     }
 
     static addCheckBox(idParent, idContent, type, name, attributes = {}) {
+        console.log("addCheckBox")
+        console.log(name)
         let parentElement = document.getElementById(idParent);
         HTMLUtils.addHTML(parentElement, HTMLUtils.addDict('checkBox', `${idContent}-${name}`, attributes, type, name));
     }

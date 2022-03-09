@@ -252,8 +252,8 @@ class MissionPlanner {
         mConfirmList.push(HTMLUtils.initDropDown(`${this.htmlId}-MissionList`, missionListTotal, 'New Mission'));
 
         // UAV picker
-        // let uavPickerList = M.getUavPickerDict('checkbox', `${this.htmlId}-UAVPicker`, this.clickUavListCallback.bind(this));
-        let list = [['none', false], ['auto', true]];
+        // let list = [['none', false], ['auto', true]];
+        let list = [['none', false]];
         let uavPickerList = M.getUavPickerDict('checkbox', `${this.htmlId}-UAVPicker`, this.clickUavListCallback.bind(this), list);
 
         mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
@@ -274,6 +274,7 @@ class MissionPlanner {
 
     addConfirmCallbacks() {
         Utils.addButtonCallback(`${this.htmlId}-confirm`, this.confirmBtnCallback.bind(this), []);
+        M.uavPickerInitiliazeCallback(`${this.htmlId}-UAVPicker`);
     }
 
     confirmBtnCallback(args = []) {
@@ -357,9 +358,6 @@ class MissionPlanner {
     }
 
     clickUavListCallback(uavId, value) {
-        console.log("clickUavListCallback");
-        console.log(uavId);
-        console.log(value);
         this.selectedUavs[uavId] = value;
 
         // If there is no UAV selected, disable the confirm button
