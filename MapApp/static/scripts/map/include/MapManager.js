@@ -81,6 +81,109 @@ class ManagerPrototype extends SmartListCallbacks {
 }
 
 
+class DrawLayers extends SmartListCallbacks {
+    constructor() {
+        super();
+        M.addMapCallback('layeradd', this._onLayerAdd.bind(this));
+        M.addMapCallback('layerremove', this._onLayerRemove.bind(this));
+    }
+
+    _getDrawManager(layer) {
+
+        let pmLayer = null;
+        try {
+            pmLayer = layer.pm._layer;
+        } catch (e) {
+            return [false, null, null];
+        }
+
+        if (pmLayer !== undefined) {
+            let drawManager = {};
+            if (pmLayer.options.DrawManager !== undefined) {
+                drawManager = pmLayer.options.DrawManager;
+            } else if (pmLayer.pm.options.DrawManager !== undefined) {
+                drawManager = pmLayer.pm.options.DrawManager;
+            }
+
+            if (drawManager.drawUserOptions !== undefined) {
+                
+                if (drawManager.drawUserOptions.status == 'draw') {
+                    let id = drawManager.id;
+                    let value = {
+                        'layer': layer,
+                        'drawManager': drawManager
+                    };
+                    return [true, id, value];
+                }
+            }
+        }
+        return [false, null, null];
+    }
+
+    _onLayerAdd(args, e) {
+        let info = this._getDrawManager(e.layer);
+        let flag = info[0];
+        let id = info[1];
+        let value = info[2];
+        if (flag) {
+            console.log("DrawManager: layeradd");
+            super.addObject(id, value);
+            console.log(e.layer)
+
+            let callback = this._onUserLayerChange.bind(this);
+            e.layer.on('pm:edit', (e2) => {
+                callback(e2);
+            });
+
+            let callback2 = this._onCodeLayerChange.bind(this);
+            e.layer.on('move', (e2) => {
+                callback2(e2);
+            });
+
+            let layerinfo = super.getDictById(id);
+            console.log(layerinfo.layer)
+            layerinfo.layer.setLatLngs([[28.14376, -16.50235], [28.144, -16.503]]);
+
+        }
+    }
+
+    _onLayerRemove(args, e) {
+        let info = this._getDrawManager(e.layer);
+        let flag = info[0];
+        let id = info[1];
+        let value = info[2];
+        if (flag) {
+            console.log("DrawManager: layerremove")
+            super.removeById(id);
+        }
+    }
+
+    _onUserLayerChange(e) {
+        let info = this._getDrawManager(e);
+        let flag = info[0];
+        let id = info[1];
+        let value = info[2];
+        if (flag) {
+            console.log("layerchange")
+            super.updateObject(id, value);
+        }
+    }
+
+    _onCodeLayerChange(e) {
+        console.log("DrawManager: layerchange")
+        console.log(e);
+        let info = this._getDrawManager(e.target);
+        let flag = info[0];
+        let id = info[1];
+        let value = info[2];
+        if (flag) {
+            console.log("layerchange")
+            super.updateObject(id, value);
+        }
+    }
+}
+
+
 /**
  * Mission Manager that extends the ManagerPrototype to manage confirm and reject mission messages.
  */
@@ -228,6 +331,7 @@ class MapManager {
     initialize() {
         this.UAV_MANAGER = new ManagerPrototype('uavInfo', 'uavInfoSet', 'getUavList');
         this.MISSION_MANAGER = new MissionManager('missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
+        this.DRAW_LAYERS = new DrawLayers();
 
         this.UAV_MANAGER.addInfoAddCallback(this._updateUavPickerListCallback.bind(this));
     }

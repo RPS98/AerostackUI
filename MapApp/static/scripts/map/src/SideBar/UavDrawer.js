@@ -96,6 +96,7 @@ class UavDrawer
                 case 'state':
                     this._checkLayer(id, 'layerPose');
                     let pose = M.UAV_MANAGER.getDictById(id)['pose'];
+                    this.UAV_LIST.getDictById(id)['pose'] = pose;
 
                     this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
                     this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [pose['lat'], pose['lng']]);

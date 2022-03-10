@@ -59,4 +59,9 @@ window.onload = function () {
     for (let i = 0; i < sideBarsClass.length; i++) {
         sideBarsClass[i];
     }
+
+    let marker = new DrawManager('Marker', 'test');
+    marker.codeDraw(mapCenter, {'rotationAngle': 0});
+    marker.codeLayerDrawn.setLatLng(mapCenter);
+    marker.codeLayerDrawn.remove();
 }

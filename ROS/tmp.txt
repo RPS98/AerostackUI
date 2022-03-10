@@ -15,4 +15,9 @@ TODO:
 
 
 Web interface documentation
-Web interface +
+Add swarming features to the web interface
+
+Fix flightmare initial pose
+
+Launcher with only gazebo server
+

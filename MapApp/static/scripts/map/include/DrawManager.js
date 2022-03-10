@@ -17,7 +17,7 @@ class DrawManager {
     }
 
     codeDraw(values, options = {}) {
-        let drawManagerOptions = Object.assign({}, this.options, { 'drawUserOptions': options, 'id': idCodeDraw++ });
+        let drawManagerOptions = Object.assign({}, this.options, { 'drawCodeOptions': options, 'id': idCodeDraw++ });
         let drawOptions = Object.assign({ 'DrawManager': drawManagerOptions }, options);
 
         let draw = null;
@@ -47,7 +47,7 @@ class DrawManager {
     userDraw(options = {}) {
         options['author'] = 'user';
         options['status'] = 'draw';
-        let drawManagerOptions = Object.assign({}, this.options, { 'drawCodeOptions': options, 'id': idUserDraw++ });
+        let drawManagerOptions = Object.assign({}, this.options, { 'drawUserOptions': options, 'id': idUserDraw++ });
         let drawOptions = Object.assign({ 'DrawManager': drawManagerOptions }, options, this.options);
 
         switch (this.type) {
