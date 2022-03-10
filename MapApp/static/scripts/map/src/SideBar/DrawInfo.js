@@ -14,6 +14,8 @@ class DrawInfo
             let drawManager = options.instance;
             let drawInfo = drawManager.getHtmlDrawInfo(this.htmlId, layer);
             HTMLUtils.addToExistingElement(`${this.htmlId}`, [drawInfo]);
+            console.log("drawInfo");
+            console.log(drawInfo);
         }
     }
 }

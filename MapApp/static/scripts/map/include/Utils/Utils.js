@@ -141,8 +141,6 @@ class HTMLUtils {
     }
 
     static addCheckBox(idParent, idContent, type, name, attributes = {}) {
-        console.log("addCheckBox")
-        console.log(name)
         let parentElement = document.getElementById(idParent);
         HTMLUtils.addHTML(parentElement, HTMLUtils.addDict('checkBox', `${idContent}-${name}`, attributes, type, name));
     }

@@ -75,8 +75,11 @@ class DrawManager {
         }
     }
 
-    _uavPickerCallback() {
-
+    _uavPickerCallback(uavName, value, userargs) {
+        console.log("_uavPickerCallback");
+        console.log(uavName);
+        console.log(value);
+        console.log(userargs);
     }
 
     getHtmlDrawInfo(htmlId, layer, name = "Marker", htmlValues = [], htmlCode = [], addUavPicker = false, uavPickerType = 'checkbox') {
@@ -103,12 +106,14 @@ class DrawManager {
 
         let heightRangeRow = HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [heightInputMinDiv, heightInputMaxDiv, heightRangeBtnDiv]);
 
-        let uavPickerList = [];
+        let uavPickerListCollapse = [];
         if (addUavPicker) {
-            uavPickerList = M.getUavPickerDict(uavPickerType, `${this.htmlId}-UAVPicker`, this._uavPickerCallback.bind(this), layer);
+            let list = [['auto', true]];
+            let uavPickerList = M.getUavPickerDict(uavPickerType, `${this.htmlId}-UAVPicker`, list, this._uavPickerCallback.bind(this), layer);
+            uavPickerListCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]);
         }
 
-        return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, false, [htmlValues, layerRow, heightRangeRow, uavPickerList, htmlCode]);
+        return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, false, [htmlValues, layerRow, heightRangeRow, uavPickerListCollapse, htmlCode]);
     }
 
     getHtmlCodeInfo() {

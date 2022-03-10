@@ -287,7 +287,7 @@ class Marker extends DrawManager {
       return marker;
    }
 
-   getHtmlDrawInfo(htmlId, layer, name="Marker", htmlCode=undefined, addUavPicker=false, uavPickerType='radio') {
+   getHtmlDrawInfo(htmlId, layer, name = "Marker", htmlCode = undefined, addUavPicker = true, uavPickerType = 'radio') {
 
       let id = layer.layer.pm.options.DrawManager.idUserDraw;
       let lat = layer.layer._latlng.lat;
@@ -295,7 +295,7 @@ class Marker extends DrawManager {
 
       let latDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lat`, { 'class': 'form-control', 'required': 'required', }, 'number', lat);
       let lngDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lng`, { 'class': 'form-control', 'required': 'required', }, 'number', lng);
-      let htmlValues = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], {'class': 'col-6'});
+      let htmlValues = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], { 'class': 'col-6' });
 
       return super.getHtmlDrawInfo(htmlId, layer, name, htmlValues, htmlCode, addUavPicker, uavPickerType);
    }
@@ -331,9 +331,7 @@ class PointOfInterest extends Marker {
 
    getHtmlDrawInfo(htmlId, layer) {
       let name = 'Point of Interest';
-      uavList = []; 
-      type = 'radio'
-      return super.getHtmlDrawInfo(htmlId, layer, name, uavList, type, undefined);
+      return super.getHtmlDrawInfo(htmlId, layer, name);
    }
 }
 
@@ -355,7 +353,7 @@ class WayPoint extends Marker {
 
    getHtmlDrawInfo(htmlId, layer) {
       let name = 'Waypoint';
-      return super.getHtmlDrawInfo(htmlId, layer, name, undefined);
+      return super.getHtmlDrawInfo(htmlId, layer, name);
    }
 }
 
@@ -377,7 +375,13 @@ class LandPoint extends Marker {
 
    getHtmlDrawInfo(htmlId, layer) {
       let name = 'Land Point';
-      return super.getHtmlDrawInfo(htmlId, layer, name, undefined);
+
+      console.log("getHtmlDrawInfo")
+      let list = [['none', false]];
+      let uavPickerList = M.getUavPickerDict('radio', `${this.htmlId}-UAVPicker`, list, super._uavPickerCallback.bind(this), layer);
+      let uavPickerListCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]);
+
+      return super.getHtmlDrawInfo(htmlId, layer, name, uavPickerListCollapse, false);
    }
 }
 
@@ -399,7 +403,7 @@ class TakeOffPoint extends Marker {
 
    getHtmlDrawInfo(htmlId, layer) {
       let name = 'Take Off Point';
-      return super.getHtmlDrawInfo(htmlId, layer, name, undefined);
+      return super.getHtmlDrawInfo(htmlId, layer, name, undefined, false);
    }
 }
 

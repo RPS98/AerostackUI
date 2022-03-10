@@ -14,6 +14,8 @@ class CheckBox extends HTMLUtils {
 
     static addTypeHTML(content) {
 
+        let id = content.id;
+
         let div = document.createElement('div');
         let input = document.createElement('input');
         let label = document.createElement('label');
@@ -21,15 +23,16 @@ class CheckBox extends HTMLUtils {
         input.setAttribute('type', content['type']);
 
         if (content['type'] == 'radio') {
-            input.setAttribute('name', content.id);
+            let name = id .replace('-' + content.text,'');
+            input.setAttribute('name', name);
         }
 
         input.setAttribute('class', 'form-check-input');
-        input.setAttribute('id', `${content.id}-Input`);
+        input.setAttribute('id', `${id}-Input`);
 
         label.setAttribute('class', 'badge bg-primary text-wrap fs-6');
-        label.setAttribute('id', `${content.id}-Label`);
-        label.setAttribute('for', `${content.id}-Input`);
+        label.setAttribute('id', `${id}-Label`);
+        label.setAttribute('for', `${id}-Input`);
         label.setAttribute('style', 'display:inline-block; width:90%');
 
         label.innerHTML = content.text;

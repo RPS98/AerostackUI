@@ -254,9 +254,19 @@ class MapManager {
         });
     }
 
-    getUavPickerDict(type, id, callback, othersElements=[], ...args) {
-        this._uavPickerCallbackList.push([id, callback, othersElements, args]);
+    getUavPickerDict(type, id, othersElements=[], callback, ...args) {
         let uavList = M.UAV_MANAGER.getList();
+
+        if (uavList.length > 0) {
+            for (let i = 0; i < othersElements.length; i++) {
+                if (!othersElements[i][1]) {
+                    othersElements.splice(i, 1);
+                }
+            }
+        }
+
+        this._uavPickerCallbackList.push([id, callback, othersElements, args]);
+        
         if (othersElements.length > 0) {
             let list = [];
             for (let i = 0; i < othersElements.length; i++) {

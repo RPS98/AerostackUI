@@ -1,9 +1,18 @@
 TODO:
-08/03 -> Draw Info and Mission Info -> (Edit layers and remove) 
-09/03 -> Layer tiles and order
-10/03 -> Save misssion and Load mission. Start, stop and end mission.
+10/03 -> Draw Info
+11/03 -> Mission Info
 
-Center mission. 
-Reload mission. 
-Edit mission.
-Draw controllers
+13/03 -> Improve info.
+14/03 -> Draw change, remove (Edit mission).
+15/03 -> Save misssion and Load mission. Start, stop and end mission.
+16/03 -> Mission / UAV colors. Link each mission layer 
+17/03 -> Mission controller functionality (Center mission, Reload mission). Layer tiles and order
+
+20/03 -> Add config file. Clean repository.
+22/03 -> Documentation
+23/03 -> Documentation
+24/03 -> Swarming features
+
+
+Web interface documentation
+Web interface +
