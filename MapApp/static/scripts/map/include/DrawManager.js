@@ -1,5 +1,5 @@
-var idCodeDraw = 0;
-var idUserDraw = 0;
+// var idCodeDraw = 0;
+// var idUserDraw = 0;
 
 class DrawManager {
     constructor(type, name, options = {}) {
@@ -17,8 +17,8 @@ class DrawManager {
     }
 
     codeDraw(values, options = {}) {
-        let drawManagerOptions = Object.assign({}, this.options, { 'drawCodeOptions': options, 'id': idCodeDraw++ });
-        let drawOptions = Object.assign({ 'DrawManager': drawManagerOptions }, options);
+        let drawManagerOptions = Object.assign({}, this.options, { 'drawCodeOptions': options, 'id': 'none' });
+        let drawOptions = Object.assign({ 'drawManager': drawManagerOptions }, options);
 
         let draw = null;
 
@@ -47,8 +47,8 @@ class DrawManager {
     userDraw(options = {}) {
         options['author'] = 'user';
         options['status'] = 'draw';
-        let drawManagerOptions = Object.assign({}, this.options, { 'drawUserOptions': options, 'id': idUserDraw++ });
-        let drawOptions = Object.assign({ 'DrawManager': drawManagerOptions }, options, this.options);
+        let drawManagerOptions = Object.assign({}, this.options, { 'drawUserOptions': options, 'id': 'none' });
+        let drawOptions = Object.assign({ 'drawManager': drawManagerOptions }, options, this.options);
 
         switch (this.type) {
             case 'Marker':
@@ -76,17 +76,25 @@ class DrawManager {
     }
 
     _uavPickerCallback(uavName, value, userargs) {
-        console.log("_uavPickerCallback");
-        console.log(uavName);
-        console.log(value);
-        console.log(userargs);
+
+        let type = userargs[0];
+        let layer = userargs[1];
+        let drawManager = layer.pm.options.drawManager;
+
+        if (type == 'radio') {
+            if (value) {
+                drawManager.drawUserOptions.uavList = { uavName: true };
+            }
+        } else {
+            drawManager.drawUserOptions.uavList[uavName] = true;
+        }
     }
 
     getHtmlDrawInfo(htmlId, layer, name = "Marker", htmlValues = [], htmlCode = [], addUavPicker = false, uavPickerType = 'checkbox') {
-        let id = layer.layer.pm.options.DrawManager.id;
+        let id = layer.pm.options.drawManager.id;
 
-        let heightMin = layer.layer.pm.options.height[0];
-        let heightMax = layer.layer.pm.options.height[0];
+        let heightMin = layer.pm.options.height[0];
+        let heightMax = layer.pm.options.height[1];
 
         // Values HTML
         let change = HTMLUtils.addDict('button', `${htmlId}-${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
@@ -96,9 +104,9 @@ class DrawManager {
         let layerRow = HTMLUtils.addDict('div', `none`, { 'class': 'btn-group d-flex justify-content-evenly', 'role': 'group' }, [changeDiv, removeDiv]);
 
         // Height range HTML
-        let heightInputMin = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', }, 'text', heightMin);
-        let heightInputMax = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', }, 'text', heightMax);
-        let heightRangeBtn = HTMLUtils.addDict('button', `${this.htmlId}-heighRangeBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
+        let heightInputMin = HTMLUtils.addDict('input', `${htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', 'value': heightMin }, 'text', heightMin);
+        let heightInputMax = HTMLUtils.addDict('input', `${htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', 'value': heightMax }, 'text', heightMax);
+        let heightRangeBtn = HTMLUtils.addDict('button', `${htmlId}-heighRangeBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
 
         let heightInputMinDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [heightInputMin]);
         let heightInputMaxDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [heightInputMax]);
@@ -109,8 +117,8 @@ class DrawManager {
         let uavPickerListCollapse = [];
         if (addUavPicker) {
             let list = [['auto', true]];
-            let uavPickerList = M.getUavPickerDict(uavPickerType, `${this.htmlId}-UAVPicker`, list, this._uavPickerCallback.bind(this), layer);
-            uavPickerListCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]);
+            let uavPickerList = M.getUavPickerDict(uavPickerType, `${htmlId}-UAVPicker`, list, this._uavPickerCallback.bind(this), uavPickerType, layer);
+            uavPickerListCollapse = HTMLUtils.addDict('collapse', `${htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]);
         }
 
         return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, false, [htmlValues, layerRow, heightRangeRow, uavPickerListCollapse, htmlCode]);

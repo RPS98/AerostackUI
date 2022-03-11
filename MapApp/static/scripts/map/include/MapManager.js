@@ -86,6 +86,8 @@ class DrawLayers extends SmartListCallbacks {
         super();
         M.addMapCallback('layeradd', this._onLayerAdd.bind(this));
         M.addMapCallback('layerremove', this._onLayerRemove.bind(this));
+
+        this.id = 0;
     }
 
     _getDrawManager(layer) {
@@ -98,22 +100,22 @@ class DrawLayers extends SmartListCallbacks {
         }
 
         if (pmLayer !== undefined) {
+
             let drawManager = {};
-            if (pmLayer.options.DrawManager !== undefined) {
-                drawManager = pmLayer.options.DrawManager;
-            } else if (pmLayer.pm.options.DrawManager !== undefined) {
-                drawManager = pmLayer.pm.options.DrawManager;
+            if (pmLayer.options.drawManager !== undefined) {
+                drawManager = pmLayer.options.drawManager;
+            } else if (pmLayer.pm.options.drawManager !== undefined) {
+                drawManager = pmLayer.pm.options.drawManager;
             }
 
             if (drawManager.drawUserOptions !== undefined) {
                 
                 if (drawManager.drawUserOptions.status == 'draw') {
-                    let id = drawManager.id;
                     let value = {
                         'layer': layer,
                         'drawManager': drawManager
                     };
-                    return [true, id, value];
+                    return [true, drawManager, value];
                 }
             }
         }
@@ -123,12 +125,14 @@ class DrawLayers extends SmartListCallbacks {
     _onLayerAdd(args, e) {
         let info = this._getDrawManager(e.layer);
         let flag = info[0];
-        let id = info[1];
+        let drawManager = info[1];
         let value = info[2];
+        
         if (flag) {
-            console.log("DrawManager: layeradd");
-            super.addObject(id, value);
-            console.log(e.layer)
+            // console.log("DrawLayers: _onLayerAdd")
+            drawManager.id = this.id;
+            super.addObject(drawManager.id, value);
+            this.id++;
 
             let callback = this._onUserLayerChange.bind(this);
             e.layer.on('pm:edit', (e2) => {
@@ -139,11 +143,6 @@ class DrawLayers extends SmartListCallbacks {
             e.layer.on('move', (e2) => {
                 callback2(e2);
             });
-
-            let layerinfo = super.getDictById(id);
-            console.log(layerinfo.layer)
-            layerinfo.layer.setLatLngs([[28.14376, -16.50235], [28.144, -16.503]]);
-
         }
     }
 
@@ -153,7 +152,7 @@ class DrawLayers extends SmartListCallbacks {
         let id = info[1];
         let value = info[2];
         if (flag) {
-            console.log("DrawManager: layerremove")
+            // console.log("DrawLayers: _onLayerRemove")
             super.removeById(id);
         }
     }
@@ -164,20 +163,18 @@ class DrawLayers extends SmartListCallbacks {
         let id = info[1];
         let value = info[2];
         if (flag) {
-            console.log("layerchange")
+            // console.log("DrawLayers: _onUserLayerChange")
             super.updateObject(id, value);
         }
     }
 
     _onCodeLayerChange(e) {
-        console.log("DrawManager: layerchange")
-        console.log(e);
         let info = this._getDrawManager(e.target);
         let flag = info[0];
         let id = info[1];
         let value = info[2];
         if (flag) {
-            console.log("layerchange")
+            // console.log("DrawLayers: _onCodeLayerChange")
             super.updateObject(id, value);
         }
     }
@@ -468,7 +465,10 @@ class MapManager {
     _uavPickerAddCallback(checkBoxId, callback, userargs) {
         document.getElementById(checkBoxId).addEventListener('change', function () {
             let inputId = this.id.split('-');
-            let uavName = inputId[inputId.length - 1];
+            let uavName = inputId[inputId.length - 2];
+            console.log("MapManager - _uavPickerAddCallback");
+            console.log(inputId)
+            console.log(uavName);
             let value = this.checked;
 
             callback(uavName, value, userargs);

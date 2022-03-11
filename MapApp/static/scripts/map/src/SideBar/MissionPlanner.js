@@ -148,7 +148,6 @@ class MissionPlanner {
         args[0].userDraw({ 'height': this.selectedHeight }, args);
     }
 
-
     // #endregion
 
     // #endregion

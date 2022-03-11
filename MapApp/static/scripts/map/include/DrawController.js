@@ -10,10 +10,18 @@ class DrawController {
      */
     static drawMouse() {
         M.MAP.pm.disableDraw();
-        M.MAP.pm.disableGlobalEditMode();
-        M.MAP.pm.disableGlobalRemovalMode();
-        M.MAP.pm.disableGlobalDragMode();
-        M.MAP.pm.disableGlobalRotateMode();
+
+        if (M.MAP.pm.globalEditModeEnabled()) {
+            M.MAP.pm.toggleGlobalEditMode();
+        } else if (M.MAP.pm.globalEditModeEnabled()) {
+            M.MAP.pm.toggleGlobalEditMode();
+        } else if (M.MAP.pm.globalRemovalModeEnabled()) {
+            M.MAP.pm.toggleGlobalRemovalMode();
+        } else if (M.MAP.pm.globalDragModeEnabled()) {
+            M.MAP.pm.toggleGlobalDragMode();
+        } else if (M.MAP.pm.globalRotateModeEnabled()) {
+            M.MAP.pm.toggleGlobalRotateMode();
+        }
     }
 
     /**

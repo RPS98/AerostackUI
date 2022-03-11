@@ -21,3 +21,118 @@ Fix flightmare initial pose
 
 Launcher with only gazebo server
 
+Add Web interface features
+
+
+{
+    'Key0' = 'Value0'
+    'Key1': 
+        {
+            'Key1.1': 'Value1.1',
+            'Key1.2': 'Value1.2',
+            'Key1.3': 'Value1.3'
+        }
+    'Key2': 
+        {
+            'Key2.1': 
+                {
+                    'Key2.1.1': 'Value2.1.1',
+                    'Key2.1.2': 'Value2.1.2'
+                }
+            'Key2.2': 'Value2.2'
+        }
+}
+
+- Opción 1:
+
+[Key0, Value0]
+[Key1, Key1.1, Value1.1]
+[''  , Key1.2, Value1.2]
+[''  , Key1.3, Value1.3]
+[Key2, Key2.1, Key2.1.1, Value2.1.1]
+[''  , ''    , Key2.1.2, Value2.1.2]
+[''  , Key2.2, Value2.2]
+
+- Opción 2:
+
+[Key0, Value0, ''      , ''        ]
+[Key1, Key1.1, Value1.1, ''        ]
+[''  , Key1.2, Value1.2, ''        ]
+[''  , Key1.3, Value1.3, ''        ]
+[Key2, Key2.1, Key2.1.1, Value2.1.1]
+[''  , ''    , Key2.1.2, Value2.1.2]
+[''  , Key2.2, Value2.2], ''       ]
+
+
+
+['Id', dict['id']],
+['Info', 'Connected',       true], // dict['state']['connected']
+['',     'Armed',           dict['state']['armed']],
+['',     'Offboard',        dict['state']['offboard']],
+['',     'State',           dict['state']['state']],
+['',     'Yaw mode',        dict['state']['yaw_mode']],
+['',     'Control mode',    dict['state']['control_mode']],
+['',     'Reference frame', dict['state']['reference_frame']],
+['Pose', 'lat',     Utils.round(dict['pose']['lat']   , 5)],
+['',     'lng',     Utils.round(dict['pose']['lng']   , 5)],
+['',      'height', Utils.round(dict['pose']['height'], 2)],
+['',      'yaw',    Utils.round(dict['pose']['yaw']   , 2)],
+
+
+
+
+
+let uavInfo = 
+{
+    'Id': 'Uav1',
+    'Info': 
+        {
+            'Connected': true,
+            'Armed': true,
+            'Offboard': false,
+        },
+    'State':
+        {
+            'Position':
+                {
+                    'x': 0,
+                    'y': 0,
+                    'z': 0,
+                },
+            'Orientation':
+                {
+                    'yaw': 0,
+                    'pitch': 0,
+                    'roll': 0,
+                },
+            'State': 'hover',
+        }
+}
+
+// Opción 1:
+
+['Id'   , 'Uav1']
+['Info' , 'Connected'  , true]
+[''     , 'Armed'      , true]
+[''     , 'Offboard'   , false]
+['State', 'Position'   , 'x'    , 0]
+[''     , ''           , 'y'    , 0]
+[''     , ''           , 'z'    , 0]
+[''     , 'Orientation', 'yaw'  , 0]
+[''     , ''           , 'pitch', 0]
+[''     , ''           , 'roll' , 0]
+[''     , 'State'      , 'hover']
+
+// Opción 2:
+
+['Id'   , 'Uav1'       , ''     , '']    
+['Info' , 'Connected'  , true   , '']
+[''     , 'Armed'      , true   , '']
+[''     , 'Offboard'   , false  , '']
+['State', 'Position'   , 'x'    , 0]
+[''     , ''           , 'y'    , 0]
+[''     , ''           , 'z'    , 0]
+[''     , 'Orientation', 'yaw'  , 0]
+[''     , ''           , 'pitch', 0]
+[''     , ''           , 'roll' , 0]
+[''     , 'State'      , 'hover', '']

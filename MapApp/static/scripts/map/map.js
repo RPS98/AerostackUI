@@ -60,8 +60,8 @@ window.onload = function () {
         sideBarsClass[i];
     }
 
-    let marker = new DrawManager('Marker', 'test');
-    marker.codeDraw(mapCenter, {'rotationAngle': 0});
-    marker.codeLayerDrawn.setLatLng(mapCenter);
-    marker.codeLayerDrawn.remove();
+    // let marker = new DrawManager('Marker', 'test');
+    // marker.codeDraw(mapCenter, {'rotationAngle': 0});
+    // marker.codeLayerDrawn.setLatLng(mapCenter);
+    // marker.codeLayerDrawn.remove();
 }

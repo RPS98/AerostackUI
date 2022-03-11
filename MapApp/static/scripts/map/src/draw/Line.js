@@ -16,8 +16,8 @@ class Line extends DrawManager
 
     getHtmlDrawInfo(htmlId, layer, name="Line", htmlCode = undefined, addUavPicker = true, uavPickerType = 'radio') {
 
-        let id = layer.layer.pm.options.DrawManager.idUserDraw;
-        let values = layer.layer._latlngs;
+        let id = layer.pm.options.drawManager.idUserDraw;
+        let values = layer._latlngs;
         let htmlValues = [];
         for (let i = 0; i < values.length; i++) {
             let lat = values[i].lat;

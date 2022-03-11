@@ -289,9 +289,9 @@ class Marker extends DrawManager {
 
    getHtmlDrawInfo(htmlId, layer, name = "Marker", htmlCode = undefined, addUavPicker = true, uavPickerType = 'radio') {
 
-      let id = layer.layer.pm.options.DrawManager.idUserDraw;
-      let lat = layer.layer._latlng.lat;
-      let lng = layer.layer._latlng.lng;
+      let id = layer.pm.options.drawManager.idUserDraw;
+      let lat = layer._latlng.lat;
+      let lng = layer._latlng.lng;
 
       let latDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lat`, { 'class': 'form-control', 'required': 'required', }, 'number', lat);
       let lngDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lng`, { 'class': 'form-control', 'required': 'required', }, 'number', lng);
@@ -375,13 +375,7 @@ class LandPoint extends Marker {
 
    getHtmlDrawInfo(htmlId, layer) {
       let name = 'Land Point';
-
-      console.log("getHtmlDrawInfo")
-      let list = [['none', false]];
-      let uavPickerList = M.getUavPickerDict('radio', `${this.htmlId}-UAVPicker`, list, super._uavPickerCallback.bind(this), layer);
-      let uavPickerListCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]);
-
-      return super.getHtmlDrawInfo(htmlId, layer, name, uavPickerListCollapse, false);
+      return super.getHtmlDrawInfo(htmlId, layer, name);
    }
 }
 

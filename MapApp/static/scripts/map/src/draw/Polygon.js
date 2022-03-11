@@ -6,11 +6,11 @@ class Polygon extends DrawManager
 
     getHtmlDrawInfo(htmlId, layer, name="Area", htmlCode = undefined, addUavPicker = true, uavPickerType = 'checkbox') {
 
-        let id = layer.layer.pm.options.DrawManager.idUserDraw;
+        let id = layer.pm.options.DrawManager.idUserDraw;
 
         console.log(`${id}`);
         console.log(layer);
-        let values = layer.layer._latlngs[0];
+        let values = layer._latlngs[0];
 
         let htmlValues = [];
         for (let i = 0; i < values.length; i++) {
