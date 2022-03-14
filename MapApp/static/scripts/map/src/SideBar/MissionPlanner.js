@@ -164,7 +164,7 @@ class MissionPlanner {
         // UAV picker
         // let list = [['none', false], ['auto', true]];
         let list = [['none', false]];
-        let uavPickerList = M.getUavPickerDict('radio', `${this.htmlId}-UAVPicker`, list, this.clickUavListCallback.bind(this));
+        let uavPickerList = M.getUavPickerDict('checkbox', `${this.htmlId}-UAVPicker`, list, this.clickUavListCallback.bind(this));
 
         mConfirmList.push(HTMLUtils.addDict('collapse', `${this.htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]));
 

@@ -14,7 +14,12 @@ class DrawInfo
         if (args[1] == 'add') {
             let info = M.DRAW_LAYERS.getDictById(args[0]);
             info.drawManager.instance.addDrawInfo(this.htmlId, info);
-        } 
+        } else if (args[1] == 'remove') {
+            let info = M.DRAW_LAYERS.getDictById(args[0]);
+            if (info != null) {
+                info.drawManager.instance.removeDrawInfo(this.htmlId + '-' + info.drawManager.id);
+            }
+        }
     }
 
     updateLayerCallback(myargs, args) {

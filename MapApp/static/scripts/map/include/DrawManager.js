@@ -91,7 +91,7 @@ class DrawManager {
             collapseHtml.innerHTML = '';
             HTMLUtils.addToExistingElement(`${id}-Collapse-collapsable`, [drawInfo]);
         } else {
-            let drawInfoHtml = HTMLUtils.addDict('collapse', `${id}-Collapse`, {}, `${name} ${info.drawManager.id}`, true, drawInfo);
+            let drawInfoHtml = HTMLUtils.addDict('collapse', `${id}-Collapse`, {}, `${name} ${info.drawManager.id}`, false, drawInfo);
             HTMLUtils.addToExistingElement(htmlId, [drawInfoHtml]);
         }
         this.initializeDrawInfo(id, info);
@@ -128,7 +128,7 @@ class DrawManager {
             input.setAttribute('checked', true);
         }
     }
-    
+
     // Get Draw Info Html
     _getDrawInfoValues(id) {
         let change = HTMLUtils.addDict('button', `${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
@@ -167,7 +167,7 @@ class DrawManager {
     }
 
     _addRemoveCallback(id, info) {
-        Utils.addButtonCallback(`${id}-remove`, this._removeCallback.bind(this), id, info);
+        Utils.addButtonCallback(`${id}-remove`, this._removeCallback.bind(this), info.drawManager.id);
     }
 
     _addHeightRangeCallback(id, info) {
@@ -183,8 +183,8 @@ class DrawManager {
 
     _removeCallback(myargs) {
         console.log("DrawInfo: removeCallback");
-        M.DRAW_LAYERS.removeById( myargs[1].drawManager.id);
-        this.removeDrawInfo(myargs[0]);
+        console.log(myargs);
+        M.DRAW_LAYERS.removeById(myargs[0]);
     }
 
     _changeCallback(myargs) {

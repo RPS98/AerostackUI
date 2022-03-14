@@ -129,10 +129,14 @@ class DrawLayers extends SmartListCallbacks {
         let value = info[2];
         
         if (flag) {
-            // console.log("DrawLayers: _onLayerAdd")
+            console.log("DrawLayers: _onLayerAdd")
+            
             drawManager.id = this.id;
+            value.id = this.id;
             super.addObject(drawManager.id, value);
             this.id++;
+
+            console.log(drawManager.id);
 
             let callback = this._onUserLayerChange.bind(this);
             e.layer.on('pm:edit', (e2) => {
@@ -180,8 +184,13 @@ class DrawLayers extends SmartListCallbacks {
     }
 
     removeById(id) {
+        console.log("MapManager: removeById")
+        console.log(id)
+        console.log(super.getList())
+        console.log(super.getDictById(id));
         super.getDictById(id).layer.remove();
         super.removeById(id);
+        console.log(super.getList())
     }
 }
 
