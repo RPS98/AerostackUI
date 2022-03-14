@@ -149,34 +149,39 @@ class DrawLayers extends SmartListCallbacks {
     _onLayerRemove(args, e) {
         let info = this._getDrawManager(e.layer);
         let flag = info[0];
-        let id = info[1];
+        let drawManager = info[1];
         let value = info[2];
         if (flag) {
-            // console.log("DrawLayers: _onLayerRemove")
-            super.removeById(id);
+            // console.log("DrawLayers: _onLayerRemove");
+            super.removeById(drawManager.id);
         }
     }
 
     _onUserLayerChange(e) {
-        let info = this._getDrawManager(e);
+        let info = this._getDrawManager(e.target);
         let flag = info[0];
-        let id = info[1];
+        let drawManager = info[1];
         let value = info[2];
         if (flag) {
             // console.log("DrawLayers: _onUserLayerChange")
-            super.updateObject(id, value);
+            super.updateObject(drawManager.id, value);
         }
     }
 
     _onCodeLayerChange(e) {
         let info = this._getDrawManager(e.target);
         let flag = info[0];
-        let id = info[1];
+        let drawManager = info[1];
         let value = info[2];
         if (flag) {
             // console.log("DrawLayers: _onCodeLayerChange")
-            super.updateObject(id, value);
+            super.updateObject(drawManager.id, value);
         }
+    }
+
+    removeById(id) {
+        super.getDictById(id).layer.remove();
+        super.removeById(id);
     }
 }
 

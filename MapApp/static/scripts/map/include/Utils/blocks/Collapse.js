@@ -23,7 +23,7 @@ class Collapse extends HTMLUtils
         btn.setAttribute('class', 'btn btn-secondary btn-collap-toggle');
         btn.setAttribute('type', 'button');
         btn.setAttribute('data-bs-toggle', 'collapse');
-        btn.setAttribute('data-bs-target', '#collapsable' + content.id);
+        btn.setAttribute('data-bs-target', '#' + content.id + '-collapsable');
         btn.innerHTML = `${content.text} <i class="icon-collap-toggle fas fa-plus"></i>`;
 
         if (content.show) {
@@ -31,7 +31,7 @@ class Collapse extends HTMLUtils
         } else {
             div_collapse.setAttribute('class', 'collapse multi-collapse');
         }
-        div_collapse.setAttribute('id', 'collapsable' + content.id);
+        div_collapse.setAttribute('id', content.id + '-collapsable');
         
         for (let i=0; i<content.list.length; i++) {
             super.addHTML(div_collapse, content.list[i]);

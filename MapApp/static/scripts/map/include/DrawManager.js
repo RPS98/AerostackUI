@@ -47,6 +47,7 @@ class DrawManager {
     userDraw(options = {}) {
         options['author'] = 'user';
         options['status'] = 'draw';
+        options['uavList'] = {};
         let drawManagerOptions = Object.assign({}, this.options, { 'drawUserOptions': options, 'id': 'none' });
         let drawOptions = Object.assign({ 'drawManager': drawManagerOptions }, options, this.options);
 
@@ -75,11 +76,125 @@ class DrawManager {
         }
     }
 
+
+    // #region Draw Info
+
+    addDrawInfo(htmlId, info, name = info.drawManager.name, initialHtml = undefined, endHtml = undefined, uavPickerType = undefined) {
+
+        let id = htmlId + '-' + info.drawManager.id;
+        let drawInfo = this.getHtmlDrawInfo(id, info, initialHtml, endHtml, uavPickerType);
+
+        // Check if the draw info is already in the html
+        let collapseHtml = document.getElementById(`${id}-Collapse-collapsable`);
+
+        if (collapseHtml != null) {
+            collapseHtml.innerHTML = '';
+            HTMLUtils.addToExistingElement(`${id}-Collapse-collapsable`, [drawInfo]);
+        } else {
+            let drawInfoHtml = HTMLUtils.addDict('collapse', `${id}-Collapse`, {}, `${name} ${info.drawManager.id}`, true, drawInfo);
+            HTMLUtils.addToExistingElement(htmlId, [drawInfoHtml]);
+        }
+        this.initializeDrawInfo(id, info);
+    }
+
+    removeDrawInfo(id) {
+        let drawInfoHtml = document.getElementById(`${id}-Collapse`);
+        if (drawInfoHtml != null) {
+            drawInfoHtml.remove();
+        } else {
+            console.log("Warning: DrawManager.removeDrawInfo - DrawInfoHtml not found");
+        }
+    }
+
+    getHtmlDrawInfo(id, info, initialHtml = [], endHtml = [], uavPickerType = 'none') {
+        initialHtml.push(this._getDrawInfoValues(id));
+        initialHtml.push(this._getDrawInfoHeight(id, info));
+        if (uavPickerType != 'none') {
+            initialHtml.push(this._getDrawInfoUavPicker(id, info, uavPickerType));
+        }
+        initialHtml.push(endHtml);
+        return initialHtml;
+    }
+
+    initializeDrawInfo(id, info) {
+        this._addChangeCallback(id, info);
+        this._addRemoveCallback(id, info);
+        this._addHeightRangeCallback(id, info);
+
+        // Initialize uav picker
+        M.uavPickerInitiliazeCallback(`${id}-UAVPicker`);
+        let input = document.getElementById(`${id}-UAVPicker-auto-Input`);
+        if (input != null) {
+            input.setAttribute('checked', true);
+        }
+    }
+    
+    // Get Draw Info Html
+    _getDrawInfoValues(id) {
+        let change = HTMLUtils.addDict('button', `${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
+        let remove = HTMLUtils.addDict('button', `${id}-remove`, { 'class': 'btn btn-danger' }, 'Remove');
+        let changeDiv = HTMLUtils.addDict('div', `none`, {}, [change]);
+        let removeDiv = HTMLUtils.addDict('div', `none`, {}, [remove]);
+        return HTMLUtils.addDict('div', `none`, { 'class': 'btn-group d-flex justify-content-evenly', 'role': 'group' }, [changeDiv, removeDiv]);
+    }
+
+    _getDrawInfoHeight(id, info) {
+        let heightMin = info.layer.pm.options.height[0];
+        let heightMax = info.layer.pm.options.height[1];
+
+        // Height range HTML
+        let heightInputMin = HTMLUtils.addDict('input', `${id}-heightInputMin`, { 'class': 'form-control', 'required': 'required', 'value': heightMin }, 'text', heightMin);
+        let heightInputMax = HTMLUtils.addDict('input', `${id}-heightInputMax`, { 'class': 'form-control', 'required': 'required', 'value': heightMax }, 'text', heightMax);
+        let heightRangeBtn = HTMLUtils.addDict('button', `${id}-heighRangeBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
+
+        let heightInputMinDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [heightInputMin]);
+        let heightInputMaxDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [heightInputMax]);
+        let heightRangeBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [heightRangeBtn]);
+
+        return HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [heightInputMinDiv, heightInputMaxDiv, heightRangeBtnDiv]);
+    }
+
+    _getDrawInfoUavPicker(id, info, uavPickerType = 'checkbox') {
+        let list = [['auto', true]];
+        let uavPickerList = M.getUavPickerDict(uavPickerType, `${id}-UAVPicker`, list, this._uavPickerCallback.bind(this), uavPickerType, info);
+        return HTMLUtils.addDict('collapse', `${id}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]);
+    }
+
+
+    // Add Draw Info callbacks
+    _addChangeCallback(id, info) {
+        throw new Error("Not implemented Drawmanager._addChangeCallback");
+    }
+
+    _addRemoveCallback(id, info) {
+        Utils.addButtonCallback(`${id}-remove`, this._removeCallback.bind(this), id, info);
+    }
+
+    _addHeightRangeCallback(id, info) {
+        Utils.addFormCallback(`${id}-heighRangeBtn`, [`${id}-heightInputMin`, `${id}-heightInputMax`], ['heightMin', 'heightMax'], this._updateHeightRangeCallback.bind(this), id, info);
+    }
+
+    // Draw Info callbacks  
+    _updateHeightRangeCallback(myargs, args) {
+        console.log("updateHeightRangeCallback");
+        let info = myargs;
+        info.drawManager.height = [args.heightMin, args.heightMax];
+    }
+
+    _removeCallback(myargs) {
+        console.log("DrawInfo: removeCallback");
+        M.DRAW_LAYERS.removeById( myargs[1].drawManager.id);
+        this.removeDrawInfo(myargs[0]);
+    }
+
+    _changeCallback(myargs) {
+        throw new Error("Not implemented Drawmanager._changeCallback");
+    }
+
     _uavPickerCallback(uavName, value, userargs) {
 
         let type = userargs[0];
-        let layer = userargs[1];
-        let drawManager = layer.pm.options.drawManager;
+        let drawManager = userargs[1].drawManager;
 
         if (type == 'radio') {
             if (value) {
@@ -90,45 +205,6 @@ class DrawManager {
         }
     }
 
-    getHtmlDrawInfo(htmlId, layer, name = "Marker", htmlValues = [], htmlCode = [], addUavPicker = false, uavPickerType = 'checkbox') {
-        let id = layer.pm.options.drawManager.id;
+    //#endregion
 
-        let heightMin = layer.pm.options.height[0];
-        let heightMax = layer.pm.options.height[1];
-
-        // Values HTML
-        let change = HTMLUtils.addDict('button', `${htmlId}-${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
-        let remove = HTMLUtils.addDict('button', `${htmlId}-${id}-remove`, { 'class': 'btn btn-danger' }, 'Remove');
-        let changeDiv = HTMLUtils.addDict('div', `none`, {}, [change]);
-        let removeDiv = HTMLUtils.addDict('div', `none`, {}, [remove]);
-        let layerRow = HTMLUtils.addDict('div', `none`, { 'class': 'btn-group d-flex justify-content-evenly', 'role': 'group' }, [changeDiv, removeDiv]);
-
-        // Height range HTML
-        let heightInputMin = HTMLUtils.addDict('input', `${htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', 'value': heightMin }, 'text', heightMin);
-        let heightInputMax = HTMLUtils.addDict('input', `${htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', 'value': heightMax }, 'text', heightMax);
-        let heightRangeBtn = HTMLUtils.addDict('button', `${htmlId}-heighRangeBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
-
-        let heightInputMinDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [heightInputMin]);
-        let heightInputMaxDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [heightInputMax]);
-        let heightRangeBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [heightRangeBtn]);
-
-        let heightRangeRow = HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [heightInputMinDiv, heightInputMaxDiv, heightRangeBtnDiv]);
-
-        let uavPickerListCollapse = [];
-        if (addUavPicker) {
-            let list = [['auto', true]];
-            let uavPickerList = M.getUavPickerDict(uavPickerType, `${htmlId}-UAVPicker`, list, this._uavPickerCallback.bind(this), uavPickerType, layer);
-            uavPickerListCollapse = HTMLUtils.addDict('collapse', `${htmlId}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]);
-        }
-
-        return HTMLUtils.addDict('collapse', `${htmlId}-${id}-Collapse`, {}, `${name} ${id}`, false, [htmlValues, layerRow, heightRangeRow, uavPickerListCollapse, htmlCode]);
-    }
-
-    getHtmlCodeInfo() {
-        throw new Error("Method not implemented.");
-    }
-
-    getLayerInfo() {
-        throw new Error("Method not implemented.");
-    }
 }

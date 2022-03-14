@@ -70,7 +70,7 @@ class HTMLUtils {
                 break; // If types are unique, break after first match to optimize performance
             }
         }
-        
+
         if (flag) {
             console.log("Unknown type of HTML block");
             console.log(childDict)
@@ -196,21 +196,25 @@ class Utils {
      * @param {function} callback   - callback when press button
      * @param {list}     args       - arguments list pass to callback
      */
-    static addButtonCallback(button_id, callback = Utils._nullFunct, args = []) {
+    static addButtonCallback(button_id, callback = Utils._nullFunct, ...args) {
         // get button element
         const btn = document.getElementById(button_id);
 
         // add an event listener to the button
-        btn.addEventListener('click', (e) => {
-            // disable the refresh on the page when submit
-            e.preventDefault();
+        if (btn != null) {
+            btn.addEventListener('click', (e) => {
+                // disable the refresh on the page when submit
+                e.preventDefault();
 
-            // call the button callback
-            callback(args);
-        });
+                // call the button callback
+                callback(args);
+            });
+        } else {
+            console.log("Warning: Utils.addButtonCallback - button not found");
+        }
     }
 
-    static addButtonsCallback(button_class, callback = Utils._nullFunct, args = []) {
+    static addButtonsCallback(button_class, callback = Utils._nullFunct, ...args) {
         const btns = document.getElementsByClassName(button_class);
 
         // add an event listener to the button
@@ -233,7 +237,7 @@ class Utils {
      * @param {function} callback  - callback when press button
      * @param {list}     args      - arguments list pass to callback
      */
-    static addFormCallback(button_id, inputs_id, names_id, callback = Utils._nullFunct, args = []) {
+    static addFormCallback(button_id, inputs_id, names_id, callback = Utils._nullFunct, ...args) {
 
         // get button element
         const btn = document.getElementById(button_id);
@@ -243,20 +247,40 @@ class Utils {
             throw "Input id and names id lengths are not equals";
         }
 
+        if (btn != null) {
+            // add a button listener
+            btn.addEventListener('click', (e) => {
+                // disable the refresh on the page when submit
+                e.preventDefault();
+
+                // for each input elemenet, get the value
+                let inputs = [];
+                for (let i = 0; i < inputs_id.length; i++) {
+                    inputs[names_id[i]] = parseFloat(document.getElementById(inputs_id[i]).value);
+                }
+
+                // call the callback
+                callback(args, inputs);
+            });
+        } else {
+            console.log("Warning: Utils.addFormCallback - button not found");
+        }
+    }
+
+    static addlatLngCallback(button_id, input_id, callback = Utils._nullFunct, ...args) {
+        // get button element
+        const btn = document.getElementById(button_id);
+
         // add a button listener
-        btn.addEventListener('click', (e) => {
-            // disable the refresh on the page when submit
-            e.preventDefault();
+        if (btn != null) {
+            btn.addEventListener('click', (e) => {
+                // disable the refresh on the page when submit
+                e.preventDefault();
 
-            // for each input elemenet, get the value
-            let inputs = [];
-            for (let i = 0; i < inputs_id.length; i++) {
-                inputs[names_id[i]] = parseFloat(document.getElementById(inputs_id[i]).value);
-            }
-
-            // call the callback
-            callback(args, inputs);
-        });
+                // call the callback
+                callback(args, document.getElementById(input_id).value);
+            });
+        }
     }
 
     static setColor(map, UAV_color) {
@@ -389,7 +413,10 @@ class SmartList {
      * @access public
      */
     removeObject(id) {
-        this._objectList.splice(this._objectList.indexOf(id), 1);
+        let index = this._objectList.indexOf(id);
+        if (index > -1) {
+            this._objectList.splice(index, 1);
+        }
         delete this._objectDict[id];
     }
 }
@@ -398,7 +425,7 @@ class SmartList {
 /**
  * UAV and Mission Manager prototype, that manage income information from server and call desired callbacks.
  */
- class SmartListCallbacks extends SmartList {
+class SmartListCallbacks extends SmartList {
 
     /**
      * Create a new instance of the class ManagerPrototype.
@@ -475,8 +502,8 @@ class SmartList {
      * @access public 
      */
     removeById(id) {
+        Utils.callCallbacks(this._infoAddCallbacks, id, 'remove');
         super.removeObject(id);
-        this._callCallbacks(this._infoAddCallbacks, id, 'remove');
     }
 
     /**
@@ -486,7 +513,7 @@ class SmartList {
      * @returns {void}
      * @access public
      */
-     addObject(id, objectInfo) {
+    addObject(id, objectInfo) {
         super.addObject(id, objectInfo);
         Utils.callCallbacks(this._infoAddCallbacks, id, 'add');
 
@@ -510,8 +537,8 @@ class SmartList {
         } else {
             super.updateObject(id, objectInfo);
             Utils.callCallbacks(this._infoChangeCallbacks, id);
-        }        
-        
+        }
+
         let oldInfo = this.getDictById(id);
         let newInfo = objectInfo;
 

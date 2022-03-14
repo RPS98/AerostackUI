@@ -287,17 +287,26 @@ class Marker extends DrawManager {
       return marker;
    }
 
-   getHtmlDrawInfo(htmlId, layer, name = "Marker", htmlCode = undefined, addUavPicker = true, uavPickerType = 'radio') {
+   _addChangeCallback(id, info) {
+      Utils.addFormCallback(`${id}-change`, [`${id}-lat`, `${id}-lng`], ['lat', 'lng'], this._changeCallback.bind(this), id, info);
+  }
 
-      let id = layer.pm.options.drawManager.idUserDraw;
-      let lat = layer._latlng.lat;
-      let lng = layer._latlng.lng;
+   _changeCallback(myargs, inputs) {
+      let layer = myargs[1].layer;
+      layer.setLatLng(L.latLng(inputs.lat, inputs.lng));
+   }
 
-      let latDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lat`, { 'class': 'form-control', 'required': 'required', }, 'number', lat);
-      let lngDict = HTMLUtils.addDict('input', `${htmlId}-${id}-lng`, { 'class': 'form-control', 'required': 'required', }, 'number', lng);
-      let htmlValues = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], { 'class': 'col-6' });
+   addDrawInfo(htmlId, info, name = "Marker", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
 
-      return super.getHtmlDrawInfo(htmlId, layer, name, htmlValues, htmlCode, addUavPicker, uavPickerType);
+      let lat = info.layer._latlng.lat;
+      let lng = info.layer._latlng.lng;
+
+      let id = htmlId + '-' + info.drawManager.id;
+      let latDict = HTMLUtils.addDict('input', `${id}-lat`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lat, 6) }, 'number', 'Latitude');
+      let lngDict = HTMLUtils.addDict('input', `${id}-lng`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lng, 6) }, 'number', 'Longitude');
+      initialHtml.push(HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], { 'class': 'col-6' }));
+
+      return super.addDrawInfo(htmlId, info, name, initialHtml, endHtml, uavPickerType);
    }
 
    static getIcon(
@@ -329,9 +338,9 @@ class PointOfInterest extends Marker {
          borderColor);
    }
 
-   getHtmlDrawInfo(htmlId, layer) {
+   addDrawInfo(id, info) {
       let name = 'Point of Interest';
-      return super.getHtmlDrawInfo(htmlId, layer, name);
+      return super.addDrawInfo(id, info, name, undefined, undefined, 'radio');
    }
 }
 
@@ -351,9 +360,9 @@ class WayPoint extends Marker {
       return super.userDraw(options);
    }
 
-   getHtmlDrawInfo(htmlId, layer) {
+   addDrawInfo(id, info) {
       let name = 'Waypoint';
-      return super.getHtmlDrawInfo(htmlId, layer, name);
+      return super.addDrawInfo(id, info, name, undefined, undefined, 'radio');
    }
 }
 
@@ -373,9 +382,9 @@ class LandPoint extends Marker {
       return super.userDraw(options);
    }
 
-   getHtmlDrawInfo(htmlId, layer) {
+   addDrawInfo(id, info) {
       let name = 'Land Point';
-      return super.getHtmlDrawInfo(htmlId, layer, name);
+      return super.addDrawInfo(id, info, name, undefined, undefined, 'radio');
    }
 }
 
@@ -395,9 +404,9 @@ class TakeOffPoint extends Marker {
       return super.userDraw(options);
    }
 
-   getHtmlDrawInfo(htmlId, layer) {
+   addDrawInfo(id, info) {
       let name = 'Take Off Point';
-      return super.getHtmlDrawInfo(htmlId, layer, name, undefined, false);
+      return super.addDrawInfo(id, info, name);
    }
 }
 

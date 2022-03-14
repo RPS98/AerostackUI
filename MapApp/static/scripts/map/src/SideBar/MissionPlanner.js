@@ -82,7 +82,7 @@ class MissionPlanner {
         // splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-PoI`, { 'class': 'btn btn-primary', }, `Point of interest  <i class="fas fa-map-marker-alt"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-WP`, { 'class': 'btn btn-primary', }, `WayPoint  <i class="fa-solid fa-circle"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-path`, { 'class': 'btn btn-primary', }, `Path <i class="fas fa-long-arrow-alt-up"></i>`));
-        // splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-area`, { 'class': 'btn btn-primary', }, `Area <i class="fas fa-draw-polygon"></i>`));
+        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-area`, { 'class': 'btn btn-primary', }, `Area <i class="fas fa-draw-polygon"></i>`));
         // splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-cArea`, { 'class': 'btn btn-primary', }, `Circular area <i class="far fa-circle"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-land`, { 'class': 'btn btn-primary', }, `Land point <i class="fas fa-h-square"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-remove`, { 'class': 'btn btn-warning' }, 'Remove all draw'));
@@ -116,7 +116,7 @@ class MissionPlanner {
         // Utils.addButtonCallback(`${this.htmlId}-PoI`, this.userDrawCallbacks.bind(this), [this.pointOfInterest]);
         Utils.addButtonCallback(`${this.htmlId}-WP`, this.userDrawCallbacks.bind(this), [this.wayPoint]);
         Utils.addButtonCallback(`${this.htmlId}-path`, this.userDrawCallbacks.bind(this), [this.path]);
-        // Utils.addButtonCallback(`${this.htmlId}-area`, this.userDrawCallbacks.bind(this), [this.area]);
+        Utils.addButtonCallback(`${this.htmlId}-area`, this.userDrawCallbacks.bind(this), [this.area]);
         // Utils.addButtonCallback(`${this.htmlId}-cArea`, this.userDrawCallbacks.bind(this), [this.carea]);
         Utils.addButtonCallback(`${this.htmlId}-land`, this.userDrawCallbacks.bind(this), [this.landPoint]);
 
@@ -145,7 +145,7 @@ class MissionPlanner {
     }
 
     userDrawCallbacks(args = []) {
-        args[0].userDraw({ 'height': this.selectedHeight }, args);
+        args[0][0].userDraw({ 'height': this.selectedHeight }, args);
     }
 
     // #endregion
