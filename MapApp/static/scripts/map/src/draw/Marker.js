@@ -296,7 +296,7 @@ class Marker extends DrawManager {
       layer.setLatLng(L.latLng(inputs.lat, inputs.lng));
    }
 
-   addDrawInfo(htmlId, info, name = "Marker", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
+   drawInfoAdd(htmlId, info, name = "Marker", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
 
       let lat = info.layer._latlng.lat;
       let lng = info.layer._latlng.lng;
@@ -306,7 +306,7 @@ class Marker extends DrawManager {
       let lngDict = HTMLUtils.addDict('input', `${id}-lng`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lng, 6) }, 'number', 'Longitude');
       initialHtml.push(HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], { 'class': 'col-6' }));
 
-      return super.addDrawInfo(htmlId, info, name, initialHtml, endHtml, uavPickerType);
+      return super.drawInfoAdd(htmlId, info, name, initialHtml, endHtml, uavPickerType);
    }
 
    static getIcon(
@@ -343,9 +343,9 @@ class PointOfInterest extends Marker {
       return super.userDraw(options);
    }
 
-   addDrawInfo(id, info) {
+   drawInfoAdd(id, info) {
       let name = 'Point of Interest';
-      return super.addDrawInfo(id, info, name, undefined, undefined, 'radio');
+      return super.drawInfoAdd(id, info, name, undefined, undefined, 'radio');
    }
 }
 
@@ -365,9 +365,9 @@ class WayPoint extends Marker {
       return super.userDraw(options);
    }
 
-   addDrawInfo(id, info) {
+   drawInfoAdd(id, info) {
       let name = 'Waypoint';
-      return super.addDrawInfo(id, info, name, undefined, undefined, 'radio');
+      return super.drawInfoAdd(id, info, name, undefined, undefined, 'radio');
    }
 }
 
@@ -387,9 +387,9 @@ class LandPoint extends Marker {
       return super.userDraw(options);
    }
 
-   addDrawInfo(id, info) {
+   drawInfoAdd(id, info) {
       let name = 'Land Point';
-      return super.addDrawInfo(id, info, name, undefined, undefined, 'radio');
+      return super.drawInfoAdd(id, info, name, undefined, undefined, 'radio');
    }
 }
 
@@ -409,9 +409,9 @@ class TakeOffPoint extends Marker {
       return super.userDraw(options);
    }
 
-   addDrawInfo(id, info) {
+   drawInfoAdd(id, info) {
       let name = 'Take Off Point';
-      return super.addDrawInfo(id, info, name);
+      return super.drawInfoAdd(id, info, name);
    }
 }
 

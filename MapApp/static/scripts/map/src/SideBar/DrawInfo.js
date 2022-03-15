@@ -13,14 +13,14 @@ class DrawInfo
 
         if (args[1] == 'add') {
             let info = M.DRAW_LAYERS.getDictById(args[0]);
-            info.drawManager.instance.addDrawInfo(this.htmlId, info);
+            info.drawManager.instance.drawInfoAdd(this.htmlId, info);
         } else if (args[1] == 'remove') {
             console.log("DrawInfo: removeCallback");
             console.log(args[0]);
             let info = M.DRAW_LAYERS.getDictById(args[0]);
             console.log(info)
             if (info != null) {
-                info.drawManager.instance.removeDrawInfo(this.htmlId + '-' + info.id);
+                info.drawManager.instance.drawInfoRemove(this.htmlId + '-' + info.id);
             }
         }
     }
@@ -28,7 +28,7 @@ class DrawInfo
     updateLayerCallback(myargs, args) {
         let info = M.DRAW_LAYERS.getDictById(args[0]);
         if (info != null) {
-            info.drawManager.instance.addDrawInfo(this.htmlId, info);
+            info.drawManager.instance.drawInfoAdd(this.htmlId, info);
         }
     }
 }

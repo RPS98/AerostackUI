@@ -40,7 +40,7 @@ class Polygon extends DrawManager
         layer.setLatLngs(values);
     }
 
-    addDrawInfo(htmlId, info, name = "Line", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
+    drawInfoAdd(htmlId, info, name = "Line", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
 
         let id = htmlId + '-' + info.id;
 
@@ -56,7 +56,7 @@ class Polygon extends DrawManager
             initialHtml.push(row);
         }
 
-        return super.addDrawInfo(htmlId, info, name, initialHtml, endHtml, uavPickerType);
+        return super.drawInfoAdd(htmlId, info, name, initialHtml, endHtml, uavPickerType);
     }
 }
 
@@ -66,9 +66,31 @@ class Area extends Polygon
         super('Area', options);
     }
 
-    addDrawInfo(id, info) {
+    drawInfoAdd(htmlId, info) {
         let name = 'Area';
-        return super.addDrawInfo(id, info, name, undefined, undefined, 'checkbox');
+        let initialHtml = [];
+        let algorithms = ['Back and force', 'Spiral'];
+        let id = htmlId + '-' + info.id;
+        initialHtml.push(HTMLUtils.initDropDown(`${id }-Swarming`, algorithms, 'Back and force'));
+
+        return super.drawInfoAdd(htmlId, info, name, initialHtml, undefined, 'checkbox');
+    }
+
+    drawInfoInitialize(id, info) {
+        info.drawManager.drawUserOptions.algorithm = 'Back and force';
+        this.addBntDropDownAlgorithmsCallback(id, info);
+        super.drawInfoInitialize(id, info);
+    }
+
+    addBntDropDownAlgorithmsCallback(id, info) {
+        Utils.addButtonsCallback(`${id}-Swarming-item`, this.clickAlgorithmsListCallback.bind(this), id, info);
+    }
+
+    clickAlgorithmsListCallback(e, args) {
+        args[1].drawManager.drawUserOptions.algorithm = e.innerText;
+        
+        let button = document.getElementById(`${args[0]}-Swarming-DropDown-Btn`);
+        button.innerHTML = e.innerHTML;
     }
 }
 

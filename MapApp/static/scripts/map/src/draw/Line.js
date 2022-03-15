@@ -45,7 +45,7 @@ class Line extends DrawManager {
         layer.setLatLngs(values);
     }
 
-    addDrawInfo(htmlId, info, name = "Line", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
+    drawInfoAdd(htmlId, info, name = "Line", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
 
         let id = htmlId + '-' + info.id;
 
@@ -61,7 +61,7 @@ class Line extends DrawManager {
             initialHtml.push(row);
         }
 
-        return super.addDrawInfo(htmlId, info, name, initialHtml, endHtml, uavPickerType);
+        return super.drawInfoAdd(htmlId, info, name, initialHtml, endHtml, uavPickerType);
     }
 }
 
@@ -70,9 +70,9 @@ class Path extends Line {
         super('Path', options);
     }
 
-    addDrawInfo(id, info) {
+    drawInfoAdd(id, info) {
         let name = 'Path';
-        return super.addDrawInfo(id, info, name, undefined, undefined, 'radio');
+        return super.drawInfoAdd(id, info, name, undefined, undefined, 'radio');
     }
 }
 

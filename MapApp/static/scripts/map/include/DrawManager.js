@@ -80,10 +80,10 @@ class DrawManager {
 
     // #region Draw Info
 
-    addDrawInfo(htmlId, info, name = info.drawManager.name, initialHtml = undefined, endHtml = undefined, uavPickerType = undefined) {
+    drawInfoAdd(htmlId, info, name = info.drawManager.name, initialHtml = undefined, endHtml = undefined, uavPickerType = undefined) {
 
         let id = htmlId + '-' + info.id;
-        let drawInfo = this.getHtmlDrawInfo(id, info, initialHtml, endHtml, uavPickerType);
+        let drawInfo = this.drawInfoGetHtml(id, info, initialHtml, endHtml, uavPickerType);
 
         // Check if the draw info is already in the html
         let collapseHtml = document.getElementById(`${id}-Collapse-collapsable`);
@@ -95,10 +95,10 @@ class DrawManager {
             let drawInfoHtml = HTMLUtils.addDict('collapse', `${id}-Collapse`, {}, `${name} ${info.id}`, false, drawInfo);
             HTMLUtils.addToExistingElement(htmlId, [drawInfoHtml]);
         }
-        this.initializeDrawInfo(id, info);
+        this.drawInfoInitialize(id, info);
     }
 
-    removeDrawInfo(id) {
+    drawInfoRemove(id) {
         let drawInfoHtml = document.getElementById(`${id}-Collapse`);
         if (drawInfoHtml != null) {
             drawInfoHtml.remove();
@@ -107,17 +107,17 @@ class DrawManager {
         }
     }
 
-    getHtmlDrawInfo(id, info, initialHtml = [], endHtml = [], uavPickerType = 'none') {
-        initialHtml.push(this._getDrawInfoValues(id));
-        initialHtml.push(this._getDrawInfoHeight(id, info));
+    drawInfoGetHtml(id, info, initialHtml = [], endHtml = [], uavPickerType = 'none') {
+        initialHtml.push(this._drawInfoGetValues(id));
+        initialHtml.push(this._drawInfoGetHeight(id, info));
         if (uavPickerType != 'none') {
-            initialHtml.push(this._getDrawInfoUavPicker(id, info, uavPickerType));
+            initialHtml.push(this._drawInfoGetUavPicker(id, info, uavPickerType));
         }
         initialHtml.push(endHtml);
         return initialHtml;
     }
 
-    initializeDrawInfo(id, info) {
+    drawInfoInitialize(id, info) {
         this._addChangeCallback(id, info);
         this._addRemoveCallback(id, info);
         this._addHeightRangeCallback(id, info);
@@ -131,7 +131,7 @@ class DrawManager {
     }
 
     // Get Draw Info Html
-    _getDrawInfoValues(id) {
+    _drawInfoGetValues(id) {
         let change = HTMLUtils.addDict('button', `${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
         let remove = HTMLUtils.addDict('button', `${id}-remove`, { 'class': 'btn btn-danger' }, 'Remove');
         let changeDiv = HTMLUtils.addDict('div', `none`, {}, [change]);
@@ -139,7 +139,7 @@ class DrawManager {
         return HTMLUtils.addDict('div', `none`, { 'class': 'btn-group d-flex justify-content-evenly', 'role': 'group' }, [changeDiv, removeDiv]);
     }
 
-    _getDrawInfoHeight(id, info) {
+    _drawInfoGetHeight(id, info) {
         let heightMin = info.layer.pm.options.height[0];
         let heightMax = info.layer.pm.options.height[1];
 
@@ -155,7 +155,7 @@ class DrawManager {
         return HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [heightInputMinDiv, heightInputMaxDiv, heightRangeBtnDiv]);
     }
 
-    _getDrawInfoUavPicker(id, info, uavPickerType = 'checkbox') {
+    _drawInfoGetUavPicker(id, info, uavPickerType = 'checkbox') {
         let list = [['auto', true]];
         let uavPickerList = M.getUavPickerDict(uavPickerType, `${id}-UAVPicker`, list, this._uavPickerCallback.bind(this), uavPickerType, info);
         return HTMLUtils.addDict('collapse', `${id}-UAVCollapse`, {}, 'UAV Picker', true, [uavPickerList]);

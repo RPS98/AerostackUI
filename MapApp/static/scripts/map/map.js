@@ -53,6 +53,8 @@ window.onload = function () {
         new MissionDrawer(),
         new UavInfo(),
         new DrawInfo(),
+        new MissionInfo(),
+
     ]
 
     // Instantiate sidebars elements

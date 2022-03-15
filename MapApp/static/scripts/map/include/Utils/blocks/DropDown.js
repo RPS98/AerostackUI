@@ -49,7 +49,8 @@ class DropDownBtn extends HTMLUtils
 
         let button = document.createElement('button');
         button.setAttribute('type', 'button');
-        button.innerHTML = `${content.text} <i class="fa-solid fa-square-caret-down"></i>`;
+        button.innerHTML = content.text;
+        // <i class="fa-solid fa-square-caret-down"></i>
 
         button.setAttribute('class', 'dropdown-toggle');
         button.setAttribute('data-bs-toggle', 'dropdown');

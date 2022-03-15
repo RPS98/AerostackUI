@@ -328,8 +328,6 @@ class MapManager {
         // Layers created manager
         this.addMapCallback('pm:create', this._pmOnCreateCallback);
 
-        this.addMapCallback('pm:create', this._pmOnDrawEndCallback);
-
         this._uavPickerCallbackList = [];
     }
 
