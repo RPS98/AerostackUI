@@ -9,10 +9,9 @@ class DrawController {
      * @static
      */
     static drawMouse() {
-        M.MAP.pm.disableDraw();
-
-        if (M.MAP.pm.globalEditModeEnabled()) {
-            M.MAP.pm.toggleGlobalEditMode();
+       
+        if (M.MAP.pm.globalDrawModeEnabled()) {
+            M.MAP.pm.disableDraw();
         } else if (M.MAP.pm.globalEditModeEnabled()) {
             M.MAP.pm.toggleGlobalEditMode();
         } else if (M.MAP.pm.globalRemovalModeEnabled()) {

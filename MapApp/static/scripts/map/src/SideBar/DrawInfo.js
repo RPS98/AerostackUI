@@ -15,9 +15,12 @@ class DrawInfo
             let info = M.DRAW_LAYERS.getDictById(args[0]);
             info.drawManager.instance.addDrawInfo(this.htmlId, info);
         } else if (args[1] == 'remove') {
+            console.log("DrawInfo: removeCallback");
+            console.log(args[0]);
             let info = M.DRAW_LAYERS.getDictById(args[0]);
+            console.log(info)
             if (info != null) {
-                info.drawManager.instance.removeDrawInfo(this.htmlId + '-' + info.drawManager.id);
+                info.drawManager.instance.removeDrawInfo(this.htmlId + '-' + info.id);
             }
         }
     }

@@ -47,7 +47,7 @@ class Line extends DrawManager {
 
     addDrawInfo(htmlId, info, name = "Line", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
 
-        let id = htmlId + '-' + info.drawManager.id;
+        let id = htmlId + '-' + info.id;
 
         let values = info.layer._latlngs;
         for (let i = 0; i < values.length; i++) {

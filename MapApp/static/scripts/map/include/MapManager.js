@@ -103,8 +103,10 @@ class DrawLayers extends SmartListCallbacks {
 
             let drawManager = {};
             if (pmLayer.options.drawManager !== undefined) {
+                pmLayer.options.drawManager = Object.assign({}, pmLayer.options.drawManager);
                 drawManager = pmLayer.options.drawManager;
             } else if (pmLayer.pm.options.drawManager !== undefined) {
+                pmLayer.pm.options.drawManager = Object.assign({}, pmLayer.pm.options.drawManager);
                 drawManager = pmLayer.pm.options.drawManager;
             }
 
@@ -113,7 +115,7 @@ class DrawLayers extends SmartListCallbacks {
                 if (drawManager.drawUserOptions.status == 'draw') {
                     let value = {
                         'layer': layer,
-                        'drawManager': drawManager
+                        'drawManager': drawManager,
                     };
                     return [true, drawManager, value];
                 }
@@ -129,14 +131,11 @@ class DrawLayers extends SmartListCallbacks {
         let value = info[2];
         
         if (flag) {
-            console.log("DrawLayers: _onLayerAdd")
-            
+            // console.log("DrawLayers: _onLayerAdd")
             drawManager.id = this.id;
             value.id = this.id;
             super.addObject(drawManager.id, value);
             this.id++;
-
-            console.log(drawManager.id);
 
             let callback = this._onUserLayerChange.bind(this);
             e.layer.on('pm:edit', (e2) => {
@@ -151,12 +150,14 @@ class DrawLayers extends SmartListCallbacks {
     }
 
     _onLayerRemove(args, e) {
-        let info = this._getDrawManager(e.layer);
+        let event = Object.assign({}, e);
+        let info = this._getDrawManager(event.layer);
         let flag = info[0];
         let drawManager = info[1];
         let value = info[2];
+
         if (flag) {
-            // console.log("DrawLayers: _onLayerRemove");
+            // console.log("DrawLayers: _onLayerRemove - flag");
             super.removeById(drawManager.id);
         }
     }
@@ -183,14 +184,12 @@ class DrawLayers extends SmartListCallbacks {
         }
     }
 
-    removeById(id) {
-        console.log("MapManager: removeById")
-        console.log(id)
-        console.log(super.getList())
-        console.log(super.getDictById(id));
-        super.getDictById(id).layer.remove();
-        super.removeById(id);
-        console.log(super.getList())
+    removeLayerById(id) {
+        // console.log("MapManager: removeLayer");
+        let layer = super.getDictById(id).layer;
+        if (layer != null) {
+            layer.remove();
+        }
     }
 }
 
@@ -328,6 +327,8 @@ class MapManager {
 
         // Layers created manager
         this.addMapCallback('pm:create', this._pmOnCreateCallback);
+
+        this.addMapCallback('pm:create', this._pmOnDrawEndCallback);
 
         this._uavPickerCallbackList = [];
     }

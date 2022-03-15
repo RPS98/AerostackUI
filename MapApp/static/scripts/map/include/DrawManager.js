@@ -48,6 +48,7 @@ class DrawManager {
         options['author'] = 'user';
         options['status'] = 'draw';
         options['uavList'] = {};
+        //options['continueDrawing'] = true;
         let drawManagerOptions = Object.assign({}, this.options, { 'drawUserOptions': options, 'id': 'none' });
         let drawOptions = Object.assign({ 'drawManager': drawManagerOptions }, options, this.options);
 
@@ -81,7 +82,7 @@ class DrawManager {
 
     addDrawInfo(htmlId, info, name = info.drawManager.name, initialHtml = undefined, endHtml = undefined, uavPickerType = undefined) {
 
-        let id = htmlId + '-' + info.drawManager.id;
+        let id = htmlId + '-' + info.id;
         let drawInfo = this.getHtmlDrawInfo(id, info, initialHtml, endHtml, uavPickerType);
 
         // Check if the draw info is already in the html
@@ -91,7 +92,7 @@ class DrawManager {
             collapseHtml.innerHTML = '';
             HTMLUtils.addToExistingElement(`${id}-Collapse-collapsable`, [drawInfo]);
         } else {
-            let drawInfoHtml = HTMLUtils.addDict('collapse', `${id}-Collapse`, {}, `${name} ${info.drawManager.id}`, false, drawInfo);
+            let drawInfoHtml = HTMLUtils.addDict('collapse', `${id}-Collapse`, {}, `${name} ${info.id}`, false, drawInfo);
             HTMLUtils.addToExistingElement(htmlId, [drawInfoHtml]);
         }
         this.initializeDrawInfo(id, info);
@@ -167,7 +168,7 @@ class DrawManager {
     }
 
     _addRemoveCallback(id, info) {
-        Utils.addButtonCallback(`${id}-remove`, this._removeCallback.bind(this), info.drawManager.id);
+        Utils.addButtonCallback(`${id}-remove`, this._removeCallback.bind(this), info.id);
     }
 
     _addHeightRangeCallback(id, info) {
@@ -184,7 +185,7 @@ class DrawManager {
     _removeCallback(myargs) {
         console.log("DrawInfo: removeCallback");
         console.log(myargs);
-        M.DRAW_LAYERS.removeById(myargs[0]);
+        M.DRAW_LAYERS.removeLayerById(myargs[0]);
     }
 
     _changeCallback(myargs) {

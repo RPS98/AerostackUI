@@ -301,7 +301,7 @@ class Marker extends DrawManager {
       let lat = info.layer._latlng.lat;
       let lng = info.layer._latlng.lng;
 
-      let id = htmlId + '-' + info.drawManager.id;
+      let id = htmlId + '-' + info.id;
       let latDict = HTMLUtils.addDict('input', `${id}-lat`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lat, 6) }, 'number', 'Latitude');
       let lngDict = HTMLUtils.addDict('input', `${id}-lng`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lng, 6) }, 'number', 'Longitude');
       initialHtml.push(HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], { 'class': 'col-6' }));
@@ -336,6 +336,11 @@ class PointOfInterest extends Marker {
          iconSvgPointOfInterest,
          fillColor,
          borderColor);
+   }
+
+   userDraw(options = {}) {
+      options['continueDrawing'] = false;
+      return super.userDraw(options);
    }
 
    addDrawInfo(id, info) {
