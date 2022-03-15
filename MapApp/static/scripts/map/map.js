@@ -54,6 +54,7 @@ window.onload = function () {
         new UavInfo(),
         new DrawInfo(),
         new MissionInfo(),
+        new ImageOVerlay(),
 
     ]
 

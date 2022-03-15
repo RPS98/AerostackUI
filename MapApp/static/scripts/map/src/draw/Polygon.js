@@ -68,29 +68,52 @@ class Area extends Polygon
 
     drawInfoAdd(htmlId, info) {
         let name = 'Area';
-        let initialHtml = [];
+        let endHtml = [];
         let algorithms = ['Back and force', 'Spiral'];
         let id = htmlId + '-' + info.id;
-        initialHtml.push(HTMLUtils.initDropDown(`${id }-Swarming`, algorithms, 'Back and force'));
+        endHtml.push(HTMLUtils.initDropDown(`${id }-Swarming`, algorithms, 'Back and force'));
 
-        return super.drawInfoAdd(htmlId, info, name, initialHtml, undefined, 'checkbox');
+        let streetSpacing = HTMLUtils.addDict('input', `${id}-streetSpacing`, { 'class': 'form-control', 'required': 'required', 'value': 1}, 'number', 'Value');
+        let streetSpacingBtn = HTMLUtils.addDict('button', `${id}-streetSpacingBtn`, { 'class': 'btn btn-primary' }, 'Set street space (m)');
+        let streetSpacingDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [streetSpacing]);
+        let streetSpacingBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [streetSpacingBtn]);
+        endHtml.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [streetSpacingDiv, streetSpacingBtnDiv]));
+
+        let wpSpace = HTMLUtils.addDict('input', `${id}-wpSpace`, { 'class': 'form-control', 'required': 'required', 'value': 1}, 'number', 'Value');
+        let wpSpaceBtn = HTMLUtils.addDict('button', `${id}-wpSpaceBtn`, { 'class': 'btn btn-primary' }, 'Set wp space (m)');
+        let wpSpaceDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [wpSpace]);
+        let wpSpaceBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [wpSpaceBtn]);
+        endHtml.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [wpSpaceDiv, wpSpaceBtnDiv]));
+
+        return super.drawInfoAdd(htmlId, info, name, undefined, endHtml, 'checkbox');
     }
 
     drawInfoInitialize(id, info) {
         info.drawManager.drawUserOptions.algorithm = 'Back and force';
-        this.addBntDropDownAlgorithmsCallback(id, info);
-        super.drawInfoInitialize(id, info);
-    }
-
-    addBntDropDownAlgorithmsCallback(id, info) {
         Utils.addButtonsCallback(`${id}-Swarming-item`, this.clickAlgorithmsListCallback.bind(this), id, info);
+
+        info.drawManager.drawUserOptions.streetSpacing = 1;
+        Utils.addFormCallback(`${id}-streetSpacingBtn`, [`${id}-streetSpacing`], ['streetSpacingValue'], this.streetSpacingCallback.bind(this), id, info);
+
+        info.drawManager.drawUserOptions.streetSpacing = 1;
+        Utils.addFormCallback(`${id}-wpSpaceBtn`, [`${id}-wpSpace`], ['wpSpaceValue'], this.wpSpaceCallback.bind(this), id, info);
+
+        super.drawInfoInitialize(id, info);
     }
 
     clickAlgorithmsListCallback(e, args) {
         args[1].drawManager.drawUserOptions.algorithm = e.innerText;
-        
+
         let button = document.getElementById(`${args[0]}-Swarming-DropDown-Btn`);
         button.innerHTML = e.innerHTML;
+    }
+
+    streetSpacingCallback(myargs, inputs) {
+        myargs[1].drawManager.drawUserOptions.streetSpacing = inputs.streetSpacingValue;
+    }
+
+    wpSpaceCallback(myargs, inputs) {
+        myargs[1].drawManager.drawUserOptions.wpSpace = inputs.wpSpaceValue;
     }
 }
 

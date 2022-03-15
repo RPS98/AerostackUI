@@ -402,14 +402,12 @@ class MapManager {
             if (divId == id) {
                 for (let j = 0; j < othersElements.length; j++) {
                     let name = othersElements[j][0];
-                    let checkBoxId = id + '-'+ name + '-Input';
-                    this. _uavPickerAddCallback(checkBoxId, callback, userargs);
+                    this._uavPickerAddCallback(id, name, callback, userargs);
                 }
                 let uavList =  M.UAV_MANAGER.getList();
                 for (let j = 0; j < uavList.length; j++) {
-                    let uavName = uavList[j];
-                    let uavCheckBoxId = id + '-'+ uavName + '-Input';
-                    this. _uavPickerAddCallback(uavCheckBoxId, callback, userargs);
+                    let name = uavList[j];
+                    this._uavPickerAddCallback(id, name, callback, userargs);
                 }
             }
         }
@@ -475,8 +473,14 @@ class MapManager {
         }
     }
 
-    _uavPickerAddCallback(checkBoxId, callback, userargs) {
-        document.getElementById(checkBoxId).addEventListener('change', function () {
+    _uavPickerAddCallback(id, name, callback, userargs) {
+        if (M.UAV_MANAGER.getList().includes(name)) {
+            let label = document.getElementById(id + '-'+ name + '-Label');
+            label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(name)[1]}`, "important");
+        }
+
+        let checkbox = document.getElementById(id + '-'+ name + '-Input');
+        checkbox.addEventListener('change', function () {
             let inputId = this.id.split('-');
             let uavName = inputId[inputId.length - 2];
             console.log("MapManager - _uavPickerAddCallback");
@@ -504,9 +508,9 @@ class MapManager {
             let userargs = this._uavPickerCallbackList[i][3];
 
             if (divId == picker.id) {
-                let checkBoxId = picker.id + '-'+ args[0] + '-Input';
+                // let checkBoxId = picker.id + '-'+ args[0] + '-Input';
                 
-                this. _uavPickerAddCallback(checkBoxId, callback, userargs);
+                this._uavPickerAddCallback(picker.id, args[0], callback, userargs);
 
                 // Remove defaults checkboxes
                 for (let i = 0; i < othersElements.length; i++) {

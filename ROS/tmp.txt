@@ -1,27 +1,21 @@
 TODO:
-10/03 -> Draw Info
-11/03 -> Mission Info
+15/03 -> Confirm Mission Controller
+16/03 -> Mission controller functionality (Center mission, Reload mission).
+         Add mission layers info / Uav info
+17/03 -> Save misssion and Load mission
 
-13/03 -> Improve info.
-14/03 -> Draw change, remove (Edit mission).
-15/03 -> Save misssion and Load mission. Start, stop and end mission.
-16/03 -> Mission / UAV colors. Link each mission layer 
-17/03 -> Mission controller functionality (Center mission, Reload mission). Layer tiles and order
+20/03 -> Basic swarming features
+22/03 -> Start, stop and end mission messages. Mission / UAV colors. Layer tiles and order
+23/03 -> Preparar demo
+24/03 -> Add config file
 
-20/03 -> Add config file. Clean repository.
-22/03 -> Documentation
-23/03 -> Documentation
-24/03 -> Swarming features
+27/03 -> Debug project
+28/03 -> Debug project
+29/03 -> Documentation
+30/03 -> Documentation
+31/03 -> GitHub
 
 
-Web interface documentation
-Add swarming features to the web interface
-
-Fix flightmare initial pose
-
-Launcher with only gazebo server
-
-Add Web interface features
 
 
 {

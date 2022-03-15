@@ -110,10 +110,10 @@ class DrawManager {
     drawInfoGetHtml(id, info, initialHtml = [], endHtml = [], uavPickerType = 'none') {
         initialHtml.push(this._drawInfoGetValues(id));
         initialHtml.push(this._drawInfoGetHeight(id, info));
+        initialHtml.push(endHtml);
         if (uavPickerType != 'none') {
             initialHtml.push(this._drawInfoGetUavPicker(id, info, uavPickerType));
         }
-        initialHtml.push(endHtml);
         return initialHtml;
     }
 
@@ -127,6 +127,7 @@ class DrawManager {
         let input = document.getElementById(`${id}-UAVPicker-auto-Input`);
         if (input != null) {
             input.setAttribute('checked', true);
+            info.drawManager.drawUserOptions.uavList = {'auto': true};
         }
     }
 

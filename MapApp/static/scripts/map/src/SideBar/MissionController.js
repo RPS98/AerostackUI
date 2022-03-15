@@ -34,7 +34,12 @@ class MissionController
     }
 
     addControllerCallbacks() {
-        Utils.addButtonCallback(`${this.htmlId}-btn-start`, this.startMissionCallback.bind(this), []);
+        Utils.addButtonCallback(`${this.htmlId}-btn-edit`,   this.editMissionCallback.bind(this), []);
+        Utils.addButtonCallback(`${this.htmlId}-btn-save`,   this.saveMissionCallback.bind(this), []);
+        Utils.addButtonCallback(`${this.htmlId}-btn-center`, this.centerMissionCallback.bind(this), []);
+        Utils.addButtonCallback(`${this.htmlId}-btn-start`,  this.startMissionCallback.bind(this), []);
+        Utils.addButtonCallback(`${this.htmlId}-btn-stop`,   this.stopMissionCallback.bind(this), []);
+        Utils.addButtonCallback(`${this.htmlId}-btn-end`,    this.endMissionCallback.bind(this), []);
     }
 
     _checkInitalize() {
@@ -64,5 +69,25 @@ class MissionController
     startMissionCallback(args) {
         console.log(`Start mission ${this.selectedMissionId}`);
         M.WS.sendStartMissionConfirm(this.selectedMissionId);
+    }
+
+    editMissionCallback(args) {
+        console.log(`Edit mission ${this.selectedMissionId}`);
+    }
+
+    saveMissionCallback(args) {
+        console.log(`Save mission ${this.selectedMissionId}`);
+    }
+
+    centerMissionCallback(args) {
+        console.log(`Center mission ${this.selectedMissionId}`);
+    }
+
+    stopMissionCallback(args) {
+        console.log(`Stop mission ${this.selectedMissionId}`);
+    }
+
+    endMissionCallback(args) {
+        console.log(`End mission ${this.selectedMissionId}`);
     }
 }

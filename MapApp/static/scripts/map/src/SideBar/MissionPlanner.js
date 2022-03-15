@@ -54,7 +54,7 @@ class MissionPlanner {
 
         // Heigh input
         let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, { 'class': 'form-control', 'required': 'required', }, 'text', `${this.selectedHeight[1]}`);
-        let heightBtn = HTMLUtils.addDict('button', `${this.htmlId}-heighBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
+        let heightBtn = HTMLUtils.addDict('button', `${this.htmlId}-heightBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
         let heightRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [heightInput, heightBtn], { 'class': 'col-md-6' });
         mPlannerList.push(heightRow);
 
@@ -101,7 +101,7 @@ class MissionPlanner {
     addPlannerCallbacks() {
 
         // Heigh input
-        Utils.addFormCallback(`${this.htmlId}-heighBtn`, [`${this.htmlId}-heightInput`], ['height'], this.heightCallback.bind(this));
+        Utils.addFormCallback(`${this.htmlId}-heightBtn`, [`${this.htmlId}-heightInput`], ['height'], this.heightCallback.bind(this));
         Utils.addFormCallback(`${this.htmlId}-heighRangeBtn`, [`${this.htmlId}-heightInputMin`, `${this.htmlId}-heightInputMax`], ['heightMin', 'heightMax'], this.heightRangeCallback.bind(this));
 
         // Buttons for change draw mode
@@ -170,7 +170,7 @@ class MissionPlanner {
 
         // Buttons for confirm mission
         let splitBtnConfirm = [];
-        splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-SaveMission`, { 'class': 'btn btn-primary' }, 'Save Mission'));
+        //push(HTMLUtils.addDict('button', `${this.htmlId}-SaveMission`, { 'class': 'btn btn-primary' }, 'Save Mission'));
         splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, { 'class': 'btn btn-success', disabled: true }, 'Confirm mission'));
         mConfirmList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtnConfirm, { 'class': 'row m-1' }));
 
@@ -187,13 +187,24 @@ class MissionPlanner {
         M.uavPickerInitiliazeCallback(`${this.htmlId}-UAVPicker`);
     }
 
-    confirmBtnCallback(args = []) {
-        // TODO: websocket -> send mission to server
-        console.log('confirm mission');
-        let layers = M.getLayers();
+    missionInterpreter(layers) {
+        console.log("Mission Interpreter");
 
-        let drawLayers = [];
         for (let i = 0; i < layers.length; i++) {
+            let layer = layers[i];
+            console.log(layer);
+
+            let drawManager = layer.drawManager;
+
+            let name = drawManager.name;
+            let author =  drawManager.drawUserOptions.author;
+            let status =  drawManager.drawUserOptions.status;
+            let height =  drawManager.drawUserOptions.height;
+            let uavList = drawManager.drawUserOptions.uavList;
+
+            console.log(name, author, status, height, uavList);
+
+            /*
             let options = layers[i].pm.options;
 
             if (options.status == 'draw') {
@@ -225,8 +236,9 @@ class MissionPlanner {
                 drawLayers.push(layer_info);
                 layers[i].pm.options['missionId'] = this.selectedMission;
             }
+            */
         }
-
+        /*
         let uavList = [];
         for (let key in this.selectedUavs) {
             if (this.selectedUavs[key]) {
@@ -235,12 +247,39 @@ class MissionPlanner {
         }
 
         if (drawLayers.length > 0 && uavList.length > 0) {
+        }
+        */
+        return [false, "temp", [], []];
+    }
+
+    confirmBtnCallback(args = []) {
+        // TODO: websocket -> send mission to server
+        console.log('confirm mission');
+
+        let layersId = M.DRAW_LAYERS.getList();
+        let layers = [];
+        for (let i = 0; i < layersId.length; i++) {
+            layers.push(M.DRAW_LAYERS.getDictById(layersId[i]));
+        }
+
+        let output = this.missionInterpreter(layers);
+
+        let validation = output[0];
+        let info = output[1];
+        let uavList = output[2];
+        let mission = output[3];
+        
+
+        if (validation) {
             console.log("Send mission");
             M.WS.sendRequestMissionConfirm(
                 this.selectedMission,
                 uavList,
-                drawLayers
+                mission
             );
+        } else {
+            console.log("Mission validation failed");
+            console.log(info);
         }
     }
 
