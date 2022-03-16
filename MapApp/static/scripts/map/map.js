@@ -16,6 +16,7 @@ blocksClassList = [
     ['splitDivs', SplitDivs],
     ['table', Table],
     ['tr', Tr],
+    ['fileInput', FileInput],
 ]
 
 

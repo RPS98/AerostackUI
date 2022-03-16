@@ -267,6 +267,22 @@ class Utils {
         }
     }
 
+    static addFileCallback(button_id, callback = Utils._nullFunct, ...args) {
+        const btn = document.getElementById(button_id);
+
+        if (btn != null) {
+            btn.addEventListener('change', (e) => {
+                // disable the refresh on the page when submit
+                e.preventDefault();
+
+                // call the button callback
+                callback(args, e.target.files[0]);
+            });
+        } else {
+            console.log("Warning: Utils.addFileCallback - button not found");
+        }
+    }
+
     static addlatLngCallback(button_id, input_id, callback = Utils._nullFunct, ...args) {
         // get button element
         const btn = document.getElementById(button_id);

@@ -18,6 +18,8 @@ class ImageOVerlay {
         this.markerBL = L.marker(this.point_list[2], { draggable: true, pmIgnore: true, icon: imageOverlay })
 
         this.overlay = null;
+        this.imgUrl = "/static/scripts/map/img/Global1.JPG";
+        this.opacity = 0.7;
 
         this.addHTML();
         this.addCallbacks();
@@ -26,7 +28,8 @@ class ImageOVerlay {
     addHTML() {
         let htmlList = [];
 
-        // Go to
+        let file = HTMLUtils.addDict('fileInput', `${this.htmlId}-imageFile`, {}, 'Choose Image', this.imgUrl);
+
         let topLeftLat = HTMLUtils.addDict('input', `${this.htmlId}-topLeftLat`, { 'class': 'form-control', 'required': 'required', 'value': this.point_list[0].lat }, 'text', 'Latitude');
         let topLeftLng = HTMLUtils.addDict('input', `${this.htmlId}-topLeftLng`, { 'class': 'form-control', 'required': 'required', 'value': this.point_list[0].lng }, 'text', 'Latitude');
         let row1 = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [topLeftLat, topLeftLng], { 'class': 'col-6' });
@@ -45,10 +48,11 @@ class ImageOVerlay {
         let removeBtniv = HTMLUtils.addDict('div', `none`, {}, [removeBtn]);
         let addRemoveBtn = HTMLUtils.addDict('div', `none`, { 'class': 'btn-group d-flex justify-content-evenly', 'role': 'group' }, [addBtnDiv, removeBtniv]);
 
-        let opacityInput = HTMLUtils.addDict('input', `${this.htmlId}-opacityInput`, { 'class': 'form-control', 'required': 'required',  'value': 0.7 }, 'text', `Opacity`);
+        let opacityInput = HTMLUtils.addDict('input', `${this.htmlId}-opacityInput`, { 'class': 'form-control', 'required': 'required',  'value': this.opacity }, 'text', `Opacity`);
         let opacityBtn = HTMLUtils.addDict('button', `${this.htmlId}-opacityBtn`, { 'class': 'btn btn-primary' }, 'Set opacity (m)');
         let opacityRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [opacityInput, opacityBtn], { 'class': 'col-md-6' });
 
+        htmlList.push(file);
         htmlList.push(row1);
         htmlList.push(row2);
         htmlList.push(row3);
@@ -77,14 +81,21 @@ class ImageOVerlay {
             ],
             this.addImageOverlayCallback.bind(this)
         );
+
+        Utils.addFileCallback(`${this.htmlId}-imageFile`, this.addImageUrlCallback.bind(this));
+    }
+
+    addImageUrlCallback(args, input) {
+        this.imgUrl = '/static/scripts/map/img/' + input.name;
+        // TODO: Get absolute path
     }
 
     addImageOverlayCallback(args, inputs) {
-        console.log("addImageOverlayCallback")
-        console.log(args);
-        console.log(inputs);        
 
-        let imgUrl = "/static/scripts/map/img/Global1.JPG";
+        if (this.imgUrl == null) {
+            alert("Please select an image");
+            return;
+        }
 
         // Create three markers to drag the image
         this.markerTL.addTo(M.MAP);
@@ -96,8 +107,8 @@ class ImageOVerlay {
         this.markerBL.setLatLng(L.latLng(inputs['bottomLeftLat'], inputs['bottomLeftLng']));
 
         // Create the image overlay
-        this.overlay = L.imageOverlay.rotated(imgUrl, this.point_list[0], this.point_list[1], this.point_list[2], {
-            opacity: 0.7,
+        this.overlay = L.imageOverlay.rotated(this.imgUrl, this.point_list[0], this.point_list[1], this.point_list[2], {
+            opacity: this.opacity,
             interactive: true,
         });
 
@@ -128,11 +139,10 @@ class ImageOVerlay {
     }
 
     setOpacity(args, inputs) {
-        console.log("setOpacity")
-        console.log(args);
-        console.log(inputs); 
+
+        this.opacity = inputs['opacity'];
         if (this.overlay != null) {
-            this.overlay.setOpacity(inputs['opacity']);
+            this.overlay.setOpacity(this.opacity);
         }
     }
 
