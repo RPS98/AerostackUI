@@ -95,7 +95,7 @@ class Area extends Polygon
         info.drawManager.drawUserOptions.streetSpacing = 1;
         Utils.addFormCallback(`${id}-streetSpacingBtn`, [`${id}-streetSpacing`], ['streetSpacingValue'], this.streetSpacingCallback.bind(this), id, info);
 
-        info.drawManager.drawUserOptions.streetSpacing = 1;
+        info.drawManager.drawUserOptions.wpSpace = 1;
         Utils.addFormCallback(`${id}-wpSpaceBtn`, [`${id}-wpSpace`], ['wpSpaceValue'], this.wpSpaceCallback.bind(this), id, info);
 
         super.drawInfoInitialize(id, info);

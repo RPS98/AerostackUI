@@ -200,10 +200,11 @@ class DrawManager {
 
         if (type == 'radio') {
             if (value) {
-                drawManager.drawUserOptions.uavList = { uavName: true };
+                drawManager.drawUserOptions.uavList = {}
+                drawManager.drawUserOptions.uavList[String(uavName)] = true;
             }
         } else {
-            drawManager.drawUserOptions.uavList[uavName] = true;
+            drawManager.drawUserOptions.uavList[String(uavName)] = value;
         }
     }
 

@@ -190,66 +190,158 @@ class MissionPlanner {
     missionInterpreter(layers) {
         console.log("Mission Interpreter");
 
-        for (let i = 0; i < layers.length; i++) {
-            let layer = layers[i];
-            console.log(layer);
-
-            let drawManager = layer.drawManager;
-
-            let name = drawManager.name;
-            let author =  drawManager.drawUserOptions.author;
-            let status =  drawManager.drawUserOptions.status;
-            let height =  drawManager.drawUserOptions.height;
-            let uavList = drawManager.drawUserOptions.uavList;
-
-            console.log(name, author, status, height, uavList);
-
-            /*
-            let options = layers[i].pm.options;
-
-            if (options.status == 'draw') {
-
-                let layer_info = {
-                    'name': options.name,
-                    'height': options.height,
-                };
-
-                // add layer info to a list
-                switch (options.type) {
-                    case 'Marker':
-                        layer_info['values'] = layers[i]._latlng;
-
-                        if (options.name == 'LandPoint') {
-                            layer_info['landUav'] = layers[i].options['landUav'];
-                        }
-                        break;
-                    case 'Circle':
-                    case 'CircleMarker':
-                        layer_info['values'] = [layers[i]._latlng, layers[i]._mRadius];
-                        break;
-                    case 'Line':
-                    case 'Polygon':
-                    case 'Rectangle':
-                        layer_info['values'] = layers[i]._latlngs;
-                        break;
-                }
-                drawLayers.push(layer_info);
-                layers[i].pm.options['missionId'] = this.selectedMission;
-            }
-            */
-        }
-        /*
-        let uavList = [];
+        let selectedUavList = [];
         for (let key in this.selectedUavs) {
             if (this.selectedUavs[key]) {
-                uavList.push(key);
+                selectedUavList.push(key);
             }
         }
 
-        if (drawLayers.length > 0 && uavList.length > 0) {
+        if (selectedUavList.length == 0) {
+            console.log("No UAV selected");
+            info.push("No UAV selected");
+            return [false, info, [], []];
         }
-        */
-        return [false, "temp", [], []];
+
+        let validation = true;
+        let info = [];
+
+        let minDistance = Math.pow(10, -6);
+
+        let uavMissionList = [];
+
+        let mission = [];
+        for (let i = 0; i < layers.length; i++) {
+
+            let layer = layers[i].layer;
+            let drawManager = layers[i].drawManager;
+
+            console.log(layer);
+
+            let name = drawManager.name;
+            let height = drawManager.drawUserOptions.height;
+            let uavList = drawManager.drawUserOptions.uavList;
+
+            let missionLayer = {
+                'name': name,
+                'height': height,
+                'uavList': [],
+            }
+
+            console.log("Name: " + name);
+
+            // Manage UAV list and others options
+            switch (name) {
+                case 'TakeOffPoint':
+                    let takeOffPosition = layer.getLatLng();
+                    for (let j=0; j<selectedUavList.length; j++) {
+                        let pose = M.UAV_MANAGER.getDictById(selectedUavList[j]).pose;
+                        let distance = Utils.distance(
+                            takeOffPosition.lat, 
+                            takeOffPosition.lng, 
+                            pose.lat,
+                            pose.lng
+                        );
+
+                        if (distance < minDistance) {
+                            missionLayer['uavList'].push(selectedUavList[j]);
+                            break;
+                        }
+                    }
+
+                    if (missionLayer['uavList'].length == 0) {
+                        validation = false;
+                        info.push(`Take off point is not connected to any UAV`);
+                    }
+                    break;
+                
+                case 'WayPoint':
+                case 'LandPoint':
+                case 'Path':
+
+                    let selection = String(Object.keys(uavList)[0]);
+
+                    if (selection == 'auto') {
+                        if (selectedUavList.length == 1) {
+                            missionLayer['uavList'].push(selectedUavList[0]);
+                        } else {
+                            validation = false;
+                            info.push(`${name} layer has error with UAV selected. Auto option is not allowed with multiple UAVs`);
+                        }
+                    } else {
+                        console.log("selection in selectedUavList")
+                        console.log(selection);
+                        console.log(selectedUavList);
+                        console.log(selectedUavList.includes(selection));
+                        if (selectedUavList.includes(selection)) {
+                            missionLayer['uavList'].push(selection);
+                        } else {
+                            validation = false;
+                            info.push(`${name} layer has error with UAV selected. UAV associated to this layer is not selected`);
+                        }
+                    }
+                    break;
+                case 'Area':
+                    let selections = Object.keys(uavList);
+                    let selectedList = [];
+                    for (let j=0; j<selections.length; j++) {
+                        if (uavList[selections[j]]) {
+                            selectedList.push(selections[j]);
+                        }
+                    }
+
+                    if (selectedList.length == 1 && selectedList[0] == 'auto') {
+                        missionLayer['uavList'].push('auto');
+                    } else {
+                        for (let j=0; j<selectedList.length; j++) {
+                            if (selectedUavList.includes(selectedList[j])) {
+                                missionLayer['uavList'].push(selectedList[j]);
+                            } else {
+                                validation = false;
+                                info.push(`${name} layer has error with UAV selected. UAV associated to this layer is not selected`);
+                                console.log(selectedList[j]);
+                            }
+                        }
+                    }
+
+                    break;
+                default:
+                    console.log('Unknown drawManager name');
+                    console.log(name);
+                    break;
+            }
+
+
+            switch (drawManager.type) {
+                case 'Marker':
+                    missionLayer['values'] = layer._latlng;
+                    break;
+                case 'Circle':
+                case 'CircleMarker':
+                    missionLayer['values'] = [layer._latlng, layer._mRadius];
+                    break;
+                case 'Line':
+                case 'Polygon':
+                case 'Rectangle':
+                    missionLayer['values'] = layer._latlngs;
+                    break;
+            }
+
+            mission.push(missionLayer);
+            if (!validation) {
+                break;
+            }
+
+            for (let j = 0; j < missionLayer['uavList'].length; j++) {
+                uavMissionList.push(missionLayer['uavList'][j]);
+            }
+        }
+
+        if (validation) {
+            return [true, info, uavMissionList, mission];
+        } else {
+            return [false, info, [], []];
+        }
     }
 
     confirmBtnCallback(args = []) {
@@ -264,23 +356,32 @@ class MissionPlanner {
 
         let output = this.missionInterpreter(layers);
 
-        let validation = output[0];
+        let error = output[0];
         let info = output[1];
         let uavList = output[2];
         let mission = output[3];
-        
 
-        if (validation) {
+        console.log("Mission intepretered");
+        console.log(error);
+        console.log(info);
+        console.log(uavList);
+        console.log(mission);
+
+        /*
+        if (!error) {
             console.log("Send mission");
-            M.WS.sendRequestMissionConfirm(
-                this.selectedMission,
-                uavList,
-                mission
-            );
+            console.log(uavList);
+            console.log(mission);
+            // M.WS.sendRequestMissionConfirm(
+            //     this.selectedMission,
+            //     uavList,
+            //     mission
+            // );
         } else {
             console.log("Mission validation failed");
             console.log(info);
         }
+        */
     }
 
     // #region Callbacks

@@ -483,9 +483,6 @@ class MapManager {
         checkbox.addEventListener('change', function () {
             let inputId = this.id.split('-');
             let uavName = inputId[inputId.length - 2];
-            console.log("MapManager - _uavPickerAddCallback");
-            console.log(inputId)
-            console.log(uavName);
             let value = this.checked;
 
             callback(uavName, value, userargs);
