@@ -19,6 +19,7 @@ class MissionDrawer
         this.landPoint = new LandPoint();
         this.takeOffPoint = new TakeOffPoint();
         this.wayPoint = new WayPoint();
+        this.area = new Area();
     }
 
     missionConfirmCallback(myargs, args) {
@@ -56,6 +57,11 @@ class MissionDrawer
                     break;
                 case 'WayPoint':
                     this.wayPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
+                    break;
+                case 'Area':
+                    console.log("Drawing area");
+                    console.log(layer);
+                    this.area.codeDraw(layer.values[0]);
                     break;
                 default:
                     throw new Error("Unknown layer name: " + layer.name);

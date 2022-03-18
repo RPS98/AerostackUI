@@ -33,6 +33,8 @@ class DrawManager {
                 draw = L.circle(values[0], values[1], drawOptions);
                 break;
             case 'Polygon':
+                console.log("Drawing polygon");
+                console.log(values);
                 draw = L.polygon(values, drawOptions);
                 break;
             default:
@@ -179,8 +181,9 @@ class DrawManager {
     // Draw Info callbacks  
     _updateHeightRangeCallback(myargs, args) {
         console.log("updateHeightRangeCallback");
-        let info = myargs;
-        info.drawManager.height = [args.heightMin, args.heightMax];
+        let info = myargs[1];
+        console.log(info);
+        info.drawManager.drawUserOptions.height = [args.heightMin, args.heightMax];
     }
 
     _removeCallback(myargs) {

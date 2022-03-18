@@ -333,12 +333,48 @@ class MissionPlanner {
             }
 
             for (let j = 0; j < missionLayer['uavList'].length; j++) {
-                uavMissionList.push(missionLayer['uavList'][j]);
+                if (missionLayer['uavList'][j] == 'auto') {
+                    for (let k = 0; k < selectedUavList.length; k++) {
+                        if (!uavMissionList.includes(selectedUavList[k])) {
+                            uavMissionList.push(selectedUavList[k]);
+                        }
+                    }
+                } else {
+                    uavMissionList.push(missionLayer['uavList'][j]);
+                }
+            }
+        }
+
+        let unique = uavMissionList.filter((v, i, a) => a.indexOf(v) === i);
+
+        // Check if every UAV in uavMissionList has a take off point and land point in the mission
+        for (let i=0; i<unique.length; i++) {
+            let uav = unique[i];
+            if (uav == 'auto') {
+                continue;
+            }
+            let takeOffFound = false;
+            let landFound = false;
+            for (let j=0; j<mission.length; j++) {
+                if (mission[j]['uavList'].includes(uav)) {
+                    if (mission[j]['name'] == 'TakeOffPoint') {
+                        takeOffFound = true;
+                    } else if (mission[j]['name'] == 'LandPoint') {
+                        landFound = true;
+                    }
+                }
+            }
+            if (!takeOffFound) {
+                validation = false;
+                info.push(`UAV ${uav} has no take off point in the mission`);
+            } else if (!landFound) {
+                validation = false;
+                info.push(`UAV ${uav} has no land point in the mission`);
             }
         }
 
         if (validation) {
-            return [true, info, uavMissionList, mission];
+            return [true, info, unique, mission];
         } else {
             return [false, info, [], []];
         }
@@ -356,32 +392,30 @@ class MissionPlanner {
 
         let output = this.missionInterpreter(layers);
 
-        let error = output[0];
+        let validation = output[0];
         let info = output[1];
         let uavList = output[2];
         let mission = output[3];
 
         console.log("Mission intepretered");
-        console.log(error);
+        console.log(validation);
         console.log(info);
         console.log(uavList);
         console.log(mission);
 
-        /*
-        if (!error) {
+        if (validation) {
             console.log("Send mission");
             console.log(uavList);
             console.log(mission);
-            // M.WS.sendRequestMissionConfirm(
-            //     this.selectedMission,
-            //     uavList,
-            //     mission
-            // );
+            M.WS.sendRequestMissionConfirm(
+                this.selectedMission,
+                uavList,
+                mission
+            );
         } else {
             console.log("Mission validation failed");
             console.log(info);
         }
-        */
     }
 
     // #region Callbacks
