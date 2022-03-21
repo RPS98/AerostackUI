@@ -38,11 +38,11 @@ class MissionInfo
     }    
 
     addLayerCallback(myargs, args) {
-        console.log("MissionInfo: addLayerCallback");
-        console.log(myargs);
-        console.log(args);
+        // console.log("MissionInfo: addLayerCallback");
+        // console.log(myargs);
+        // console.log(args);
 
-        console.log(M.MISSION_MANAGER.getDictById(args[0]));
+        // console.log(M.MISSION_MANAGER.getDictById(args[0]));
         
 
         let header = ['Group', 'Type', 'Value'];
@@ -82,10 +82,10 @@ class MissionInfo
     }
 
     updateLayerCallback(myargs, args) {
-        console.log("MissionInfo: updateLayerCallback");
-        console.log(myargs);
-        console.log(args);
-        console.log(M.MISSION_MANAGER.getDictById(args[0]));
+        // console.log("MissionInfo: updateLayerCallback");
+        // console.log(myargs);
+        // console.log(args);
+        // console.log(M.MISSION_MANAGER.getDictById(args[0]));
 
         let missionId = dict['id'];
         

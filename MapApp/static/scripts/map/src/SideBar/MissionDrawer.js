@@ -39,11 +39,14 @@ class MissionDrawer
     newMissionCallback(myargs, args) {
         let missionId = args[0];
         let missionDict = M.MISSION_MANAGER.getDictById(missionId);
-        let uavId = missionDict['uavList'][0];
+        
+        console.log("newMissionCallback");
+        console.log(missionId);
+        console.log(missionDict);
 
         for (let i=0; i<missionDict.layers.length; i++) {
             let layer = missionDict.layers[i];
-
+            let uavId = layer['uavList'][0];
             
             switch (layer.name) {
                 case 'TakeOffPoint':

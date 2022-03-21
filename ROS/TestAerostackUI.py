@@ -25,6 +25,10 @@ class AerostackUI():
         self.thread = threading.Thread(target=self.run)
         self.thread.start()    
         
+        time.sleep(2)
+        msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_rafa_1'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.14386, 'lng': -16.50225}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.14396, 'lng': -16.50215}}, {'name': 'Area', 'height': [3, 3], 'uavList': ['auto'], 'values': [[{'lat': 28.144016372555452, 'lng': -16.503212302923206}, {'lat': 28.143671070700133, 'lng': -16.50311574339867}, {'lat': 28.143680531039788, 'lng': -16.50249615311623}, {'lat': 28.144023467787367, 'lng': -16.5025806427002}]]}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.143912309099793, 'lng': -16.50326326489449}}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.143997451934666, 'lng': -16.50326862931252}}]}, 'from': 2, 'to': None}
+        self.mission_interpreter(msg)
+        
     def send_fake_confirm_mission(self):
         self.client.missionConfirm(
             self.client.mission_id,
@@ -110,10 +114,54 @@ class AerostackUI():
                         #     ]
                         #     print(f"Send waypoint: {waypoint}")
                         #     self.drone_interface.follow_gps_wp([waypoint], self.speed)
-                            
+    
+    def swarm(self, uavListAux, mission, sublist, first_uav):
+        print("Swarm")
+        print(uavListAux)
+        print(mission)
+        print(sublist)
+        initial_pose = {}
+        for uav in uavListAux:
+            initial_pose[uav] = mission[uav][len(mission[uav])-1]['values'][len(mission[uav][len(mission[uav])-1]['values'])-1]
+        
+        for layer in sublist:
+            uavList = layer['uavList']
+            if (type == 'TakeOffPoint' or type == 'LandPoint' or type == 'WayPoint'):
+                uav = uavList[0]
+                if uav == 'auto':
+                    uav = first_uav
+                
+            elif (type == 'Path'):
+                uav = uavList[0]
+                if uav == 'auto':
+                    uav = first_uav
+                
+                waypoints = []
+                for point in layer['values']:
+                    waypoints.append([point['lat'], point['lng'], layer['height'][1]])
+                
+                mission[uav].append({
+                    'type': type,
+                    'values': waypoints
+                })
+                
+                layer['uavList'] = [uav],
+            
+            elif type == 'Area':
+                pass
+                #TODO: Manage two areas 
+            
+            else:
+                raise Exception("Unknown layer type")
+            
+        print("initial_pose: ")
+        print(initial_pose)
+        print("End initial pose")
+            
+        return mission
                 
         
-    def mission_planner(self, mission_id, uavList, layers):
+    def mission_planner(self, mission_id, confirm, mission_info):
         """Convert Aerostack UI mission to ROS mission
 
         Args:
@@ -121,6 +169,104 @@ class AerostackUI():
             uavList (list): List of UAVs
             layers (list): List of layers
         """
+        
+        print("AerostackUI - Mission planner")
+        print(mission_id)
+        print(confirm)
+        print(mission_info)
+        
+        send_mission = {
+            'id': mission_id,
+            'status': confirm,
+            'uavList': mission_info['uavList'],
+            'layers': []
+        }
+        
+        first_uav = mission_info['uavList'][0]
+        
+        mission = {}
+        for uav in mission_info['uavList']:
+            mission[str(uav)] = []
+    
+        print("For each layer")
+        for layer in mission_info['layers']:
+            print(layer)
+            type = layer['name']
+            uavList = layer['uavList']
+            height = layer['height']
+            values = layer['values']
+            
+            layer = {
+                'name': type,
+                'uavList': uavList,
+                'height': height,
+                'values': values
+            }
+            
+            if (type == 'TakeOffPoint' or type == 'LandPoint' or type == 'WayPoint'):
+                uav = uavList[0]
+                if uav == 'auto':
+                    uav = first_uav
+                    
+                mission[uav].append({
+                    'type': type,
+                    'values': [[values['lat'], values['lng'], height[1]]]
+                })
+                layer['uavList'] = [uav]
+                
+            elif (type == 'Path'):
+                uav = uavList[0]
+                if uav == 'auto':
+                    uav = first_uav
+                
+                waypoints = []
+                for point in layer['values']:
+                    waypoints.append([point['lat'], point['lng'], layer['height'][1]])
+                
+                mission[uav].append({
+                    'type': type,
+                    'values': waypoints
+                })
+                
+                layer['uavList'] = [uav],
+            
+            elif type == 'Area':
+                
+                if uavList[0] == 'auto':
+                    uavListAux = mission_info['uavList']
+                else:
+                    uavListAux = uavList
+                
+                index = mission_info['layers'].index(layer)
+                range_to_end = range(index, len(mission_info['layers']))
+                sublist = [mission_info['layers'][i] for i in range_to_end]
+                
+                mission = self.swarm(uavListAux, mission, sublist, first_uav)
+                
+                layer['uavList'] = uavListAux
+            
+            else:
+                raise Exception("Unknown layer type")
+            
+            send_mission['layers'].append(layer)
+            
+            # if (type == 'TakeOffPoint' or type == 'LandPoint' or type == 'WayPoint'):
+            #     mission.append(
+            #         {
+            #             'type': type, 
+            #             'value': [layer['values']['lat'], layer['values']['lng'], layer['height']]
+            #         }
+            #     )
+            # elif (type == 'Path'):
+            #     waypoints = []
+            #     for point in layer['values']:
+            #         waypoints.append([point['lat'], point['lng'], layer['height']])
+            #     mission.append(
+            #         {
+            #             'type': type, 
+            #             'value': waypoints
+            #         }
+        """ 
         
         mission = []
         mission.append({'type': 'id', 'value': uavList[0]})
@@ -159,14 +305,23 @@ class AerostackUI():
         
         else:
             print("- Invalid mission")
+            
+        """
         
     def mission_interpreter(self, msg):
         
         print(f"- Mission interpreter")
-        #print(msg)
+        print(msg)
+        
+        """
+        {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_1', 'drone_sim_rafa_0'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.14396, 'lng': -16.50215}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.14386, 'lng': -16.50225}}, {'name': 'Area', 'height': [3, 3], 'uavList': ['auto'], 'values': [[{'lat': 28.144045936018713, 'lng': -16.502568572759632}, {'lat': 28.14376685660033, 'lng': -16.502509564161304}, {'lat': 28.143753848643602, 'lng': -16.503182798624042}, {'lat': 28.144006912245466, 'lng': -16.503237783908848}]]}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.143783412179328, 'lng': -16.503265947103504}}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.143912309099793, 'lng': -16.503300815820698}}]}, 'from': 2, 'to': None}
+        
+        {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_rafa_1'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.14386, 'lng': -16.50225}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.14396, 'lng': -16.50215}}, {'name': 'Area', 'height': [3, 3], 'uavList': ['auto'], 'values': [[{'lat': 28.144016372555452, 'lng': -16.503212302923206}, {'lat': 28.143671070700133, 'lng': -16.50311574339867}, {'lat': 28.143680531039788, 'lng': -16.50249615311623}, {'lat': 28.144023467787367, 'lng': -16.5025806427002}]]}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.143912309099793, 'lng': -16.50326326489449}}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.143997451934666, 'lng': -16.50326862931252}}]}, 'from': 2, 'to': None}
+        """
         
         confirm = 'confirmed'
         extra = []
+        
         
         if msg['payload']['status'] == 'request':
             if len(msg['payload']['uavList']) == 0:
@@ -192,22 +347,20 @@ class AerostackUI():
         self.client.mission_id += 1
         
         if confirm == 'confirmed':
-            new_mission_info = msg['payload']
-            new_mission_info['status'] = confirm
-            new_mission_info['id'] = self.client.mission_id
+            self.mission_planner(self.client.mission_id, confirm, msg['payload'])
+            # self.client.send_mission_info(
+            #     self.mission_planner(self.client.mission_id, confirm, msg['payload'])
+            # )
             
-            self.client.send_mission_info(new_mission_info)                
-            self.mission_planner(self.client.mission_id, msg['payload']['uavList'], msg['payload']['layers'])
-            
-            print("Send mission info")             
-            print(new_mission_info)
-            print()
+            # print("Send mission info")             
+            # print(new_mission_info)
+            # print()
             
             
-            print("Mission planner")
-            print(self.client.mission_id)
-            print(msg['payload']['uavList'])
-            print(msg['payload']['layers'])
+            # print("Mission planner")
+            # print(self.client.mission_id)
+            # print(msg['payload']['uavList'])
+            # print(msg['payload']['layers'])
         
         # self.mission_list.append(msg)
         
