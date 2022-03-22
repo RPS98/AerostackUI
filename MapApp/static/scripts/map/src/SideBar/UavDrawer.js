@@ -112,6 +112,7 @@ class UavDrawer
         var uavLayer = this.UAV_LIST.getDictById(id)['layerPose'];
         
         let height = M.UAV_MANAGER.getDictById(id)['pose']['height'];
+        console.log("Update popup: " + height);
         let popupContent = `<p>Height = ${Utils.round(height, 2)} m</p>`;
 
         if (uavLayer['popup'] == undefined) {

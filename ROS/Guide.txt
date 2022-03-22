@@ -66,6 +66,12 @@ as2_set_ros2_env
 
 
 
+main_launcher:
+
+tmux new-window -t $SESSION:6 -n 'gps_translator'
+tmux send-keys "ros2 launch gps_utils gps_translator_launch.py" C-m
+
+
 
 /home/rafa/aerostack2_ws/src/flightmare/flightlib/include/flightlib/bridges
 
@@ -76,6 +82,17 @@ python manage.py runserver 192.168.30.23:8000
 
 
 http://192.168.30.23:8000/interface/map/
+
+
+
+
+
+FLIGHTMARE_SCENE=5 # PLANTA
+MODEL=fpv
+UAV_X=15.0
+UAV_Y=-10.0
+UAV_Z=0.0
+ros2 launch flightros flight_pilot_launch.py drone_id:=$AEROSTACK2_SIMULATION_DRONE_ID scene_id:=$FLIGHTMARE_SCENE model:=$MODEL posx:=$UAV_X posy:=$UAV_Y posz:=$UAV_Z
 
 
 
@@ -107,3 +124,55 @@ ros2 run rqt_gui rqt_gui
 ros2 service call /drone_sim_rafa_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
 
 ros2 service call /drone_sim_rafa_0/set_arming_state std_srvs/srv/SetBool data:\ true\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cd ~/Downloads/
+./QGroundControl.AppImage
+
+cd ~/aerostack2_ws/src/aerostack2/projects/simulation_pixhawk
+./launch_simulator.bash
+
+cd ~/aerostack2_ws/src/aerostack2/projects/simulation_pixhawk
+./main_launcher.bash
+
+cd ~/AerostackUI
+conda activate ROSinterface
+python manage.py runserver
+
+cd ~/AerostackUI/ROS
+conda activate ROSinterface
+python AerostackUI.py
+
+cd ~/aerostack2_ws/src/
+FLIGHTMARE_SCENE=5 # PLANTA
+MODEL=fpv
+UAV_X=70.0
+UAV_Y=0.0
+UAV_Z=0.0
+ros2 launch flightros flight_pilot_launch.py drone_id:=$AEROSTACK2_SIMULATION_DRONE_ID scene_id:=$FLIGHTMARE_SCENE model:=$MODEL posx:=$UAV_X posy:=$UAV_Y posz:=$UAV_Z
+
+cd ~/aerostack2_ws/src/flightmare/flightrender/RPG_Flightmare
+./RPG_Flightmare.x86_64
+
+ros2 run rqt_gui rqt_gui
+
+ros2 service call /drone_sim_rafa_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
+
+ros2 service call /drone_sim_rafa_0/set_arming_state std_srvs/srv/SetBool data:\ true\
+
+
+
+
+
