@@ -304,6 +304,10 @@ class MissionPlanner {
                         }
                     }
 
+                    missionLayer['algorithm'] = drawManager.drawUserOptions.algorithm;
+                    missionLayer['streetSpacing'] = drawManager.drawUserOptions.streetSpacing;
+                    missionLayer['wpSpace'] = drawManager.drawUserOptions.wpSpace;
+
                     break;
                 default:
                     console.log('Unknown drawManager name');
@@ -397,16 +401,8 @@ class MissionPlanner {
         let uavList = output[2];
         let mission = output[3];
 
-        console.log("Mission intepretered");
-        console.log(validation);
-        console.log(info);
-        console.log(uavList);
-        console.log(mission);
 
         if (validation) {
-            console.log("Send mission");
-            console.log(uavList);
-            console.log(mission);
             M.WS.sendRequestMissionConfirm(
                 this.selectedMission,
                 uavList,

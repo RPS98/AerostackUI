@@ -339,7 +339,7 @@ class Utils {
     }
 
     static round(value, decimals) {
-        return Number(Math.round((value + Number.EPSILON) + 'e' + decimals) + 'e-' + decimals);
+        return Number(Math.round((value + 0.000001) + 'e' + decimals) + 'e-' + decimals); // Number.EPSILON
     }
 
     static distance(x1, y1, x2, y2) {

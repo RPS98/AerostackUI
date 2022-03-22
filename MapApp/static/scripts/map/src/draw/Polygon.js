@@ -66,6 +66,11 @@ class Area extends Polygon
         super('Area', options);
     }
 
+    codeDraw(id, values, options = {}) {
+        options['color'] = M.MISSION_MANAGER.getColors(id)[1];
+        return super.codeDraw(values, options);
+    }
+
     drawInfoAdd(htmlId, info) {
         let name = 'Area';
         let endHtml = [];

@@ -17,12 +17,12 @@ class ManagerPrototype extends SmartListCallbacks {
          * List of colors for each id of the information.
          */
         this.colors = [
-            ['#FFE6CC', '#D79B00'], // orange
+            ['#DAE8FC', '#6C8EBF'], // blue
             ['#F8CECC', '#F8CECC'], // red
             ['#D5E8D4', '#82B366'], // green
-            ['#DAE8FC', '#6C8EBF'], // blue
-            ['#FFF2CC', '#FFF2CC'], // yellow
+            ['#FFE6CC', '#D79B00'], // orange
             ['#E1D5E7', '#9673A6'], // violet
+            ['#FFF2CC', '#FFF2CC'], // yellow
         ];
 
         // Callbacks for income information from server
@@ -275,6 +275,18 @@ class MissionManager extends ManagerPrototype {
 
         // Callback for confirm mission information from server
         M.WS.addCallback('request', missionConfirm, this._onMissionConfirm.bind(this));
+
+        /**
+         * List of colors for each id of the information.
+         */
+         this.colors = [
+            ['#FFF2CC', '#FFF2CC'], // yellow
+            ['#DAE8FC', '#6C8EBF'], // blue
+            ['#D5E8D4', '#82B366'], // green
+            ['#FFE6CC', '#D79B00'], // orange
+            ['#F8CECC', '#F8CECC'], // red    
+            ['#E1D5E7', '#9673A6'], // violet
+        ];
     }
 
     // #region Public methods

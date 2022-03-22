@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import math
 from numpy import linalg as LA
@@ -7,21 +8,19 @@ from scipy.optimize import linear_sum_assignment
 
 
 def compute_area(
-        uav_position,
+        UAV_initial_position,
+        UAV_last_position,
         uav_weight,
         area,
         altitude,
         street_spacing,
         wpt_separation,
-        path_algorithm="back_and_force",
+        path_algorithm='Back and force',
         distribution_algorithm=""):
 
-    number_of_uavs = len(uav_position)
-    polygon_sides = len(area)
-    
-    if path_algorithm == "back_and_force":
+    if path_algorithm == 'Back and force':
         V, wpt_grid = back_and_forth(
-            area, street_spacing, wpt_separation, uav_position)
+            area, street_spacing, wpt_separation, UAV_initial_position)
     else:
         raise Exception("Unknown path_algorithm")
 
@@ -30,22 +29,22 @@ def compute_area(
     if distribution_algorithm == "binpat":
         # Assign tracks
         assets, track_number, track_firsts, track_lasts, UAV_altitudes, final_cost = binpat(
-            wpt_grid, uav_position, uav_weight, altitude)  # Track asset
-    
+            wpt_grid, UAV_initial_position, UAV_last_position, uav_weight, altitude)  # Track asset
+
     elif distribution_algorithm == "powell_binpat":
         assets, track_number, track_firsts, track_lasts, UAV_altitudes, final_cost = powell_binpat(
-            wpt_grid, uav_position, uav_weight, altitude) 
-    
+            wpt_grid, UAV_initial_position, UAV_last_position, uav_weight, altitude)
+
     else:
         raise Exception("Unknown distribution_algorithm")
-    
+
     elapsed = time.time() - t
     print('Elapsed time: %f' % (elapsed))
-    
+
     # Generate relative waypoints
     waypoints = generate_waypoints3(
-        uav_position, wpt_grid, assets, track_number, track_firsts, track_lasts)  # Relative waypoints
-    
+        UAV_initial_position, wpt_grid, assets, track_number, track_firsts, track_lasts)  # Relative waypoints
+
     return waypoints, wpt_grid
 
 
@@ -147,6 +146,7 @@ def back_and_forth(points, spacing, separation, UAV):
     ini_mat = np.zeros((2, len(UAV)))
     for i in range(0, len(UAV)):
         ini_mat[0, i] = LA.norm(V[0, :]-UAV[i, :])
+        # TODO: Ver si afecta a last point
         ini_mat[1, i] = LA.norm(V[1, :]-UAV[i, :])
 
     result_min = np.where(ini_mat == np.amin(
@@ -185,6 +185,7 @@ def back_and_forth(points, spacing, separation, UAV):
 
 # region Binpat
 
+
 def assign_uav_altitudes(cost_matrix, mission_altitude):
     aux_cost_matrix = np.zeros(len(cost_matrix))
     altitude_matrix = np.zeros(len(aux_cost_matrix))
@@ -194,7 +195,7 @@ def assign_uav_altitudes(cost_matrix, mission_altitude):
 
     for i in range(0, len(aux_cost_matrix)):
         index = np.argmax(aux_cost_matrix)
-        current_altitude = mission_altitude+5+(5*i) # Heigh of each UAV
+        current_altitude = mission_altitude+5+(5*i)  # Heigh of each UAV
         altitude_matrix[index] = current_altitude
         aux_cost_matrix[index] = -1
         # print(cost_matrix)
@@ -244,9 +245,9 @@ def bin_pack_alg2(track_weights, bin_weights):
     return index_mat, weight_sum_mat
 
 
-def track_asset4(tracks, UAV, UAV_ini_weights, mission_altitude):
+def track_asset4(tracks, UAV_ini_pos, UAV_last_pos, UAV_ini_weights, mission_altitude):
     numberoftracks = len(tracks)-1
-    UAVnumber = len(UAV)
+    UAVnumber = len(UAV_ini_pos)
     C = np.zeros((UAVnumber, numberoftracks))
     dist_mat = np.zeros((numberoftracks))
     UAV_weights = np.zeros((UAVnumber))
@@ -289,19 +290,19 @@ def track_asset4(tracks, UAV, UAV_ini_weights, mission_altitude):
 
         for j in range(0, UAVnumber):
             arrive_cost = abs(
-                LA.norm(tracks[int(track_firsts[j]), :]-UAV[i, :])) # Initial position
+                LA.norm(tracks[int(track_firsts[j]), :]-UAV_ini_pos[i, :]))  # Initial position
             return_cost = abs(
-                LA.norm(tracks[int(track_lasts[j]), :]-UAV[i, :])) # Last position
+                LA.norm(tracks[int(track_lasts[j]), :]-UAV_last_pos[i, :]))  # Last position
             mission_cost = abs(track_dist_mat[j])
             # up_down_delay = abs(
             #     2*altitude_matrix[i]+2*(altitude_matrix[i]-mission_altitude))
             #print (mission_cost)
-            C[i, j] = (arrive_cost+return_cost+mission_cost)  #  +up_down_delay /UAV_weights[i]
+            # +up_down_delay /UAV_weights[i]
+            C[i, j] = (arrive_cost+return_cost+mission_cost)
 
     row, asset_col = linear_sum_assignment(C)
     first_cost = C[row, asset_col]
-    
-    
+
     altitude_matrix = assign_uav_altitudes(first_cost, mission_altitude)
     cost = np.zeros_like(first_cost)
     for i in range(0, len(cost)):
@@ -310,32 +311,35 @@ def track_asset4(tracks, UAV, UAV_ini_weights, mission_altitude):
 
     return asset_col, individual_track_number, track_firsts, track_lasts, altitude_matrix, cost
 
-def binpat(wpt_grid, UAV, uav_weight, altitude):
+
+def binpat(wpt_grid, UAV_ini_pos, UAV_last_pos, uav_weight, altitude):
     return track_asset4(
-            wpt_grid, UAV, uav_weight, altitude)  # Track asset
-    
-    
+        wpt_grid, UAV_ini_pos, UAV_last_pos, uav_weight, altitude)  # Track asset
+
+
 # region Powell Binpat
 
-def fitness_func(uav_weight, wpt_grid, UAV, altitude):
+def fitness_func(uav_weight, wpt_grid, UAV_ini_pos, UAV_last_pos, altitude):
     # Calculating the fitness value of each solution in the current population.
     assets, track_number, track_firsts, track_lasts, UAV_altitudes, final_cost = binpat(
-            wpt_grid, UAV, uav_weight, altitude) 
+        wpt_grid, UAV_ini_pos, UAV_last_pos, uav_weight, altitude)
     fitness = max(final_cost)
     return fitness
 
 
-def powell_binpat(wpt_grid, UAV, uav_weight, altitude):
+def powell_binpat(wpt_grid, UAV_ini_pos, UAV_last_pos, uav_weight, altitude):
     res = scipy.optimize.minimize(
-            fitness_func, uav_weight, args=(wpt_grid, UAV, altitude), method='Powell', tol=1e-6)
-        
-    return track_asset4(wpt_grid, UAV, res.x, altitude)  # Track asset with best fit
+        fitness_func, uav_weight, args=(wpt_grid, UAV_ini_pos, UAV_last_pos, altitude), method='Powell', tol=1e-6)
+
+    # Track asset with best fit
+    return track_asset4(wpt_grid, UAV_ini_pos, UAV_last_pos, res.x, altitude)
 
 # endregion
 
 # endregion
 
 # region Generate waypoints
+
 
 def generate_waypoints3(UAV, V, assets, track_number_matrix, track_first, track_last):
     UAVnumber = len(UAV)
@@ -371,43 +375,43 @@ def generate_waypoints3(UAV, V, assets, track_number_matrix, track_first, track_
 
 # endregion
 
+
 # region Utils
-import matplotlib.pyplot as plt
 
-def draw_all (waypoint_matrix,x,y,V,UAV):
-    
-    #plot_map()
-    x_plot=np.append(x,x[0])
-    y_plot=np.append(y,y[0])
+def draw_all(waypoint_matrix, x, y, V, UAV_initial_position, UAV_last_position):
 
-    plt.plot(x_plot, y_plot,'k*:')
-    plt.scatter(V[:,0],V[:,1])
- 
-    plt.scatter(UAV[:,0],UAV[:,1])
-    a1=np.arange(0,len(V))
-    dx=0.2
-    dy=0.2
+    # plot_map()
+    x_plot = np.append(x, x[0])
+    y_plot = np.append(y, y[0])
 
-    final_waypoint_matrix=np.ones((len(waypoint_matrix),len(waypoint_matrix[0])+2,2))*float("NaN")
-    for i in range(0,len(UAV)):                 #add first waypoint
-        final_waypoint_matrix[i,0,:]=UAV[i,:]
+    plt.plot(x_plot, y_plot, 'k*:')
+    plt.scatter(V[:, 0], V[:, 1])
 
-    for i in range(0,len(UAV)):    #add next and last waypoint
-        for j in range (0, len(waypoint_matrix[0])):
+    plt.scatter(UAV_initial_position[:, 0], UAV_initial_position[:, 1])
+    a1 = np.arange(0, len(V))
+    dx = 0.2
+    dy = 0.2
+
+    final_waypoint_matrix = np.ones(
+        (len(waypoint_matrix), len(waypoint_matrix[0])+2, 2))*float("NaN")
+    for i in range(0, len(UAV_initial_position)):  # add first waypoint
+        final_waypoint_matrix[i, 0, :] = UAV_initial_position[i, :]
+
+    for i in range(0, len(UAV_initial_position)):  # add next and last waypoint
+        for j in range(0, len(waypoint_matrix[0])):
             if not np.isnan(waypoint_matrix[i, j, 1]):
-                final_waypoint_matrix[i,j+1,:]=waypoint_matrix[i,j,:]
-                final_waypoint_matrix[i,j+2,:]=UAV[i,:]
+                final_waypoint_matrix[i, j+1, :] = waypoint_matrix[i, j, :]
+                final_waypoint_matrix[i, j+2, :] = UAV_last_position[i, :]
 
-    for i in range(0,len(UAV)):
-        plt.plot(final_waypoint_matrix[i,:,0],final_waypoint_matrix[i,:,1])
-
+    for i in range(0, len(UAV_initial_position)):
+        plt.plot(final_waypoint_matrix[i, :, 0],
+                 final_waypoint_matrix[i, :, 1])
 
     for i, txt in enumerate(a1):
-        plt.annotate(txt, (V[i,0]+dx,V[i,1]+dy))
+        plt.annotate(txt, (V[i, 0]+dx, V[i, 1]+dy))
 
  #   for i in range(0,len(UAV)):
  #           plt.plot(waypoint_matrix[i,:,0],waypoint_matrix[i,:,1])
-
 
     plt.draw()
     plt.show()

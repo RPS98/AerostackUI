@@ -1,5 +1,4 @@
-class MissionDrawer
-{
+class MissionDrawer {
     constructor() {
         M.MISSION_MANAGER.addMissionConfirmCallback(this.missionConfirmCallback.bind(this));
         M.MISSION_MANAGER.addInfoAddCallback(this.newMissionCallback.bind(this));
@@ -7,7 +6,7 @@ class MissionDrawer
         // M.MISSION_MANAGER.addInfoParamCallback('layers',  this.updateMissionParam.bind(this));
 
         this.missionListId = Object.assign([], M.MISSION_MANAGER.getList());
-        this.missionDict   = Object.assign({}, M.MISSION_MANAGER.getDict());
+        this.missionDict = Object.assign({}, M.MISSION_MANAGER.getDict());
 
         this.MISSION_LIST = new SmartList();
 
@@ -15,7 +14,7 @@ class MissionDrawer
     }
 
     addDrawTypes() {
-        this.path = new Path({'opacity': 0.7});
+        this.path = new Path({ 'opacity': 0.7 });
         this.landPoint = new LandPoint();
         this.takeOffPoint = new TakeOffPoint();
         this.wayPoint = new WayPoint();
@@ -28,32 +27,32 @@ class MissionDrawer
         let missionId = args['oldId'];
         let layers = M.getLayers();
 
-        for (let i=0; i<layers.length; i++) {
+        for (let i = 0; i < layers.length; i++) {
             if (layers[i].pm.options.status == 'draw' &&
                 layers[i].pm.options.missionId == missionId) {
-                    layers[i].remove();
+                layers[i].remove();
             }
-        }   
+        }
     }
 
     newMissionCallback(myargs, args) {
         let missionId = args[0];
         let missionDict = M.MISSION_MANAGER.getDictById(missionId);
-        
+
         console.log("newMissionCallback");
         console.log(missionId);
         console.log(missionDict);
 
-        for (let i=0; i<missionDict.layers.length; i++) {
+        for (let i = 0; i < missionDict.layers.length; i++) {
             let layer = missionDict.layers[i];
             let uavId = layer['uavList'][0];
-            
+
             switch (layer.name) {
                 case 'TakeOffPoint':
                     this.takeOffPoint.codeDraw(uavId, [layer.values['lat'], layer.values['lng']]);
                     break;
                 case 'Path':
-                    this.path.codeDraw(layer.values, {color: M.UAV_MANAGER.getColors(uavId)[1]});
+                    this.path.codeDraw(layer.values, { color: M.UAV_MANAGER.getColors(uavId)[1] });
                     break;
                 case 'LandPoint':
                     this.landPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
@@ -62,9 +61,13 @@ class MissionDrawer
                     this.wayPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
                     break;
                 case 'Area':
-                    console.log("Drawing area");
-                    console.log(layer);
-                    this.area.codeDraw(layer.values[0]);
+                    this.area.codeDraw(missionId, layer.values[0]);
+
+                    for (let j = 0; j < layer.uavList.length; j++) {
+                        let uavId_aux = layer.uavList[j];
+                        this.path.codeDraw(layer.uavPath[uavId_aux], { color: M.UAV_MANAGER.getColors(uavId_aux)[1] });
+                    }
+
                     break;
                 default:
                     throw new Error("Unknown layer name: " + layer.name);

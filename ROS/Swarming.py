@@ -11,16 +11,23 @@ area = np.array([
     [-36.29032258,  53.24675325],
 ])
 
-uav_position = np.array([
+UAV_initial_position = np.array([
     [-91.93548387, -38.2034632],
     [-83.06451613, -51.19047619],
     [-72.98387097, -66.34199134],
     [-60.48387097, -79.87012987],
 ])
 
+UAV_last_position = np.array([
+    [-102.93548387, -49.2034632],
+    [-93.06451613, -62.19047619],
+    [-83.98387097, -77.34199134],
+    [-71.48387097, -90.87012987],
+])
+
 
 # Weights
-vel_input = np.full(len(uav_position), 1)
+vel_input = np.full(len(UAV_initial_position), 1)
 vel_sum = sum(vel_input)
 uav_weight = np.zeros_like(vel_input, dtype=float)
 for i in range(0, len(vel_input)):
@@ -29,7 +36,8 @@ for i in range(0, len(vel_input)):
 # Generate tracks
 print("Binpat")
 waypoints, wpt_grid = swarm.compute_area(
-    uav_position,
+    UAV_initial_position,
+    UAV_last_position,
     uav_weight,
     area,
     altitude=40,
@@ -41,11 +49,12 @@ waypoints, wpt_grid = swarm.compute_area(
 
 x = area[:, 0]
 y = area[:, 1]
-swarm.draw_all(waypoints, x, y, wpt_grid, uav_position)
+swarm.draw_all(waypoints, x, y, wpt_grid, UAV_initial_position, UAV_last_position)
 
 print("Powell binpat")
 waypoints, wpt_grid = swarm.compute_area(
-    uav_position,
+    UAV_initial_position,
+    UAV_last_position,
     uav_weight,
     area,
     altitude=40,
@@ -57,4 +66,4 @@ waypoints, wpt_grid = swarm.compute_area(
 
 x = area[:, 0]
 y = area[:, 1]
-swarm.draw_all(waypoints, x, y, wpt_grid, uav_position)
+swarm.draw_all(waypoints, x, y, wpt_grid, UAV_initial_position, UAV_last_position)
