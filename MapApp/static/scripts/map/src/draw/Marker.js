@@ -281,9 +281,9 @@ class Marker extends DrawManager {
 
    codeDraw(id, values, options = {}, iconSvgGrey = this.iconSvgGrey, iconSize = this.iconSize, iconAnchor = this.iconAnchor) {
       let colors = M.UAV_MANAGER.getColors(id);
-      console.log("Marker")
-      console.log(id)
-      console.log(colors)
+      // console.log("Marker")
+      // console.log(id)
+      // console.log(colors)
       options['icon'] = Marker.getIcon(iconSvgGrey, colors[1], colors[0], iconSize, iconAnchor);
       let marker = super.codeDraw(values, options);
       marker.pm.setOptions({ draggable: false });

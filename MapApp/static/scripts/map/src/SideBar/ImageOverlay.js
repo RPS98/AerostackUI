@@ -107,6 +107,8 @@ class ImageOVerlay {
         this.markerBL.setLatLng(L.latLng(inputs['bottomLeftLat'], inputs['bottomLeftLng']));
 
         // Create the image overlay
+        console.log("Adding image");
+        console.log(this.imgUrl);
         this.overlay = L.imageOverlay.rotated(this.imgUrl, this.point_list[0], this.point_list[1], this.point_list[2], {
             opacity: this.opacity,
             interactive: true,

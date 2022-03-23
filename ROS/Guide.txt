@@ -126,6 +126,10 @@ ros2 service call /drone_sim_rafa_0/set_offboard_mode std_srvs/srv/SetBool data:
 ros2 service call /drone_sim_rafa_0/set_arming_state std_srvs/srv/SetBool data:\ true\
 
 
+cd 
+cd aerostack2_ws/src/aerostack2/stack/user_interface/python_interface/python_interface/
+conda activate ROSinterface
+python drone_interface.py
 
 
 
@@ -133,8 +137,20 @@ ros2 service call /drone_sim_rafa_0/set_arming_state std_srvs/srv/SetBool data:\
 
 
 
+// Right
+export PX4_HOME_LAT=28.143995
+export PX4_HOME_LON=-16.502476
+export PX4_HOME_ALT=0
+
+UAV_X=70.0
+UAV_Y=0.0
+UAV_Z=0.0
 
 
+// Left
+export PX4_HOME_LAT=28.143993 
+export PX4_HOME_LON=-16.503241
+export PX4_HOME_ALT=0
 
 
 
@@ -142,7 +158,7 @@ cd ~/Downloads/
 ./QGroundControl.AppImage
 
 cd ~/aerostack2_ws/src/aerostack2/projects/simulation_pixhawk
-./launch_simulator.bash
+./launch_simulator_fpv.bash
 
 cd ~/aerostack2_ws/src/aerostack2/projects/simulation_pixhawk
 ./main_launcher.bash
@@ -157,9 +173,9 @@ python AerostackUI.py
 
 cd ~/aerostack2_ws/src/
 FLIGHTMARE_SCENE=5 # PLANTA
-MODEL=fpv
-UAV_X=70.0
-UAV_Y=0.0
+MODEL=ventral
+UAV_X=0.0
+UAV_Y=-10.0
 UAV_Z=0.0
 ros2 launch flightros flight_pilot_launch.py drone_id:=$AEROSTACK2_SIMULATION_DRONE_ID scene_id:=$FLIGHTMARE_SCENE model:=$MODEL posx:=$UAV_X posy:=$UAV_Y posz:=$UAV_Z
 
@@ -176,3 +192,48 @@ ros2 service call /drone_sim_rafa_0/set_arming_state std_srvs/srv/SetBool data:\
 
 
 
+
+
+// Drone Sim Rafa 
+UAV_X=0.0
+UAV_Y=0.0
+UAV_Z=0.0
+
+
+export PX4_HOME_LAT=28.143971
+export PX4_HOME_LON=-16.503213
+export PX4_HOME_ALT=0
+
+// Drone Sim Predro
+
+export PX4_HOME_LAT=28.143883
+export PX4_HOME_LON=-16.503207
+export PX4_HOME_ALT=0
+
+
+
+
+
+/home/rafa/aerostack2_ws/src/thirdparty/PX4-Autopilot/Tools/sitl_run.sh
+
+ -Y 1.0
+
+
+
+
+
+ cd ~/aerostack2_ws/src/
+FLIGHTMARE_SCENE=5 # PLANTA
+MODEL=ventral
+UAV_X=0.0
+UAV_Y=-10.0
+UAV_Z=0.0
+drone_id=drone_sim_8
+ros2 launch flightros flight_pilot_launch.py drone_id:=$AEROSTACK2_SIMULATION_DRONE_ID scene_id:=$FLIGHTMARE_SCENE model:=$MODEL posx:=$UAV_X posy:=$UAV_Y posz:=$UAV_Z
+
+
+
+// Rafa 
+export PX4_HOME_LAT=28.143883
+export PX4_HOME_LON=-16.503207
+export PX4_HOME_ALT=0

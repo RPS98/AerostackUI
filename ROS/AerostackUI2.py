@@ -32,23 +32,58 @@ class AerostackUI():
         dron1 = 'drone_sim_8'
         dron2 = 'drone_sim_rafa_0'
         
-        self.dron1_interface = DroneInterface(dron1)
-        self.dron2_interface = DroneInterface(dron2)
+        dron1_interface = DroneInterface(dron1)
+        dron2_interface = DroneInterface(dron2)
+        
+        # self.drone_interface = {}
+        # for uav_id in self.uav_id_list:
+        #     self.drone_interface[uav_id] = DroneInterface(uav_id)
+            # if uav_id == 'drone_sim_8':
+            #     self.drone_interface[uav_id] = None
+            # else:
+            #     self.drone_interface[uav_id] = DroneInterface(uav_id)
             
         
         self.mission_list = {}
         self.speed = 6
+        
+        uav_id_mission = [
+            'drone_sim_8',
+            'drone_sim_rafa_0',
+        ]
 
+        self.uav_id_list_pos = [
+            [28.1439717, -16.5032634, 0.0],
+            [28.1438840, -16.5032570, 0.0],
+        ]
 
+        uav_id_list_last_pos = [
+            [28.1439717, -16.5032634, 0.0],
+            [28.1438460, -16.5032560, 0.0],
+        ]
+        
+        streetSpacing = 8.0
+        wpSpace = 1.0
+        height = 10
+        
+        # n UAVs
+        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': uav_id_mission, 'layers': []}, 'from': 2, 'to': None}
+        
+        # for index, uav in enumerate(uav_id_mission):
+        #     msg['payload']['layers'].append({'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [uav], 'values': {'lat': self.uav_id_list_pos[index][0], 'lng': self.uav_id_list_pos[index][1]}})
+        
+        # msg['payload']['layers'].append({'name': 'Area', 'height': [height, height], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': streetSpacing, 'wpSpace': wpSpace, 'values': [[{'lat': 28.14400218209017, 'lng': -16.50320559740067}, {'lat': 28.143673435785125, 'lng': -16.503107696771625}, {'lat': 28.143685261209285, 'lng': -16.502482742071155}, {'lat': 28.144018737632805, 'lng': -16.50258600711823}]]})
+        
+        # for index, uav in enumerate(uav_id_mission):
+        #     msg['payload']['layers'].append({'name': 'LandPoint', 'height': [3, 3], 'uavList': [uav], 'values': {'lat': uav_id_list_last_pos[index][0], 'lng': uav_id_list_last_pos[index][1]}})
+        
+        
         msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_8', 'drone_sim_rafa_0'], 'layers': [{'name': 'TakeOffPoint', 'height': [4, 4], 'uavList': ['drone_sim_8'], 'values': {'lat': 28.1439706, 'lng': -16.5032131}}, {'name': 'TakeOffPoint', 'height': [4, 4], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.1438831, 'lng': -16.5032585}}, {'name': 'Area', 'height': [10, 10], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': 6, 'wpSpace': 1, 'values': [[{'lat': 28.144008094784244, 'lng': -16.503204926848415}, {'lat': 28.14367402705637, 'lng': -16.5031123906374}, {'lat': 28.14368171358218, 'lng': -16.502493470907215}, {'lat': 28.144013416208654, 'lng': -16.50259338319302}]]}, {'name': 'LandPoint', 'height': [4, 4], 'uavList': ['drone_sim_8'], 'values': {'lat': 28.1439706, 'lng': -16.5032131}}, {'name': 'LandPoint', 'height': [4, 4], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.143790507426715, 'lng': -16.503251865506176}}]}, 'from': 2, 'to': None}
         
         time.sleep(1)
         
-        self.thread_run1 = threading.Thread(target=self.run, args=[self.dron1_interface, dron1])
-        self.thread_run1.start()
-        
-        self.thread_run2 = threading.Thread(target=self.run, args=[self.dron2_interface, dron2])
-        self.thread_run2.start()
+        self.thread = threading.Thread(target=self.run)
+        self.thread.start()
         
         
         time.sleep(3)
@@ -138,24 +173,15 @@ class AerostackUI():
         print("- Start mission ", mission_id)
         self.thread_uav = {}
         for uav in mission_list:
+            drone_interface = self.drone_interface[uav]
+            if drone_interface == None:
+                continue
+            print("Starting mission for uav ", uav)
+            # print(self.mission_list[mission_id][uav])
             mission_layers = self.mission_list[mission_id][uav]
-            if uav == 'drone_sim_8':
-                self.thread_uav_1 = threading.Thread(target=self.run_uav_mission, args=[uav, self.dron1_interface, mission_layers])
-                self.thread_uav_1.start()
-            elif uav == 'drone_sim_rafa_0':
-                self.thread_uav_2 = threading.Thread(target=self.run_uav_mission, args=[uav, self.dron2_interface, mission_layers])
-                self.thread_uav_2.start()
+            self.thread_uav[uav] = threading.Thread(target=self.run_uav_mission, args=[uav, self.drone_interface[uav], mission_layers])
             
-            
-            # drone_interface = self.drone_interface[uav]
-            # if drone_interface == None:
-            #     continue
-            # print("Starting mission for uav ", uav)
-            # # print(self.mission_list[mission_id][uav])
-            # mission_layers = self.mission_list[mission_id][uav]
-            # self.thread_uav[uav] = threading.Thread(target=self.run_uav_mission, args=[uav, self.drone_interface[uav], mission_layers])
-            
-            # self.thread_uav[uav].start()
+            self.thread_uav[uav].start()
                                    
     def swarm_planning(self, uavList, initial_position, last_position, height, values, algorithm, streetSpacing, wpSpace):
 
@@ -451,39 +477,90 @@ class AerostackUI():
         #print(msg)
         self.mission_interpreter(msg)
         
-    def run(self, drone_interface, uav):
+    def run(self):
         
-        odom = []
-        
-        # while rclpy.ok():
-        while True:
-            if (self.client.connection):
+        odom = {}
 
-                pose = drone_interface.get_gps_pose()
-                odom.append([pose[0], pose[1]])
-                
-                # self.plot_mission(path, odom)
-                
-                orientation = drone_interface.get_orientation()
-                info = drone_interface.get_info()
-                
-                # print(f"Pose: {pose}")
-                # print(f"Orientation: {orientation}")
-                # print(f"Info: {info}")
+        for uav in self.uav_id_list:
+            odom[uav] = []
+        
+        
+        while rclpy.ok():
+            if (self.client.connection):
+                """
+                pose = [28.144099, -16.503337, 1, 0]
+                orientation = [0, 0, 0, 0]
+                info = {
+                        'connected': True,
+                        'armed': True,
+                        'offboard': True,
+                        'state': 'hovering',
+                        'yaw_mode': 'rate',
+                        'control_mode': 'position',
+                        'reference_frame': 'world',
+                    }
                 
                 self.client.send_uav_info(
-                    {
-                        'id': str(uav),
-                        'state': info, 
-                        'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
-                        'odom': odom
-                    }
-                )
+                        {
+                            'id': self.drone_id,
+                            'state': info, 
+                            'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
+                            # 'odom': odom 
+                        }
+                    )
+                
+                """ 
+                
+                for idx, uav in enumerate(self.uav_id_list):
+                    drone_interface = self.drone_interface[uav]
+                    
+                    # print("Send info for uav: " + str(uav))
+                   
+                    if drone_interface == None:
+                        # print("Drone interface = None")
+                        pose = self.uav_id_list_pos[idx]
+                        odom[uav].append([pose[0], pose[1]])
+                        
+                        # self.plot_mission(path, odom)
+                        
+                        orientation = [0, 0, 0, 0]
+                        info = {
+                            'connected': True,
+                            'armed': True,
+                            'offboard': True,
+                            'state': 'hovering',
+                            'yaw_mode': 'rate',
+                            'control_mode': 'position',
+                            'reference_frame': 'world',
+                        }
+                    else:
+                    
+                        pose = drone_interface.get_gps_pose()
+                        odom[uav].append([pose[0], pose[1]])
+                        
+                        # self.plot_mission(path, odom)
+                        
+                        orientation = drone_interface.get_orientation()
+                        info = drone_interface.get_info()
+                    
+                    # print(f"Pose: {pose}")
+                    # print(f"Orientation: {orientation}")
+                    # print(f"Info: {info}")
+                    
+                    self.client.send_uav_info(
+                        {
+                            'id': str(uav),
+                            'state': info, 
+                            'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
+                            'odom': odom[uav] 
+                        }
+                    )
                 
                 time.sleep(0.1)
             else:
-                break
-              
+                print("Conecction lost")
+                time.sleep(1)
+                
         
         
 if __name__ == '__main__':

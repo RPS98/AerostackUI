@@ -39,7 +39,6 @@ class UavDrawer
     }
 
     updateUavParam(param, value, args) {
-
         let id = args[0];
 
         if (this.UAV_LIST.getList().indexOf(id) === -1) {
@@ -50,6 +49,8 @@ class UavDrawer
             param == 'desiredPath' && value.length < 2) {
             return;
         }
+
+        
 
         if (param in this.UAV_LIST.getDictById(id)) {
             switch (param) {
@@ -76,7 +77,7 @@ class UavDrawer
                 case 'pose':
                     this._checkLayer(id, 'layerPose');
                     this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
-                    this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']], {'rotationAngle': this._angleWrap(value['yaw'])});
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']], {'rotationAngle': this._angleWrap(value['yaw']), 'weight': 5});
                     this.updatePopup(id);
                     break;
                 case 'odom':
@@ -112,7 +113,7 @@ class UavDrawer
         var uavLayer = this.UAV_LIST.getDictById(id)['layerPose'];
         
         let height = M.UAV_MANAGER.getDictById(id)['pose']['height'];
-        console.log("Update popup: " + height);
+        // console.log("Update popup: " + height);
         let popupContent = `<p>Height = ${Utils.round(height, 2)} m</p>`;
 
         if (uavLayer['popup'] == undefined) {

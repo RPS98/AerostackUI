@@ -557,6 +557,9 @@ class SmartListCallbacks extends SmartList {
      */
     updateObject(id, objectInfo, override = false) {
 
+        let oldInfo = Object.assign({}, this.getDictById(id));
+        let newInfo = Object.assign({}, objectInfo);
+        
         if (override) {
             super.addObject(id, objectInfo);
             Utils.callCallbacks(this._infoChangeCallbacks, id);
@@ -565,16 +568,25 @@ class SmartListCallbacks extends SmartList {
             Utils.callCallbacks(this._infoChangeCallbacks, id);
         }
 
-        let oldInfo = this.getDictById(id);
-        let newInfo = objectInfo;
+        
 
-        for (let key in objectInfo) {
-            if (!(key in oldInfo)) {
+        for (let key in newInfo) {
+            if (key in oldInfo) {
                 if (oldInfo[key] !== newInfo[key]) {
-                    Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
+                    Utils.callCallbackByParam(this._paramChangeCallbacks, key, newInfo[key], id);
                 }
+            } else {
+                Utils.callCallbackByParam(this._paramChangeCallbacks, key, newInfo[key], id);
             }
         }
+
+        // for (let key in objectInfo) {
+        //     if (!(key in oldInfo)) {
+        //         if (oldInfo[key] !== newInfo[key]) {
+        //             Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
+        //         }
+        //     }
+        // }
 
         // for (let key in objectInfo) {
         //     Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);

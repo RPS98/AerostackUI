@@ -9,6 +9,7 @@ class MissionPlanner {
         this.selectedMission = 'New Mission';
         this.selectedUavs = {};
         this.selectedHeight = [3, 3];
+        this.selectedSpeed = 6
 
         this.addDrawTypes();
 
@@ -52,11 +53,19 @@ class MissionPlanner {
     addPlannerHTML() {
         let mPlannerList = [];
 
+        // Speed input
+        let speedInput = HTMLUtils.addDict('input', `${this.htmlId}-speedInput`, { 'class': 'form-control', 'required': 'required', }, 'text', `${this.selectedSpeed}`);
+        let speedBtn = HTMLUtils.addDict('button', `${this.htmlId}-speedBtn`, { 'class': 'btn btn-primary' }, 'Set Speed (m/s)');
+        let speedRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [speedInput, speedBtn], { 'class': 'col-md-6' });
+        mPlannerList.push(speedRow);
+        
+
         // Heigh input
         let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, { 'class': 'form-control', 'required': 'required', }, 'text', `${this.selectedHeight[1]}`);
         let heightBtn = HTMLUtils.addDict('button', `${this.htmlId}-heightBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
         let heightRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [heightInput, heightBtn], { 'class': 'col-md-6' });
         mPlannerList.push(heightRow);
+        
 
         let heightInputMin = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Min');
         let heightInputMax = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Max');

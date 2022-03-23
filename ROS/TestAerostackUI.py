@@ -20,76 +20,56 @@ class AerostackUI():
             'request', 'missionStart', self.start_mission_callback)
 
         # self.drone_id = "drone_sim_rafa_0"  # "drone_sim_14"
-        # self.uav_id_list = ['drone_sim_rafa_0']
-        self.uav_id_list = ['drone_0',
-                            'drone_1',
-                            'drone_2',
-                            'drone_3',
-                            ]
-
-        self.uav_id_list_pos = [
-            [28.14402, -16.50251, 0.0],
-            [28.14398, -16.50250, 0.00],
-            [28.14348, -16.50236, 0.00],
-            [28.14350, -16.50233, 0.00]
-        ]
-
-        uav_id_list_last_pos = [
-            [28.14402, -16.50251, 0.0],
-            [28.14371, -16.50240, 0.00],
-            [28.14366, -16.50239, 0.00],
-            [28.14361, -16.50238, 0.00]
-        ]
         
-        streetSpacing = 2.0
-        wpSpace = 1.0
-        height = 40
+        # self.uav_id_list = ['drone_sim_rafa_0']
+        # self.uav_id_list_pos = [[28.14402, -16.50251, 0.0]]
 
         self.mission_list = {}
         self.speed = 2
+        
+        self.uav_id_list = [
+            'drone_sim_8',
+            'drone_sim_rafa_0',
+        ]
+        
+        uav_id_mission = [
+            'drone_sim_8',
+            'drone_sim_rafa_0',
+        ]
 
+        self.uav_id_list_pos = [
+            [28.1439717, -16.5032634, 0.0],
+            [28.1438840, -16.5032570, 0.0],
+        ]
+
+        uav_id_list_last_pos = [
+            [28.1439717, -16.5032634, 0.0],
+            [28.1438460, -16.5032560, 0.0],
+        ]
+        
+        streetSpacing = 8.0
+        wpSpace = 4.0
+        height = 10
+        
+        # n UAVs
+        msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': uav_id_mission, 'layers': []}, 'from': 2, 'to': None}
+        
+        for index, uav in enumerate(uav_id_mission):
+            msg['payload']['layers'].append({'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [uav], 'values': {'lat': self.uav_id_list_pos[index][0], 'lng': self.uav_id_list_pos[index][1]}})
+        
+        msg['payload']['layers'].append({'name': 'Area', 'height': [height, height], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': streetSpacing, 'wpSpace': wpSpace, 'values': [[{'lat': 28.14400218209017, 'lng': -16.50320559740067}, {'lat': 28.143673435785125, 'lng': -16.503107696771625}, {'lat': 28.143685261209285, 'lng': -16.502482742071155}, {'lat': 28.144018737632805, 'lng': -16.50258600711823}]]})
+        
+        for index, uav in enumerate(uav_id_mission):
+            msg['payload']['layers'].append({'name': 'LandPoint', 'height': [3, 3], 'uavList': [uav], 'values': {'lat': uav_id_list_last_pos[index][0], 'lng': uav_id_list_last_pos[index][1]}})
+        
+        
+        
         time.sleep(1)
 
         self.thread = threading.Thread(target=self.run)
         self.thread.start()
 
         time.sleep(2)
-
-        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_rafa_1'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.14386, 'lng': -16.50225}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.14396, 'lng': -16.50215}}, {'name': 'Area', 'height': [40, 40], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': 1, 'wpSpace': 1, 'values': [[{'lat': 28.14401519001672, 'lng': -16.503229737281803}, {'lat': 28.143148385636948, 'lng': -16.502961516380314}, {'lat': 28.14316021111907, 'lng': -16.502299010753635}, {'lat': 28.144040023326696, 'lng': -16.50259137153626}]]}, {'name': 'LandPoint', 'height': [40, 40], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.14406130901639, 'lng': -16.50325253605843}}, {'name': 'LandPoint', 'height': [40, 40], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.143131829959785, 'lng': -16.50301650166512}}]}, 'from': 2, 'to': None}
-        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_rafa_1'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.14405, 'lng': -16.50125}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.1437, 'lng': -16.501}}, {'name': 'Area', 'height': [40, 40], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': 5, 'wpSpace': 1, 'values': [[{'lat': 28.144090872467263, 'lng': -16.501332074403766}, {'lat': 28.14381415824786, 'lng': -16.501066535711292}, {'lat': 28.143642689676213, 'lng': -16.50104641914368}, {'lat': 28.143624951532455, 'lng': -16.501832306385044}, {'lat': 28.143530348049417, 'lng': -16.501867175102237}, {'lat': 28.143510244798506, 'lng': -16.50209650397301}, {'lat': 28.14343101430233, 'lng': -16.502126008272175}, {'lat': 28.143429831757135, 'lng': -16.50229096412659}, {'lat': 28.144066039169065, 'lng': -16.502446532249454}]]}, {'name': 'LandPoint', 'height': [40, 40], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.144023467787367, 'lng': -16.502486765384678}}, {'name': 'LandPoint', 'height': [40, 40], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.143413276123482, 'lng': -16.50232180953026}}]}, 'from': 2, 'to': None}
-        
-        # 1 UAV
-        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': [self.uav_id_list[0]], 'layers': [
-        #     {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[0]], 'values': {'lat': self.uav_id_list_pos[0][0], 'lng': self.uav_id_list_pos[0][1]}},
-        #     {'name': 'Area', 'height': [height, height], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': streetSpacing, 'wpSpace': wpSpace, 'values': [[{'lat': 28.144056578863484, 'lng': -16.502435803413395}, {'lat': 28.143447569933233, 'lng': -16.50228157639504}, {'lat': 28.143446387388245, 'lng': -16.50212869048119}, {'lat': 28.143523252784828, 'lng': -16.502104550600055}, {'lat': 28.143536260769572, 'lng': -16.501867175102237}, {'lat': 28.143626134075486, 'lng': -16.501852422952656}, {'lat': 28.143654515103783, 'lng': -16.501043736934665}, {'lat': 28.143810610625007, 'lng': -16.501065194606785}, {'lat': 28.144079047087885, 'lng': -16.501353532075886}]]}, 
-        #     {'name': 'LandPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[0]], 'values': {'lat': uav_id_list_last_pos[0][0], 'lng': uav_id_list_last_pos[0][1]}}]},
-        #     'from': 2, 'to': None}
-        
-        # 3 UAVs
-        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': [self.uav_id_list[0], self.uav_id_list[1], self.uav_id_list[2]], 'layers': [
-        #     {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[0]], 'values': {'lat': self.uav_id_list_pos[0][0], 'lng': self.uav_id_list_pos[0][1]}}, 
-        #     {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[1]], 'values': {'lat': self.uav_id_list_pos[1][0], 'lng': self.uav_id_list_pos[1][1]}}, 
-        #     {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[2]], 'values': {'lat': self.uav_id_list_pos[2][0], 'lng': self.uav_id_list_pos[2][1]}},
-        #     {'name': 'Area', 'height': [height, height], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': streetSpacing, 'wpSpace': wpSpace, 'values': [[{'lat': 28.144056578863484, 'lng': -16.502435803413395}, {'lat': 28.143447569933233, 'lng': -16.50228157639504}, {'lat': 28.143446387388245, 'lng': -16.50212869048119}, {'lat': 28.143523252784828, 'lng': -16.502104550600055}, {'lat': 28.143536260769572, 'lng': -16.501867175102237}, {'lat': 28.143626134075486, 'lng': -16.501852422952656}, {'lat': 28.143654515103783, 'lng': -16.501043736934665}, {'lat': 28.143810610625007, 'lng': -16.501065194606785}, {'lat': 28.144079047087885, 'lng': -16.501353532075886}]]}, 
-        #     {'name': 'LandPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[0]], 'values': {'lat': uav_id_list_last_pos[0][0], 'lng': uav_id_list_last_pos[0][1]}}, 
-        #     {'name': 'LandPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[1]], 'values': {'lat': uav_id_list_last_pos[1][0], 'lng': uav_id_list_last_pos[1][1]}},
-        #     {'name': 'LandPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[2]], 'values': {'lat': uav_id_list_last_pos[2][0], 'lng': uav_id_list_last_pos[2][1]}}]},
-        #     'from': 2, 'to': None}
-        
-        # # 4 UAVs
-        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': [self.uav_id_list[0], self.uav_id_list[1], self.uav_id_list[2], self.uav_id_list[3]], 'layers': [
-        #     {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[0]], 'values': {'lat': self.uav_id_list_pos[0][0], 'lng': self.uav_id_list_pos[0][1]}}, 
-        #     {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[1]], 'values': {'lat': self.uav_id_list_pos[1][0], 'lng': self.uav_id_list_pos[1][1]}}, 
-        #     {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[2]], 'values': {'lat': self.uav_id_list_pos[2][0], 'lng': self.uav_id_list_pos[2][1]}}, 
-        #     {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[3]], 'values': {'lat': self.uav_id_list_pos[3][0], 'lng': self.uav_id_list_pos[3][1]}}, 
-        #     {'name': 'Area', 'height': [height, height], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': streetSpacing, 'wpSpace': wpSpace, 'values': [[{'lat': 28.144056578863484, 'lng': -16.502435803413395}, {'lat': 28.143447569933233, 'lng': -16.50228157639504}, {'lat': 28.143446387388245, 'lng': -16.50212869048119}, {'lat': 28.143523252784828, 'lng': -16.502104550600055}, {'lat': 28.143536260769572, 'lng': -16.501867175102237}, {'lat': 28.143626134075486, 'lng': -16.501852422952656}, {'lat': 28.143654515103783, 'lng': -16.501043736934665}, {'lat': 28.143810610625007, 'lng': -16.501065194606785}, {'lat': 28.144079047087885, 'lng': -16.501353532075886}]]}, 
-        #     {'name': 'LandPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[0]], 'values': {'lat': uav_id_list_last_pos[0][0], 'lng': uav_id_list_last_pos[0][1]}}, 
-        #     {'name': 'LandPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[1]], 'values': {'lat': uav_id_list_last_pos[1][0], 'lng': uav_id_list_last_pos[1][1]}},
-        #     {'name': 'LandPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[2]], 'values': {'lat': uav_id_list_last_pos[2][0], 'lng': uav_id_list_last_pos[2][1]}},
-        #     {'name': 'LandPoint', 'height': [3, 3], 'uavList': [self.uav_id_list[3]], 'values': {'lat': uav_id_list_last_pos[3][0], 'lng': uav_id_list_last_pos[3][1]}}]},
-        #     'from': 2, 'to': None}
-        
-        
         
         # self.mission_interpreter(msg)
 
@@ -486,15 +466,19 @@ class AerostackUI():
         for uav in self.uav_id_list:
             odom.append([])
 
+        incr = 0.00000001
         while True:
             if (self.client.connection):
-                incr = 0.0001
+                
                 for idx, uav in enumerate(self.uav_id_list):
 
                     # print(f"Uav List = {self.uav_id_list}")
                     # print(f"UAV = {uav}")
+                    # print(f"Increment = {incr}")
                     # print(f"Index = {idx}")
                     pose = self.uav_id_list_pos[idx]
+                    # pose_base = self.uav_id_list_pos[idx]
+                    # pose = [pose_base[0] + incr, pose_base[1] + incr, pose_base[2] + incr]
                     orientation = [0, 0, 0, 0]
                     info = {
                         'connected': True,
@@ -508,7 +492,7 @@ class AerostackUI():
 
                     odom[idx].append([pose[0], pose[1]])
 
-                    # print(f"Pose: {pose}")
+                    print(f"Pose: {pose}")
                     # print(f"Orientation: {orientation}")
                     # print(f"Info: {info}")
                     # print(f"Odom: {odom[idx]}"")
@@ -518,12 +502,14 @@ class AerostackUI():
                             'id': str(uav),
                             'state': info,
                             'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
-                            # 'odom': odom[idx]
+                            'odom': odom[idx]
                         }
                     )
-                    time.sleep(0.4)
                     incr += incr
-                time.sleep(30)
+                    time.sleep(1)
+                
+                break
+                    
 
 
 if __name__ == '__main__':

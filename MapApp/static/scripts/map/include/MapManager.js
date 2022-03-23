@@ -14,9 +14,11 @@ class ManagerPrototype extends SmartListCallbacks {
         super();
 
         /**
-         * List of colors for each id of the information.
+         * List of colors for each id of the information [border, fill].
          */
         this.colors = [
+            ['#000dff', '#3d47ff'], // Custom blue and purple
+            ['#fc0000', '#fc5858'], // Custom red and orange
             ['#DAE8FC', '#6C8EBF'], // blue
             ['#F8CECC', '#F8CECC'], // red
             ['#D5E8D4', '#82B366'], // green

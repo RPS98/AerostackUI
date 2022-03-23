@@ -61,11 +61,11 @@ class MissionDrawer {
                     this.wayPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
                     break;
                 case 'Area':
-                    this.area.codeDraw(missionId, layer.values[0]);
+                    this.area.codeDraw(missionId, layer.values[0], {'opacity': 0.3});
 
                     for (let j = 0; j < layer.uavList.length; j++) {
                         let uavId_aux = layer.uavList[j];
-                        this.path.codeDraw(layer.uavPath[uavId_aux], { color: M.UAV_MANAGER.getColors(uavId_aux)[1] });
+                        this.path.codeDraw(layer.uavPath[uavId_aux], { color: M.UAV_MANAGER.getColors(uavId_aux)[1], 'opacity': 0.6, 'weight': 4});
                     }
 
                     break;
