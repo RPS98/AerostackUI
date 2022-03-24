@@ -1,5 +1,3 @@
-from drone_interface import DroneInterface
-from turtle import position
 import rclpy
 import threading
 import time
@@ -15,14 +13,16 @@ import sys
 sys.path.append(
     '/home/rafa/aerostack2_ws/src/aerostack2/stack/user_interface/python_interface/python_interface')
 
+from drone_interface import DroneInterface
 
 class UavInterface(DroneInterface):
     info_lock = threading.Lock()
 
     def __init__(self, uav_id, speed):
-        super().__init__()
+        self.drone_interface = super(UavInterface, self)
+        self.drone_interface.__init__(uav_id)
         self.uav_id = uav_id
-        self.drone_interface = DroneInterface(uav_id)
+        # self.drone_interface = DroneInterface(uav_id)
         self.speed = speed
 
     def info_lock_decor(func):
@@ -37,8 +37,8 @@ class UavInterface(DroneInterface):
         orientation = self.drone_interface.get_orientation()
 
         info_collection = {
-            'id': self.drone_interface.get_id(),
-            'state': self.drone_interface.get_info(),
+            'id': self.drone_interface.get_drone_id(),
+            'state': {},  # self.drone_interface.get_info(),
             'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
         }
         return info_collection
@@ -400,7 +400,7 @@ class MissionManager():
 
 
 class AerostackUI():
-    def __init__(self):
+    def __init__(self, uav_id_list):
         # ws://127.0.0.1:8000/ws/user/") #"ws://192.168.30.23:8000/ws/user/")
         self.client = WebSocketClient("ws://127.0.0.1:8000/ws/user/")
 
@@ -411,14 +411,11 @@ class AerostackUI():
         self.client.addMsgCallback(
             'request', 'missionStart', self.start_mission_callback)
 
-        rclpy.init()
-
-        self.uav_id_list = [
-            'drone_sim_rafa_0',
-            'drone_sim_8',
-        ]
+        self.uav_id_list = uav_id_list
 
         self.speed = 6
+
+        self.executor = rclpy.executors.MultiThreadedExecutor()
 
         self.drone_interface = {}
         for uav_id in self.uav_id_list:
@@ -426,7 +423,22 @@ class AerostackUI():
             if uav_id == 'drone_sim_8':
                 self.drone_interface[uav_id] = None
             else:
-                self.drone_interface[uav_id] = UavInterface(uav_id, self.speed)
+                drone_node = UavInterface(uav_id, self.speed)
+                self.executor.add_node(drone_node)
+                self.drone_interface[uav_id] = drone_node
+
+        self.keep_running = True
+        self.spin_thread = threading.Thread(
+            target=self.auto_spin, daemon=False)
+        self.spin_thread.start()
+
+        # executor_thread = threading.Thread(target=executor.spin, daemon=True)
+        # executor_thread.start()
+
+        self.uav_id_list_pos = [
+            [28.1439717, -16.5032634, 0.0],
+            [28.1438840, -16.5032570, 0.0],
+        ]
 
         time.sleep(1)
 
@@ -435,15 +447,16 @@ class AerostackUI():
 
         # self.fake_mission()
 
+    def auto_spin(self):
+        while rclpy.ok() and self.keep_running:
+            # rclpy.spin_once(self)
+            self.executor.spin()
+            time.sleep(0.1)
+
     def fake_mission(self):
         uav_id_mission = [
             'drone_sim_rafa_0',
             'drone_sim_8',
-        ]
-
-        uav_id_list_pos = [
-            [28.1439717, -16.5032634, 0.0],
-            [28.1438840, -16.5032570, 0.0],
         ]
 
         uav_id_list_last_pos = [
@@ -533,48 +546,56 @@ class AerostackUI():
         for uav in self.uav_id_list:
             odom[uav] = []
 
-        while rclpy.ok():
-            if (self.client.connection):
+        while self.client.connection:
 
-                for idx, uav in enumerate(self.uav_id_list):
-                    drone_interface = self.drone_interface[uav]
+            for idx, uav in enumerate(self.uav_id_list):
+                drone_interface_i = self.drone_interface[uav]
 
-                    if drone_interface == None:
-                        pose = self.uav_id_list_pos[idx]
-                        odom[uav].append([pose[0], pose[1]])
+                if drone_interface_i == None:
+                    pose = self.uav_id_list_pos[idx]
 
-                        orientation = [0, 0, 0, 0]
-                        info = {
-                            'connected': True,
-                            'armed': True,
-                            'offboard': True,
-                            'state': 'hovering',
-                            'yaw_mode': 'rate',
-                            'control_mode': 'position',
-                            'reference_frame': 'world',
-                        }
+                    orientation = [0, 0, 0, 0]
+                    info = {
+                        'connected': True,
+                        'armed': True,
+                        'offboard': True,
+                        'state': 'hovering',
+                        'yaw_mode': 'rate',
+                        'control_mode': 'position',
+                        'reference_frame': 'world',
+                    }
 
-                        send_info = {
-                            'id': str(uav),
-                            'state': info,
-                            'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
-                            'odom': odom
-                        }
+                    send_info = {
+                        'id': str(uav),
+                        'state': info,
+                        'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
+                        'odom': odom[uav]
+                    }
 
-                    else:
+                else:
 
-                        send_info = drone_interface.get_info()
-                        send_info['odom'] = odom[uav]
+                    send_info = drone_interface_i.get_info()
+                    # print(f"Send info for {uav}")
+                    # print(send_info)
 
-                    self.client.send_uav_info(send_info)
+                odom[uav].append(
+                    [send_info['pose']['lat'], send_info['pose']['lng']])
+                send_info['odom'] = odom[uav]
 
-                time.sleep(0.1)
-            else:
-                print("Conecction lost")
-                time.sleep(1)
+                self.client.send_uav_info(send_info)
+
+            time.sleep(1)
+            # else:
+            #     print("Conecction lost")
+            #     time.sleep(1)
 
         self.get_info_thread.join()
 
 
 if __name__ == '__main__':
-    aerostackUI = AerostackUI()
+    rclpy.init()
+    uav_list = [
+        'drone_sim_rafa_0',
+        'drone_sim_rafa_1',
+    ]
+    aerostackUI = AerostackUI(uav_list)
