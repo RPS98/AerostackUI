@@ -420,12 +420,12 @@ class AerostackUI():
         self.drone_interface = {}
         for uav_id in self.uav_id_list:
             # self.drone_interface[uav_id] = DroneInterface(uav_id)
-            if uav_id == 'drone_sim_8':
-                self.drone_interface[uav_id] = None
-            else:
-                drone_node = UavInterface(uav_id, self.speed)
-                self.executor.add_node(drone_node)
-                self.drone_interface[uav_id] = drone_node
+            # if uav_id == 'drone_sim_8':
+            #     self.drone_interface[uav_id] = None
+            # else:
+            drone_node = UavInterface(uav_id, self.speed)
+            self.executor.add_node(drone_node)
+            self.drone_interface[uav_id] = drone_node
 
         self.keep_running = True
         self.spin_thread = threading.Thread(
@@ -440,7 +440,7 @@ class AerostackUI():
             [28.1438840, -16.5032570, 0.0],
         ]
 
-        time.sleep(1)
+        time.sleep(3)
 
         self.get_info_thread = threading.Thread(target=self.run)
         self.get_info_thread.start()
@@ -479,16 +479,9 @@ class AerostackUI():
         # for index, uav in enumerate(uav_id_mission):
         #     msg['payload']['layers'].append({'name': 'LandPoint', 'height': [3, 3], 'uavList': [uav], 'values': {'lat': uav_id_list_last_pos[index][0], 'lng': uav_id_list_last_pos[index][1]}})
 
-        msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_8'], 'layers': [
-            {'name': 'TakeOffPoint', 'height': [4, 4], 'uavList': [
-                'drone_sim_rafa_0'], 'values': {'lat': 28.1439706, 'lng': -16.5032131}},
-            {'name': 'TakeOffPoint', 'height': [4, 4], 'uavList': [
-                'drone_sim_8'], 'values': {'lat': 28.1438831, 'lng': -16.5032585}},
-            {'name': 'Area', 'height': [10, 10], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': 6, 'wpSpace': 1, 'values': [[{'lat': 28.144008094784244, 'lng': -16.503204926848415}, {
-                'lat': 28.14367402705637, 'lng': -16.5031123906374}, {'lat': 28.14368171358218, 'lng': -16.502493470907215}, {'lat': 28.144013416208654, 'lng': -16.50259338319302}]]},
-            {'name': 'LandPoint', 'height': [4, 4], 'uavList': [
-                'drone_sim_rafa_0'], 'values': {'lat': 28.1439706, 'lng': -16.5032131}},
-            {'name': 'LandPoint', 'height': [4, 4], 'uavList': ['drone_sim_8'], 'values': {'lat': 28.143790507426715, 'lng': -16.503251865506176}}]}, 'from': 2, 'to': None}
+        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_8'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.1439711, 'lng': -16.5032646}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_8'], 'values': {'lat': 28.1439709, 'lng': -16.503213}}, {'name': 'Area', 'height': [10, 10], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': 5, 'wpSpace': 1, 'values': [[{'lat': 28.144008094784244, 'lng': -16.503208279609684}, {'lat': 28.143668705615095, 'lng': -16.503123790025715}, {'lat': 28.143676983412508, 'lng': -16.502502858638767}, {'lat': 28.144027015403147, 'lng': -16.5025806427002}]]}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.1439711, 'lng': -16.5032646}}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_8'], 'values': {'lat': 28.143680531039788, 'lng': -16.50316268205643}}]}, 'from': 3, 'to': None}
+
+        msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_rafa_1'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.1439711, 'lng': -16.5032644}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.1439711, 'lng': -16.5032645}}, {'name': 'Area', 'height': [10, 10], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': 4, 'wpSpace': 1, 'values': [[{'lat': 28.14400572970666, 'lng': -16.503208279609684}, {'lat': 28.143673435785125, 'lng': -16.503118425607685}, {'lat': 28.143685261209285, 'lng': -16.5024907886982}, {'lat': 28.14401519001672, 'lng': -16.502592712640766}]]}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.143902848780623, 'lng': -16.503228396177295}}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.143673435785125, 'lng': -16.503165364265445}}]}, 'from': 2, 'to': None}
 
         time.sleep(3)
         self.mission_confirm_callback(msg)
@@ -507,7 +500,7 @@ class AerostackUI():
         if confirm_msg['status'] == 'confirmed':
             # self.mission_planner(self.client.mission_id, confirm, msg['payload'])
 
-            mission_planner_msg = self.mission_planner(
+            mission_planner_msg = self.mission_manager.mission_planner(
                 str(confirm_msg['id']),
                 msg['payload']
             )
@@ -521,7 +514,7 @@ class AerostackUI():
         print(msg)
 
         mission_id = str(msg['payload']['id'])
-        mission_list = self.mission_list[mission_id]
+        mission_list = self.mission_manager.mission_list[mission_id]
 
         print("- Start mission ", mission_id)
         self.thread_uav = {}
@@ -535,7 +528,7 @@ class AerostackUI():
             self.thread_uav[uav] = None
             mission_for_uav = mission_list[uav]
 
-            self.thread_uav[uav] = threading.Thread(target=self.drone_interface.run_uav_mission, args=[
+            self.thread_uav[uav] = threading.Thread(target=drone_interface.run_uav_mission, args=[
                                                     mission_for_uav, self.thread_uav[uav]])
             self.thread_uav[uav].start()
 
@@ -582,7 +575,14 @@ class AerostackUI():
                     [send_info['pose']['lat'], send_info['pose']['lng']])
                 send_info['odom'] = odom[uav]
 
-                self.client.send_uav_info(send_info)
+                pose_fail = {'lat': 0.0, 'lng': 0.0}
+                
+                if send_info['pose']['lat'] != pose_fail['lat'] or send_info['pose']['lng'] != pose_fail['lng']:
+                    self.client.send_uav_info(send_info)
+                else:
+                    print("Error sending info for ", uav)
+                    print(send_info['pose'])
+                    odom[uav] = []
 
             time.sleep(1)
             # else:
@@ -594,8 +594,12 @@ class AerostackUI():
 
 if __name__ == '__main__':
     rclpy.init()
+    # uav_list = [
+    #     'drone_sim_rafa_0',
+    #     'drone_sim_8',
+    # ]
     uav_list = [
         'drone_sim_rafa_0',
-        'drone_sim_rafa_1',
+        # 'drone_sim_rafa_1',
     ]
     aerostackUI = AerostackUI(uav_list)

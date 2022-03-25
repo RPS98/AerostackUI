@@ -35,6 +35,7 @@ class RepublishNode(Node):
 class RepublishManager():
     def __init__(self, topics_list):
         self.executor = rclpy.executors.MultiThreadedExecutor()
+        
         self.node_list = []
         for topic in topics_list:
             node = RepublishNode(topic[0], topic[1], topic[2])
@@ -42,8 +43,8 @@ class RepublishManager():
             self.executor.add_node(node)
 
         self.keep_running = True
-        spin_thread = threading.Thread(target=self.auto_spin, daemon=False)
-        spin_thread.start()
+        self.spin_thread = threading.Thread(target=self.auto_spin, daemon=False)
+        self.spin_thread.start()
 
     def auto_spin(self):
         while rclpy.ok() and self.keep_running:
@@ -56,6 +57,7 @@ class RepublishManager():
         for node in self.node_list:
             node.shutdown()
         self.keep_running = False
+        self.spin_thread.join()
         rclpy.shutdown()
         print("Clean exit")
 

@@ -206,6 +206,8 @@ class MissionPlanner {
             }
         }
 
+        let selectedUavListTakeOff = Object.assign([], selectedUavList);
+
         if (selectedUavList.length == 0) {
             console.log("No UAV selected");
             info.push("No UAV selected");
@@ -237,14 +239,14 @@ class MissionPlanner {
                 'uavList': [],
             }
 
-            console.log("Name: " + name);
+            // console.log("Name: " + name);
 
             // Manage UAV list and others options
             switch (name) {
                 case 'TakeOffPoint':
                     let takeOffPosition = layer.getLatLng();
-                    for (let j=0; j<selectedUavList.length; j++) {
-                        let pose = M.UAV_MANAGER.getDictById(selectedUavList[j]).pose;
+                    for (let j=0; j<selectedUavListTakeOff.length; j++) {
+                        let pose = M.UAV_MANAGER.getDictById(selectedUavListTakeOff[j]).pose;
                         let distance = Utils.distance(
                             takeOffPosition.lat, 
                             takeOffPosition.lng, 
@@ -253,7 +255,8 @@ class MissionPlanner {
                         );
 
                         if (distance < minDistance) {
-                            missionLayer['uavList'].push(selectedUavList[j]);
+                            missionLayer['uavList'].push(selectedUavListTakeOff[j]);
+                            selectedUavListTakeOff.splice(j, 1);
                             break;
                         }
                     }
@@ -278,10 +281,10 @@ class MissionPlanner {
                             info.push(`${name} layer has error with UAV selected. Auto option is not allowed with multiple UAVs`);
                         }
                     } else {
-                        console.log("selection in selectedUavList")
-                        console.log(selection);
-                        console.log(selectedUavList);
-                        console.log(selectedUavList.includes(selection));
+                        // console.log("selection in selectedUavList")
+                        // console.log(selection);
+                        // console.log(selectedUavList);
+                        // console.log(selectedUavList.includes(selection));
                         if (selectedUavList.includes(selection)) {
                             missionLayer['uavList'].push(selection);
                         } else {
@@ -412,6 +415,9 @@ class MissionPlanner {
 
 
         if (validation) {
+            console.log('mission is valid');
+            console.log(uavList);
+            console.log(mission);
             M.WS.sendRequestMissionConfirm(
                 this.selectedMission,
                 uavList,
