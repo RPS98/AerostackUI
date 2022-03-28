@@ -18,6 +18,8 @@ class AerostackUI():
             'request', 'missionConfirm', self.new_mission_callback)
         self.client.addMsgCallback(
             'request', 'missionStart', self.start_mission_callback)
+        self.client.addMsgCallback(
+            'info', 'missionInfo', self.add_mission_callback)
 
         # self.drone_id = "drone_sim_rafa_0"  # "drone_sim_14"
         
@@ -28,8 +30,9 @@ class AerostackUI():
         self.speed = 2
         
         self.uav_id_list = [
-            'drone_sim_8',
-            'drone_sim_rafa_0',
+            'M300',
+            # 'drone_sim_8',
+            # 'drone_sim_rafa_0',
         ]
         
         uav_id_mission = [
@@ -165,6 +168,32 @@ class AerostackUI():
                         #     self.drone_interface.follow_gps_wp([waypoint], self.speed)
         """
 
+    
+    def add_mission_callback(self, msg, args):
+        print("AerostackUI - Add mission")
+        print(msg)
+        print(args)
+        mission = msg['payload']
+        
+        id = mission['id']
+        uavList = mission['uavList']
+        status = mission['status']
+        layers = mission['layers']
+        
+        for uav in uavList:
+            if uav not in self.uav_id_list:
+                print("Error: UAV not in list")
+                return
+        mission_layer = []
+        for layer in layers:
+            if (layer['type'] != 'Area'):
+                mission_layer.append(layer)
+        
+        mission['layer'] = mission_layer
+             
+        self.mission_planner(id, status, mission)
+        
+        
     def swarm_planning(self, uavList, initial_position, last_position, height, values, algorithm, streetSpacing, wpSpace):
 
         zone = None

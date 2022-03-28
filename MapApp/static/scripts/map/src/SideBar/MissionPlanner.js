@@ -65,7 +65,6 @@ class MissionPlanner {
         let heightBtn = HTMLUtils.addDict('button', `${this.htmlId}-heightBtn`, { 'class': 'btn btn-primary' }, 'Set Height (m)');
         let heightRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [heightInput, heightBtn], { 'class': 'col-md-6' });
         mPlannerList.push(heightRow);
-        
 
         let heightInputMin = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMin`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Min');
         let heightInputMax = HTMLUtils.addDict('input', `${this.htmlId}-heightInputMax`, { 'class': 'form-control', 'required': 'required', }, 'text', 'Max');
@@ -96,8 +95,12 @@ class MissionPlanner {
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-land`, { 'class': 'btn btn-primary', }, `Land point <i class="fas fa-h-square"></i>`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-remove`, { 'class': 'btn btn-warning' }, 'Remove all draw'));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-save`, { 'class': 'btn btn-success' }, 'Save Mission in file'));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-load`, { 'class': 'btn btn-success' }, 'Load Mission from file'));
+
+        // splitBtn.push(HTMLUtils.addToExistingElement(`${this.htmlId}`, [HTMLUtils.addDict('fileInput', `${this.htmlId}-missionFile`, {}, 'Choose Mission File', '')]));
+
         mPlannerList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtn, { 'class': 'row m-1' }));
+
+        mPlannerList.push(HTMLUtils.addDict('fileInput', `${this.htmlId}-missionFile`, {}, 'Choose Mission File', ''));
 
         // Planner collapse
         let missionPlannerCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-PlannerCollapse`, {}, 'Planner', true, mPlannerList);
@@ -130,6 +133,10 @@ class MissionPlanner {
         Utils.addButtonCallback(`${this.htmlId}-land`, this.userDrawCallbacks.bind(this), [this.landPoint]);
 
         Utils.addButtonCallback(`${this.htmlId}-remove`, DrawController.drawRemoveAll, []);
+        Utils.addButtonCallback(`${this.htmlId}-save`, this.saveMissionCallback.bind(this));
+        // Utils.addButtonCallback(`${this.htmlId}-load`, this.loadMission.bind(this));
+
+        Utils.addFileCallback(`${this.htmlId}-missionFile`, this.loadMissionCallback.bind(this));
 
         // add listener to reset draw when press ESC key
         document.addEventListener('keydown', function (e) {
@@ -179,7 +186,6 @@ class MissionPlanner {
 
         // Buttons for confirm mission
         let splitBtnConfirm = [];
-        //push(HTMLUtils.addDict('button', `${this.htmlId}-SaveMission`, { 'class': 'btn btn-primary' }, 'Save Mission'));
         splitBtnConfirm.push(HTMLUtils.addDict('button', `${this.htmlId}-confirm`, { 'class': 'btn btn-success', disabled: true }, 'Confirm mission'));
         mConfirmList.push(HTMLUtils.addDict('splitDivs', 'none', {}, splitBtnConfirm, { 'class': 'row m-1' }));
 
@@ -426,6 +432,7 @@ class MissionPlanner {
         } else {
             console.log("Mission validation failed");
             console.log(info);
+            alert(info.join('\n'));
         }
     }
 
@@ -465,6 +472,96 @@ class MissionPlanner {
             }
         }
     }
+
+    saveMissionCallback(args) {
+        console.log("save mission");
+        console.log(args);
+
+        let drawLayers = M.DRAW_LAYERS.getList();
+
+        let saveInfo = {}
+        for (let i=0; i<drawLayers.length; i++) {
+            let id = drawLayers[i];
+            let info = {};
+            let layer = M.DRAW_LAYERS.getDictById(drawLayers[i]);
+
+            let drawManager = layer.drawManager;
+
+            info['name'] = drawManager.name;
+            info['type'] = drawManager.type;
+            info['drawUserOptions'] = drawManager.drawUserOptions;
+
+            saveInfo[id] = info;
+        }
+
+        if (Object.keys(saveInfo).length > 0) {
+            Utils.download(`DrawMission.txt`, saveInfo);
+        }
+    }
+
+    loadMissionCallback(args, input) {
+        let fileToLoad = input.target.files[0];
+        Utils.loadFile(fileToLoad, this.loadMissionFileCallback.bind(this), 'json', fileToLoad.name.split('.')[0]);
+    }
+
+    loadMissionFileCallback(data, myargs) {
+
+        let input = document.getElementById(`${this.htmlId}-missionFile`);
+        input.value = '';
+
+        console.log("TODO: Load mission file");
+        console.log(data)
+
+        for (let i=0; i<Object.keys(data).length; i++) {
+            let id = Object.keys(data)[i];
+            let info = data[id];
+
+            switch (info['type']) {
+                case 'Marker':
+                    switch (info['name']) {
+                        case 'TakeOffPoint':
+                            break;
+                        case 'LandPoint':
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 'Line':
+                    break;
+                case 'Polygon':
+                    break;
+                default:
+                    break;
+        }
+
+        /*
+        let id = myargs;
+        let missionList = M.MISSION_MANAGER.getList();
+        let cont = 0;
+        while (missionList.includes(id)) {
+            id = `${myargs}-${cont}`;
+            cont++;
+        }
+
+        data.id = id;
+
+        let uavList = M.UAV_MANAGER.getList();
+        let missionUavList = data.uavList;
+
+        for (let i = 0; i < missionUavList.length; i++) {
+            let uavId = missionUavList[i];
+            if (!uavList.includes(uavId)) {
+                alert(`UAV ${uavId} from file ${myargs} is not connected`);
+                return;
+            }
+        }
+
+        M.WS.sendConfirmedMission(data);
+        */
+    } 
+
+    
 
     // #endregion
 

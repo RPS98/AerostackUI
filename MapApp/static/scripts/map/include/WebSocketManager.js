@@ -129,7 +129,7 @@ class WebSocketManager {
      * @return {void}
      * @access public
      */
-    sendRequest(header, payload = {}, to = null) {
+    sendRequest(header, payload = {}, to = 'broadcast') {
         this._send({
             'type': 'request',
             'header': header,
@@ -192,7 +192,53 @@ class WebSocketManager {
         );
     }
 
+    
+
     // #endregion
+
+    sendInfo(header, payload = {}, to = 'broadcast') {
+        this._send({
+            'type': 'info',
+            'header': header,
+            'payload': payload
+        }, to);
+    }
+
+    sendConfirmedMission(missionData) {
+        this.sendInfo(
+            'missionInfo',
+            missionData,
+            'broadcast'
+        );
+
+        let msg = {
+            'message': {
+                'type': 'info',
+                'header': 'missionInfo',
+                'payload': missionData
+            }
+        }
+
+        this._onMessage({'data': JSON.stringify(msg)});
+    }
+
+    sendUavInfo(uavData) {
+        this.sendInfo(
+            'uavInfo',
+            uavData,
+            'broadcast'
+        );
+
+        let msg = {
+            'message': {
+                'type': 'info',
+                'header': 'uavInfo',
+                'payload': uavData
+            }
+        }
+
+        this._onMessage({'data': JSON.stringify(msg)});
+    }
 
     // #endregion
 
@@ -265,8 +311,8 @@ class WebSocketManager {
         // Get json message
         let msg = JSON.parse(webSocket.data).message;
 
-        // console.log("Message received");
-        // console.log(msg);
+        console.log("Message received");
+        console.log(msg);
 
         for (let i = 0; i < this._callbacksList.length; i++) {
             if (this._callbacksList[i].type == msg.type && this._callbacksList[i].header == msg.header) {

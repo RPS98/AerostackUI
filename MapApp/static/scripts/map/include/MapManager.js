@@ -253,6 +253,38 @@ class DrawLayers extends SmartListCallbacks {
     // #endregion
 }
 
+class UavManager extends ManagerPrototype {
+
+    /**
+     * Create a new instance of the class ManagerPrototype.
+     * @param {string} infoAdd - Name of the header of the info message that will be received from server when a parameter is add/modified.
+     * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
+     * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
+     **/
+    constructor(infoAdd, infoSet, infoGet) {
+        super(infoAdd, infoSet, infoGet);
+    }
+
+    // #region Public methods
+
+    addVirtualUav(id, state, pose) {
+
+        let uavInfo = {
+            'id': id,
+            'state': state,
+            'pose': pose
+        }
+
+        if (!super.getList().includes(uavInfo.id)) {
+            super.addObject(uavInfo.id, uavInfo);
+        } else {
+            super.updateObject(uavInfo.id, uavInfo, false);
+        }
+    }
+
+    // #endregion
+}
+
 /**
  * Mission Manager that extends the ManagerPrototype to manage confirm and reject mission messages.
  */
@@ -415,7 +447,7 @@ class MapManager {
      * @access public
      */
     initialize() {
-        this.UAV_MANAGER = new ManagerPrototype('uavInfo', 'uavInfoSet', 'getUavList');
+        this.UAV_MANAGER = new UavManager('uavInfo', 'uavInfoSet', 'getUavList');
         this.MISSION_MANAGER = new MissionManager('missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
         this.DRAW_LAYERS = new DrawLayers();
 

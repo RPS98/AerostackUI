@@ -90,7 +90,22 @@ class Area extends Polygon
         let wpSpaceBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [wpSpaceBtn]);
         endHtml.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [wpSpaceDiv, wpSpaceBtnDiv]));
 
-        return super.drawInfoAdd(htmlId, info, name, undefined, endHtml, 'checkbox');
+        let verticalOverlap = HTMLUtils.addDict('input', `${id}-verticalOverlap`, { 'class': 'form-control', 'required': 'required', 'value': 1}, 'number', 'Value');
+        let verticalOverlapBtn = HTMLUtils.addDict('button', `${id}-verticalOverlapBtn`, { 'class': 'btn btn-primary' }, 'Set vertical overlap (%)');
+        let verticalOverlapDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [verticalOverlap]);
+        let verticalOverlapBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [verticalOverlapBtn]);
+        endHtml.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [verticalOverlapDiv, verticalOverlapBtnDiv]));
+
+        let horizontalOverlap = HTMLUtils.addDict('input', `${id}-horizontalOverlap`, { 'class': 'form-control', 'required': 'required', 'value': 1}, 'number', 'Value');
+        let horizontalOverlapBtn = HTMLUtils.addDict('button', `${id}-horizontalOverlapBtn`, { 'class': 'btn btn-primary' }, 'Set horizontal overlap (%)');
+        let horizontalOverlapDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [horizontalOverlap]);
+        let horizontalOverlapBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [horizontalOverlapBtn]);
+        endHtml.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [horizontalOverlapDiv, horizontalOverlapBtnDiv]));
+        
+
+        let swarmPlannerCollapse = HTMLUtils.addDict('collapse', `${this.htmlId}-SwarmCollapse`, {}, 'Planner', true, endHtml);
+
+        return super.drawInfoAdd(htmlId, info, name, undefined, swarmPlannerCollapse, 'checkbox');
     }
 
     drawInfoInitialize(id, info) {

@@ -109,14 +109,19 @@ class DrawManager {
         }
     }
 
-    drawInfoGetHtml(id, info, initialHtml = [], endHtml = [], uavPickerType = 'none') {
+    drawInfoGetHtml(id, info, initialHtml = [], endHtml = [], uavPickerType = 'none') {        
+
         initialHtml.push(this._drawInfoGetValues(id));
         initialHtml.push(this._drawInfoGetHeight(id, info));
-        initialHtml.push(endHtml);
+
+        let htmlBody = [];
+        htmlBody.push(HTMLUtils.addDict('collapse', `${id}-ValuesCollapse`, {}, 'Modify', false, initialHtml));
+
+        htmlBody.push(endHtml);
         if (uavPickerType != 'none') {
-            initialHtml.push(this._drawInfoGetUavPicker(id, info, uavPickerType));
+            htmlBody.push(this._drawInfoGetUavPicker(id, info, uavPickerType));
         }
-        return initialHtml;
+        return htmlBody;
     }
 
     drawInfoInitialize(id, info) {

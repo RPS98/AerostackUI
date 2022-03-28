@@ -5,6 +5,15 @@ class MissionController
         this.htmlId = 'sideBar-left-missionController-content';
         this.initialized = false;
         M.MISSION_MANAGER.addInfoAddCallback(this.updateMissionListCallback.bind(this));
+
+        this.initializedLoad();
+    }
+
+    initializedLoad() {
+        HTMLUtils.addToExistingElement(`${this.htmlId}`, [HTMLUtils.addDict('fileInput', `${this.htmlId}-missionFile`, {}, 'Choose Mission File', '')]);
+        Utils.addFileCallback(`${this.htmlId}-missionFile`, this.loadMissionCallback.bind(this));
+        // HTMLUtils.addToExistingElement(`${this.htmlId}`, [HTMLUtils.addDict('button', `${this.htmlId}-LoadMission`, { 'class': 'btn btn-primary' }, 'Load Mission')]);
+        // Utils.addButtonCallback(`${this.htmlId}-LoadMission`, this.loadMissionCallback.bind(this), []);
     }
 
     addHTML() {
@@ -75,10 +84,6 @@ class MissionController
         console.log(`Edit mission ${this.selectedMissionId}`);
     }
 
-    saveMissionCallback(args) {
-        console.log(`Save mission ${this.selectedMissionId}`);
-    }
-
     centerMissionCallback(args) {
         console.log(`Center mission ${this.selectedMissionId}`);
     }
@@ -89,5 +94,54 @@ class MissionController
 
     endMissionCallback(args) {
         console.log(`End mission ${this.selectedMissionId}`);
+    }
+
+    saveMissionCallback(myargs, args) {
+        console.log('Save mission');
+
+        let missionId = this.selectedMissionId;
+        let missionDict = M.MISSION_MANAGER.getDictById(missionId);
+
+        console.log(missionId);
+        console.log(missionDict);
+
+        Utils.download(`Mission-${missionId}.txt`, missionDict);
+    }
+
+    loadMissionCallback(args, input) {
+        let fileToLoad = input.target.files[0];
+        Utils.loadFile(fileToLoad, this.loadMissionFileCallback.bind(this), 'json', fileToLoad.name.split('.')[0]);
+    }
+
+    loadMissionFileCallback(data, myargs) {
+
+        let input = document.getElementById(`${this.htmlId}-missionFile`);
+        input.value = '';
+
+        console.log("TODO: Load mission file");
+        console.log(data)
+        console.log(myargs)
+        let id = myargs;
+        let missionList = M.MISSION_MANAGER.getList();
+        let cont = 0;
+        while (missionList.includes(id)) {
+            id = `${myargs}-${cont}`;
+            cont++;
+        }
+
+        data.id = id;
+
+        let uavList = M.UAV_MANAGER.getList();
+        let missionUavList = data.uavList;
+
+        for (let i = 0; i < missionUavList.length; i++) {
+            let uavId = missionUavList[i];
+            if (!uavList.includes(uavId)) {
+                alert(`UAV ${uavId} from file ${myargs} is not connected`);
+                return;
+            }
+        }
+
+        M.WS.sendConfirmedMission(data);
     }
 }

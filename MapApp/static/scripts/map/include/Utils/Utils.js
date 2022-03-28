@@ -256,7 +256,12 @@ class Utils {
                 // for each input elemenet, get the value
                 let inputs = [];
                 for (let i = 0; i < inputs_id.length; i++) {
-                    inputs[names_id[i]] = parseFloat(document.getElementById(inputs_id[i]).value);
+                    let element = document.getElementById(inputs_id[i]);
+                    let value = element.value;
+                    if (element.type == 'number') {
+                        value = parseFloat(value);
+                    }
+                    inputs[names_id[i]] = value
                 }
 
                 // call the callback
@@ -276,7 +281,7 @@ class Utils {
                 e.preventDefault();
 
                 // call the button callback
-                callback(args, e.target.files[0]);
+                callback(args, e);
             });
         } else {
             console.log("Warning: Utils.addFileCallback - button not found");
@@ -348,6 +353,54 @@ class Utils {
         let x = x2 - x1;
         let y = y2 - y1;
         return Math.sqrt(x * x + y * y);
+    }
+
+    static download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(text)));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    static loadFile(file, callback, type="text", ...args) {
+
+        var fileReader = new FileReader();
+        fileReader.onload = function(fileLoadedEvent){
+            var dataFromFileLoaded = fileLoadedEvent.target.result;
+            switch (type) {
+                case 'json':
+                    callback(JSON.parse(dataFromFileLoaded), ...args);
+                    break;
+                default:
+                    callback(dataFromFileLoaded, args);
+                    break;
+            }
+            
+        };
+
+        switch (type) {
+            case 'text':
+                fileReader.readAsText(file, "UTF-8");
+                break;
+            case 'json':
+                fileReader.readAsText(file, "UTF-8");
+                break;
+            case 'arraybuffer':
+                fileReader.readAsArrayBuffer(file);
+                break;
+            case 'binary':
+                fileReader.readAsBinaryString(file);
+                break;
+            default:
+                fileReader.readAsText(file, "UTF-8");
+                break;
+        }
     }
 }
 
@@ -559,7 +612,7 @@ class SmartListCallbacks extends SmartList {
 
         let oldInfo = Object.assign({}, this.getDictById(id));
         let newInfo = Object.assign({}, objectInfo);
-        
+
         if (override) {
             super.addObject(id, objectInfo);
             Utils.callCallbacks(this._infoChangeCallbacks, id);
@@ -568,7 +621,7 @@ class SmartListCallbacks extends SmartList {
             Utils.callCallbacks(this._infoChangeCallbacks, id);
         }
 
-        
+
 
         for (let key in newInfo) {
             if (key in oldInfo) {

@@ -86,7 +86,7 @@ class ImageOVerlay {
     }
 
     addImageUrlCallback(args, input) {
-        this.imgUrl = '/static/scripts/map/img/' + input.name;
+        this.imgUrl = '/static/scripts/map/img/' + input.target.files[0].name;
         // TODO: Get absolute path
     }
 
