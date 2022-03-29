@@ -179,10 +179,10 @@ class DrawLayers extends SmartListCallbacks {
         let value = info[1];
         
         if (flag) {
-            // console.log("DrawLayers: _onLayerAdd")
-            value.drawManager.id = this._id;
+            // console.log("DrawLayers: _onLayerAdd");
+            value.drawManager.options.id = this._id;
             value.id = this._id;
-            super.addObject(value.drawManager.id, value);
+            super.addObject(value.id, value);
             this._id++;
 
             // Add callback to the layer change

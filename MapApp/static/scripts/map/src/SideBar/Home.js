@@ -9,8 +9,6 @@ class Home {
 
         this.addHTML();
         this.addCallbacks();
-
-        console.log(document.getElementById(`${this.htmlId}-virtualName`).value);
     }
 
     addHTML() {

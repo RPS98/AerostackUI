@@ -54,7 +54,7 @@ class DrawManager {
                 break;
             case 'Polygon':
                 console.log("Drawing polygon");
-                console.log(values);
+                console.log(drawOption);
                 draw = L.polygon(values, drawOption);
                 break;
             default:
