@@ -14,11 +14,12 @@ class MissionDrawer {
     }
 
     addDrawTypes() {
-        this.path = new Path({ 'opacity': 0.7 });
-        this.landPoint = new LandPoint();
-        this.takeOffPoint = new TakeOffPoint();
-        this.wayPoint = new WayPoint();
-        this.area = new Area();
+        let status = 'confirmed';
+        this.path = new Path(status, undefined, { 'opacity': 0.6, 'weight': 4 });
+        this.landPoint = new LandPoint(status);
+        this.takeOffPoint = new TakeOffPoint(status);
+        this.wayPoint = new WayPoint(status);
+        this.area = new Area(status);
     }
 
     missionConfirmCallback(myargs, args) {
@@ -52,7 +53,7 @@ class MissionDrawer {
                     this.takeOffPoint.codeDraw(uavId, [layer.values['lat'], layer.values['lng']]);
                     break;
                 case 'Path':
-                    this.path.codeDraw(layer.values, { color: M.UAV_MANAGER.getColors(uavId)[1] });
+                    this.path.codeDraw(layer.values, undefined, { color: M.UAV_MANAGER.getColors(uavId)[1] });
                     break;
                 case 'LandPoint':
                     this.landPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
@@ -61,11 +62,11 @@ class MissionDrawer {
                     this.wayPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
                     break;
                 case 'Area':
-                    this.area.codeDraw(missionId, layer.values[0], {'opacity': 0.3});
+                    this.area.codeDraw(missionId, layer.values[0], undefined, {'opacity': 0.3});
 
                     for (let j = 0; j < layer.uavList.length; j++) {
                         let uavId_aux = layer.uavList[j];
-                        this.path.codeDraw(layer.uavPath[uavId_aux], { color: M.UAV_MANAGER.getColors(uavId_aux)[1], 'opacity': 0.6, 'weight': 4});
+                        this.path.codeDraw(layer.uavPath[uavId_aux], undefined, { color: M.UAV_MANAGER.getColors(uavId_aux)[1]});
                     }
 
                     break;

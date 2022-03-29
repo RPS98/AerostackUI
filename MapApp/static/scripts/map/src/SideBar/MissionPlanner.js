@@ -25,29 +25,23 @@ class MissionPlanner {
 
     // #region Planner
     addDrawTypes() {
+        let status = 'draw';
+
         let fillColor = '#b3b3b3';
         let borderColor = '#7f7f7f';
+        this.pointOfInterest = new PointOfInterest(status, fillColor, borderColor);
+        this.wayPoint = new WayPoint(status, fillColor, borderColor);
+        this.landPoint = new LandPoint(status, fillColor, borderColor);
+        this.takeOffPoint = new TakeOffPoint(status, fillColor, borderColor);
+
         let drawDefaultColor = '#B3B3B3';
+        let userDrawOptions = Object.assign({}, {'color': drawDefaultColor});
 
-        let userDrawOptions = {
-            'missionPlanner': true,
-        };
+        this.path = new Path(status, undefined, userDrawOptions);
+        this.area = new Area(status, undefined, userDrawOptions);
+        this.carea = new CircularArea(status, undefined, userDrawOptions);
 
-        this.pointOfInterest = new PointOfInterest(fillColor, borderColor, userDrawOptions);
-        this.wayPoint = new WayPoint(fillColor, borderColor, userDrawOptions);
-
-        let userDrawOptionsMerged =
-            Object.assign({}, userDrawOptions, {
-                'color': drawDefaultColor,
-            }
-            );
-
-        this.path = new Path(userDrawOptionsMerged);
-        this.area = new Area(userDrawOptionsMerged);
-        this.carea = new CircularArea(userDrawOptionsMerged);
-
-        this.landPoint = new LandPoint(fillColor, borderColor, userDrawOptions);
-        this.takeOffPoint = new TakeOffPoint(fillColor, borderColor, userDrawOptions);
+        
     }
 
     addPlannerHTML() {
@@ -58,7 +52,7 @@ class MissionPlanner {
         let speedBtn = HTMLUtils.addDict('button', `${this.htmlId}-speedBtn`, { 'class': 'btn btn-primary' }, 'Set Speed (m/s)');
         let speedRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [speedInput, speedBtn], { 'class': 'col-md-6' });
         mPlannerList.push(speedRow);
-        
+
 
         // Heigh input
         let heightInput = HTMLUtils.addDict('input', `${this.htmlId}-heightInput`, { 'class': 'form-control', 'required': 'required', }, 'text', `${this.selectedHeight[1]}`);
@@ -161,7 +155,7 @@ class MissionPlanner {
     }
 
     userDrawCallbacks(args = []) {
-        args[0][0].userDraw({ 'height': this.selectedHeight }, args);
+        args[0][0].userDraw(undefined, { 'height': this.selectedHeight }, args);
     }
 
     // #endregion
@@ -236,8 +230,8 @@ class MissionPlanner {
             console.log(layer);
 
             let name = drawManager.name;
-            let height = drawManager.drawUserOptions.height;
-            let uavList = drawManager.drawUserOptions.uavList;
+            let height = drawManager.options.height;
+            let uavList = drawManager.options.uavList;
 
             let missionLayer = {
                 'name': name,
@@ -251,11 +245,11 @@ class MissionPlanner {
             switch (name) {
                 case 'TakeOffPoint':
                     let takeOffPosition = layer.getLatLng();
-                    for (let j=0; j<selectedUavListTakeOff.length; j++) {
+                    for (let j = 0; j < selectedUavListTakeOff.length; j++) {
                         let pose = M.UAV_MANAGER.getDictById(selectedUavListTakeOff[j]).pose;
                         let distance = Utils.distance(
-                            takeOffPosition.lat, 
-                            takeOffPosition.lng, 
+                            takeOffPosition.lat,
+                            takeOffPosition.lng,
                             pose.lat,
                             pose.lng
                         );
@@ -272,7 +266,7 @@ class MissionPlanner {
                         info.push(`Take off point is not connected to any UAV`);
                     }
                     break;
-                
+
                 case 'WayPoint':
                 case 'LandPoint':
                 case 'Path':
@@ -302,7 +296,7 @@ class MissionPlanner {
                 case 'Area':
                     let selections = Object.keys(uavList);
                     let selectedList = [];
-                    for (let j=0; j<selections.length; j++) {
+                    for (let j = 0; j < selections.length; j++) {
                         if (uavList[selections[j]]) {
                             selectedList.push(selections[j]);
                         }
@@ -311,7 +305,7 @@ class MissionPlanner {
                     if (selectedList.length == 1 && selectedList[0] == 'auto') {
                         missionLayer['uavList'].push('auto');
                     } else {
-                        for (let j=0; j<selectedList.length; j++) {
+                        for (let j = 0; j < selectedList.length; j++) {
                             if (selectedUavList.includes(selectedList[j])) {
                                 missionLayer['uavList'].push(selectedList[j]);
                             } else {
@@ -322,9 +316,9 @@ class MissionPlanner {
                         }
                     }
 
-                    missionLayer['algorithm'] = drawManager.drawUserOptions.algorithm;
-                    missionLayer['streetSpacing'] = drawManager.drawUserOptions.streetSpacing;
-                    missionLayer['wpSpace'] = drawManager.drawUserOptions.wpSpace;
+                    missionLayer['algorithm'] = drawManager.options.algorithm;
+                    missionLayer['streetSpacing'] = drawManager.options.streetSpacing;
+                    missionLayer['wpSpace'] = drawManager.options.wpSpace;
 
                     break;
                 default:
@@ -370,14 +364,14 @@ class MissionPlanner {
         let unique = uavMissionList.filter((v, i, a) => a.indexOf(v) === i);
 
         // Check if every UAV in uavMissionList has a take off point and land point in the mission
-        for (let i=0; i<unique.length; i++) {
+        for (let i = 0; i < unique.length; i++) {
             let uav = unique[i];
             if (uav == 'auto') {
                 continue;
             }
             let takeOffFound = false;
             let landFound = false;
-            for (let j=0; j<mission.length; j++) {
+            for (let j = 0; j < mission.length; j++) {
                 if (mission[j]['uavList'].includes(uav)) {
                     if (mission[j]['name'] == 'TakeOffPoint') {
                         takeOffFound = true;
@@ -480,21 +474,32 @@ class MissionPlanner {
         let drawLayers = M.DRAW_LAYERS.getList();
 
         let saveInfo = {}
-        for (let i=0; i<drawLayers.length; i++) {
+        for (let i = 0; i < drawLayers.length; i++) {
             let id = drawLayers[i];
-            let info = {};
-            let layer = M.DRAW_LAYERS.getDictById(drawLayers[i]);
+            let layer_info = M.DRAW_LAYERS.getDictById(drawLayers[i]);
 
-            let drawManager = layer.drawManager;
+            let drawManager = layer_info.drawManager;
+            let layer = layer_info.layer;
 
-            info['name'] = drawManager.name;
-            info['type'] = drawManager.type;
-            info['drawUserOptions'] = drawManager.drawUserOptions;
+            saveInfo[id] = {
+                'options': drawManager.options,
+                'values': []
+            };
 
-            saveInfo[id] = info;
+            console.log("For layer " + drawManager.options.name);
+            console.log(layer);
+
+            if (layer._latlng) {
+                saveInfo[id]['values'] = layer._latlng;
+            } else if (layer._latlngs) {
+                saveInfo[id]['values'] = layer._latlngs;
+            }
+
         }
 
         if (Object.keys(saveInfo).length > 0) {
+            console.log("Saving");
+            console.log(saveInfo);
             Utils.download(`DrawMission.txt`, saveInfo);
         }
     }
@@ -512,7 +517,7 @@ class MissionPlanner {
         console.log("TODO: Load mission file");
         console.log(data)
 
-        for (let i=0; i<Object.keys(data).length; i++) {
+        for (let i = 0; i < Object.keys(data).length; i++) {
             let id = Object.keys(data)[i];
             let info = data[id];
 
@@ -533,6 +538,7 @@ class MissionPlanner {
                     break;
                 default:
                     break;
+            }
         }
 
         /*
@@ -559,12 +565,9 @@ class MissionPlanner {
 
         M.WS.sendConfirmedMission(data);
         */
-    } 
-
-    
+    }
 
     // #endregion
 
     // #endregion
 }
-

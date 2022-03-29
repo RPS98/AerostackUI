@@ -30,14 +30,13 @@ class AerostackUI():
         self.speed = 2
         
         self.uav_id_list = [
-            'M300',
+            'drone_sim_rafa_0'
             # 'drone_sim_8',
-            # 'drone_sim_rafa_0',
         ]
         
         uav_id_mission = [
-            'drone_sim_8',
             'drone_sim_rafa_0',
+            # 'drone_sim_8',
         ]
 
         self.uav_id_list_pos = [

@@ -1,7 +1,7 @@
 class Polygon extends DrawManager
 {
-    constructor(name, options = undefined) {
-        super('Polygon', name, options);
+    constructor(status, name, options = undefined, layerOptions = undefined) {
+        super(status, 'Polygon', name, options, layerOptions);
     }
 
     _addChangeCallback(id, info) {
@@ -62,13 +62,13 @@ class Polygon extends DrawManager
 
 class Area extends Polygon
 {
-    constructor(options = undefined) {
-        super('Area', options);
+    constructor(status, options = undefined, layerOptions = undefined) {
+        super(status, 'Area', options, layerOptions);
     }
 
-    codeDraw(id, values, options = {}) {
-        options['color'] = M.MISSION_MANAGER.getColors(id)[1];
-        return super.codeDraw(values, options);
+    codeDraw(id, values, options = undefined, layerOptions = {}) {
+        layerOptions['color'] = M.MISSION_MANAGER.getColors(id)[1];
+        return super.codeDraw(values, options, layerOptions);
     }
 
     drawInfoAdd(htmlId, info) {
@@ -109,31 +109,31 @@ class Area extends Polygon
     }
 
     drawInfoInitialize(id, info) {
-        info.drawManager.drawUserOptions.algorithm = 'Back and force';
+        info.drawManager.options.algorithm = 'Back and force';
         Utils.addButtonsCallback(`${id}-Swarming-item`, this.clickAlgorithmsListCallback.bind(this), id, info);
 
-        info.drawManager.drawUserOptions.streetSpacing = 1;
+        info.drawManager.options.streetSpacing = 1;
         Utils.addFormCallback(`${id}-streetSpacingBtn`, [`${id}-streetSpacing`], ['streetSpacingValue'], this.streetSpacingCallback.bind(this), id, info);
 
-        info.drawManager.drawUserOptions.wpSpace = 1;
+        info.drawManager.options.wpSpace = 1;
         Utils.addFormCallback(`${id}-wpSpaceBtn`, [`${id}-wpSpace`], ['wpSpaceValue'], this.wpSpaceCallback.bind(this), id, info);
 
         super.drawInfoInitialize(id, info);
     }
 
     clickAlgorithmsListCallback(e, args) {
-        args[1].drawManager.drawUserOptions.algorithm = e.innerText;
+        args[1].drawManager.options.algorithm = e.innerText;
 
         let button = document.getElementById(`${args[0]}-Swarming-DropDown-Btn`);
         button.innerHTML = e.innerHTML;
     }
 
     streetSpacingCallback(myargs, inputs) {
-        myargs[1].drawManager.drawUserOptions.streetSpacing = inputs.streetSpacingValue;
+        myargs[1].drawManager.options.streetSpacing = inputs.streetSpacingValue;
     }
 
     wpSpaceCallback(myargs, inputs) {
-        myargs[1].drawManager.drawUserOptions.wpSpace = inputs.wpSpaceValue;
+        myargs[1].drawManager.options.wpSpace = inputs.wpSpaceValue;
     }
 }
 

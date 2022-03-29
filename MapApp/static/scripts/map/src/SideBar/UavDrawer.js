@@ -14,6 +14,8 @@ class UavDrawer
         M.addMapCallback('pm:drawstart', this.onDrawCallback.bind(this), false);
         M.addMapCallback('pm:drawend', this.onDrawCallback.bind(this), true);
 
+        this.status = 'confirmed';
+
         // M.MAP.on('pm:drawstart', (e) => {
         //     console.log("drawstart");
         //     for (let i = 0; i < this.UAV_LIST.getList().length; i++) {
@@ -76,13 +78,13 @@ class UavDrawer
             switch (param) {
                 case 'pose':
                     this._checkLayer(id, 'layerPose');
-                    this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
-                    this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']], {'rotationAngle': this._angleWrap(value['yaw']), 'weight': 5});
+                    this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker(this.status);
+                    this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']], undefined, {'rotationAngle': this._angleWrap(value['yaw']), 'weight': 5});
                     this.updatePopup(id);
                     break;
                 case 'odom':
                     this._checkLayer(id, 'layerOdom'); 
-                    this.UAV_LIST.getDictById(id)['layerOdom'] = new Odom();
+                    this.UAV_LIST.getDictById(id)['layerOdom'] = new Odom(this.status);
                     let odomValue = value;
                     if (value.length < 2) {
                         odomValue = [value, value];
@@ -91,7 +93,7 @@ class UavDrawer
                     break;
                 case 'desiredPath':
                     this._checkLayer(id, 'layerDesiredPath');
-                    this.UAV_LIST.getDictById(id)['layerDesiredPath'] = new DesiredPath();
+                    this.UAV_LIST.getDictById(id)['layerDesiredPath'] = new DesiredPath(this.status);
                     this.UAV_LIST.getDictById(id)['layerDesiredPath'].codeDraw(id, value);
                     break;
                 case 'state':
@@ -99,7 +101,7 @@ class UavDrawer
                     let pose = M.UAV_MANAGER.getDictById(id)['pose'];
                     this.UAV_LIST.getDictById(id)['pose'] = pose;
 
-                    this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker();
+                    this.UAV_LIST.getDictById(id)['layerPose'] = new UAVMarker(this.status);
                     this.UAV_LIST.getDictById(id)['layerPose'].codeDraw(id, [pose['lat'], pose['lng']]);
                     this.UAV_LIST.getDictById(id)['layerPose'].codeLayerDrawn.options['state'] = value;
                 default:

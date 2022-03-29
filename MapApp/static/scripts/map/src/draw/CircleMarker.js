@@ -1,6 +1,6 @@
 class CircleMarker extends DrawManager
 {
-    constructor(name, options = undefined) {
-        super('CircleMarker', name, options);
+    constructor(status, name, options = undefined, layerOptions = undefined) {
+        super(status, 'CircleMarker', name, options, layerOptions);
     }
 }

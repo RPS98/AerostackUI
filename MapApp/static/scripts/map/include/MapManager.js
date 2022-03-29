@@ -152,9 +152,9 @@ class DrawLayers extends SmartListCallbacks {
             }
 
             // If the layer is a Draw layer, return its value
-            if (drawManager.drawUserOptions !== undefined) {
+            if (drawManager.options !== undefined) {
                 
-                if (drawManager.drawUserOptions.status == 'draw') {
+                if (drawManager.options.status == 'draw') {
                     let value = {
                         'layer': layer,
                         'drawManager': drawManager,

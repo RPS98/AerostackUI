@@ -1,7 +1,7 @@
 class Rectangle extends DrawManager
 {
-    constructor(name, options = undefined) {
-        super('Rectangle', name, options);
+    constructor(status, name, options = undefined, layerOptions = undefined) {
+        super(status, 'Rectangle', name, options, layerOptions);
     }
 
     codeDraw(values, options={}) {

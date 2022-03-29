@@ -1,11 +1,11 @@
 class Line extends DrawManager {
-    constructor(name, options = undefined) {
-        super('Line', name, options);
+    constructor(status, name, options = undefined, layerOptions = undefined) {
+        super(status, 'Line', name, options, layerOptions);
     }
 
-    codeDraw(values, options = {}) {
+    codeDraw(values, options = undefined, layerOptions = undefined) {
         if (values.length > 1) {
-            return super.codeDraw(values, options);
+            return super.codeDraw(values, options, layerOptions);
         }
     }
 
@@ -66,8 +66,8 @@ class Line extends DrawManager {
 }
 
 class Path extends Line {
-    constructor(options = undefined) {
-        super('Path', options);
+    constructor(status, options = undefined, layerOptions = undefined) {
+        super(status, 'Path', options, layerOptions);
     }
 
     drawInfoAdd(id, info) {
@@ -78,26 +78,25 @@ class Path extends Line {
 
 
 class Odom extends Line {
-    constructor(options = undefined) {
-        super('Odom', options);
+    constructor(status, options = undefined, layerOptions = undefined) {
+        super(status, 'Odom', options, layerOptions);
     }
 
-    codeDraw(id, values, options = {}) {
-        options['color'] = M.UAV_MANAGER.getColors(id)[1];
-        return super.codeDraw(values, options);
+    codeDraw(id, values, options = undefined, layerOptions = {}) {
+        layerOptions['color'] = M.UAV_MANAGER.getColors(id)[1];
+        return super.codeDraw(values, options, layerOptions);
     }
 }
 
 
 class DesiredPath extends Line {
-    constructor(options = undefined) {
-        super('DesiredPath', options);
+    constructor(status, options = undefined, layerOptions = undefined) {
+        super('DesiredPath', options, layerOptions);
     }
 
-    codeDraw(id, values, options = {}) {
-        options['color'] = M.UAV_MANAGER.getColors(id)[1];
-        options['opacity'] = 0.5;
-
-        return super.codeDraw(values, options);
+    codeDraw(id, values, options = undefined, layerOptions = {}) {
+        layerOptions['color'] = M.UAV_MANAGER.getColors(id)[1];
+        layerOptions['opacity'] = 0.5;
+        return super.codeDraw(values, options, layerOptions);
     }
 }

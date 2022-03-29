@@ -2,79 +2,95 @@
 // var idUserDraw = 0;
 
 class DrawManager {
-    constructor(type, name, options = {}) {
+    constructor(status, type, name, options = {}, layerOptions = {}) {
+
         this.type = type
-        this.options = Object.assign(
+        this.codeLayerDrawn = null;
+
+        this.options = {'drawManager': {}};
+
+        let drawOptions = Object.assign(
             {
-                'instance': this,
+                'id': 'none',
                 'type': type,
                 'name': name,
+                'status': status,
+                'uavList': {},
             },
             options,
         );
 
-        this.codeLayerDrawn = null;
+        this.options['drawManager'] = Object.assign(
+            {
+                'instance': this,
+                'options': drawOptions,
+            },
+            options,
+        );
+
+        this.options = this.mergeOptions(options, layerOptions);
     }
 
-    codeDraw(values, options = {}) {
-        let drawManagerOptions = Object.assign({}, this.options, { 'drawCodeOptions': options, 'id': 'none' });
-        let drawOptions = Object.assign({ 'drawManager': drawManagerOptions }, options);
+    mergeOptions(options, layerOptions) {
+        let drawOption = Object.assign(this.options, options, layerOptions);
+        drawOption['drawManager']['options'] = Object.assign(this.options['drawManager']['options'], options);
+        return drawOption;
+    }
+
+    codeDraw(values, options = {}, layerOptions = {}) {
+        let drawOption = this.mergeOptions(options, layerOptions);
 
         let draw = null;
 
         switch (this.type) {
             case 'Marker':
-                draw = L.marker(values, drawOptions);
+                draw = L.marker(values, drawOption);
                 break;
             case 'Line':
-                draw = L.polyline(values, drawOptions);
+                draw = L.polyline(values, drawOption);
                 break;
             case 'Circle':
-                draw = L.circle(values[0], values[1], drawOptions);
+                draw = L.circle(values[0], values[1], drawOption);
                 break;
             case 'Polygon':
                 console.log("Drawing polygon");
                 console.log(values);
-                draw = L.polygon(values, drawOptions);
+                draw = L.polygon(values, drawOption);
                 break;
             default:
-                alert("Try to draw from code a type: " + this.type);
+                alert("Try to draw from code a type: " + drawOption);
                 throw new Error("Unknown type of draw");
         }
         draw.addTo(M.MAP);
         this.codeLayerDrawn = draw;
-        return draw
+        return draw;
     }
 
-    userDraw(options = {}) {
-        options['author'] = 'user';
-        options['status'] = 'draw';
-        options['uavList'] = {};
-        //options['continueDrawing'] = true;
-        let drawManagerOptions = Object.assign({}, this.options, { 'drawUserOptions': options, 'id': 'none' });
-        let drawOptions = Object.assign({ 'drawManager': drawManagerOptions }, options, this.options);
+    userDraw(options = {}, layerOptions = {}) {
+        
+        let drawOption = this.mergeOptions(options, layerOptions);
 
         switch (this.type) {
             case 'Marker':
-                M.MAP.pm.enableDraw('Marker', drawOptions);
+                M.MAP.pm.enableDraw('Marker', drawOption);
                 break;
             case 'Line':
-                M.MAP.pm.enableDraw('Line', drawOptions);
+                M.MAP.pm.enableDraw('Line', drawOption);
                 break;
             case 'Circle':
-                M.MAP.pm.enableDraw('Circle', drawOptions);
+                M.MAP.pm.enableDraw('Circle', drawOption);
                 break;
             case 'Polygon':
-                M.MAP.pm.enableDraw('Polygon', drawOptions);
+                M.MAP.pm.enableDraw('Polygon', drawOption);
                 break;
             case 'CircleMarker':
-                M.MAP.pm.enableDraw('CircleMarker', drawOptions);
+                M.MAP.pm.enableDraw('CircleMarker', drawOption);
                 break;
             case 'Rectangle':
-                M.MAP.pm.enableDraw('Rectangle', drawOptions);
+                M.MAP.pm.enableDraw('Rectangle', drawOption);
                 break;
             default:
-                alert("Try to draw from code a type: " + this.type);
+                alert("Try to draw from code a type: " + type);
                 throw new Error("Unknown type of draw");
         }
     }
@@ -134,7 +150,7 @@ class DrawManager {
         let input = document.getElementById(`${id}-UAVPicker-auto-Input`);
         if (input != null) {
             input.setAttribute('checked', true);
-            info.drawManager.drawUserOptions.uavList = {'auto': true};
+            info.drawManager.options.uavList = {'auto': true};
         }
     }
 
@@ -188,7 +204,7 @@ class DrawManager {
         console.log("updateHeightRangeCallback");
         let info = myargs[1];
         console.log(info);
-        info.drawManager.drawUserOptions.height = [args.heightMin, args.heightMax];
+        info.drawManager.options.height = [args.heightMin, args.heightMax];
     }
 
     _removeCallback(myargs) {
@@ -208,11 +224,11 @@ class DrawManager {
 
         if (type == 'radio') {
             if (value) {
-                drawManager.drawUserOptions.uavList = {}
-                drawManager.drawUserOptions.uavList[String(uavName)] = true;
+                drawManager.options.uavList = {}
+                drawManager.options.uavList[String(uavName)] = true;
             }
         } else {
-            drawManager.drawUserOptions.uavList[String(uavName)] = value;
+            drawManager.options.uavList[String(uavName)] = value;
         }
     }
 
