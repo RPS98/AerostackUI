@@ -4,6 +4,17 @@ class Polygon extends DrawManager
         super(status, 'Polygon', name, options, layerOptions);
     }
 
+    codeDraw(values, options = undefined, layerOptions = {}, missionId = undefined) {
+        if (values.length < 1) {
+            return;
+        }
+        if (missionId !== undefined) {
+            layerOptions['color'] = M.MISSION_MANAGER.getColors(missionId)[1];
+            this.layerOptions['color'] = layerOptions['color'];
+        }
+        return super.codeDraw(values, options, layerOptions);
+    }
+
     _addChangeCallback(id, info) {
         let htmlId = [];
         let nameId = [];
@@ -64,11 +75,6 @@ class Area extends Polygon
 {
     constructor(status, options = undefined, layerOptions = undefined) {
         super(status, 'Area', options, layerOptions);
-    }
-
-    codeDraw(id, values, options = undefined, layerOptions = {}) {
-        layerOptions['color'] = M.MISSION_MANAGER.getColors(id)[1];
-        return super.codeDraw(values, options, layerOptions);
     }
 
     drawInfoAdd(htmlId, info) {

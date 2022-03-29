@@ -50,23 +50,23 @@ class MissionDrawer {
 
             switch (layer.name) {
                 case 'TakeOffPoint':
-                    this.takeOffPoint.codeDraw(uavId, [layer.values['lat'], layer.values['lng']]);
+                    this.takeOffPoint.codeDraw([layer.values['lat'], layer.values['lng']], undefined, undefined, uavId);
                     break;
                 case 'Path':
-                    this.path.codeDraw(layer.values, undefined, { color: M.UAV_MANAGER.getColors(uavId)[1] });
+                    this.path.codeDraw(layer.values, undefined, undefined, uavId);
                     break;
                 case 'LandPoint':
-                    this.landPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
+                    this.landPoint.codeDraw([layer.values.lat, layer.values.lng], undefined, undefined, uavId);
                     break;
                 case 'WayPoint':
-                    this.wayPoint.codeDraw(uavId, [layer.values.lat, layer.values.lng]);
+                    this.wayPoint.codeDraw([layer.values.lat, layer.values.lng], undefined, undefined, uavId);
                     break;
                 case 'Area':
-                    this.area.codeDraw(missionId, layer.values[0], undefined, {'opacity': 0.3});
+                    this.area.codeDraw(layer.values[0], undefined, {'opacity': 0.3}, missionId);
 
                     for (let j = 0; j < layer.uavList.length; j++) {
                         let uavId_aux = layer.uavList[j];
-                        this.path.codeDraw(layer.uavPath[uavId_aux], undefined, { color: M.UAV_MANAGER.getColors(uavId_aux)[1]});
+                        this.path.codeDraw(layer.uavPath[uavId_aux], undefined, undefined, uavId);
                     }
 
                     break;
@@ -76,50 +76,4 @@ class MissionDrawer {
             }
         }
     }
-
-    /*
-    _checkLayer(id, name) {
-        if (name in this.MISSION_LIST.getDictById(id)) {
-            this.MISSION_LIST.getDictById(id)[name].codeLayerDrawn.remove();
-        }
-    }
-
-    updateMissionParam(param, value, args) {
-        
-        let id = args[0];
-        
-        console.log("UPDATE MISSION PARAM");
-        console.log(id);
-        console.log(param);
-        console.log(value);
-        
-        if ((this.MISSION_LIST.getList().indexOf(id) === -1)) {
-            this.MISSION_LIST.addObject(id, {'id': id});
-        }
-
-        if (param in this.MISSION_LIST.getDictById(id)) {
-            switch (param) {
-                case 'pose':
-                    this.MISSION_LIST.getDictById(id)['layerPose'].codeLayerDrawn.setLatLng([value['lat'], value['lng']]);
-                    break;
-
-                default:
-                    break;
-            }
-
-        } else {
-            switch (param) {
-                case 'pose':
-                    this._checkLayer(id, 'layerPose');
-                    this.MISSION_LIST.getDictById(id)['layerPose'] = new MissionMarker();
-                    this.MISSION_LIST.getDictById(id)['layerPose'].codeDraw(id, [value['lat'], value['lng']]);
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        this.MISSION_LIST.getDictById(id)[param] = value;   
-    }
-    */
 }

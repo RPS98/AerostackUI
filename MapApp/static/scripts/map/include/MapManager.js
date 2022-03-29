@@ -120,7 +120,9 @@ class DrawLayers extends SmartListCallbacks {
     // #endregion
 
     // #region Private methods
-    
+
+
+
     /**
      * Process the layer, finding the drawManager attribute and the value of the information.
      * @param {L.Layer} layer - Layer to be process.
@@ -129,42 +131,59 @@ class DrawLayers extends SmartListCallbacks {
      */
     _getDrawManager(layer) {
 
-        let pmLayer = null;
-        try {
-            pmLayer = layer.pm._layer;
-        } catch (e) {
-            return [false, null, null];
-        }
+        if (layer.pm !== undefined) {
+            if (layer.pm._layer !== undefined) {
 
-        if (pmLayer !== undefined) {
-
-            let drawManager = {};
-            
-            // Extract the drawManager attribute
-            // If layer has been created by code
-            if (pmLayer.options.drawManager !== undefined) {
-                pmLayer.options.drawManager = Object.assign({}, pmLayer.options.drawManager);
-                drawManager = pmLayer.options.drawManager;
-            // If layer has been created by user
-            } else if (pmLayer.pm.options.drawManager !== undefined) {
-                pmLayer.pm.options.drawManager = Object.assign({}, pmLayer.pm.options.drawManager);
-                drawManager = pmLayer.pm.options.drawManager;
-            }
-
-            // If the layer is a Draw layer, return its value
-            if (drawManager.options !== undefined) {
-                
-                if (drawManager.options.status == 'draw') {
-                    let value = {
-                        'layer': layer,
-                        'drawManager': drawManager,
-                    };
-                    return [true, value];
+                // If layer has been created by code
+                if (layer.pm._layer.options.drawManager !== undefined) {
+                    return layer.pm._layer.options.drawManager;
+                    // If layer has been created by user
+                } else if (layer.pm._layer.pm.options.drawManager !== undefined) {
+                    return layer.pm._layer.pm.options.drawManager;
                 }
             }
         }
-        return [false, null, null];
+        return null;
     }
+    // _getDrawManager(layer) {
+
+    //     let pmLayer = null;
+    //     try {
+    //         pmLayer = layer.pm._layer;
+    //     } catch (e) {
+    //         return [false, null, null];
+    //     }
+
+    //     if (pmLayer !== undefined) {
+
+    //         let drawManager = {};
+
+    //         // Extract the drawManager attribute
+    //         // If layer has been created by code
+    //         if (pmLayer.options.drawManager !== undefined) {
+    //             pmLayer.options.drawManager = Object.assign({}, {}, pmLayer.options.drawManager);
+    //             drawManager = pmLayer.options.drawManager;
+    //         // If layer has been created by user
+    //         } else if (pmLayer.pm.options.drawManager !== undefined) {
+    //             pmLayer.pm.options.drawManager = Object.assign({}, {}, pmLayer.pm.options.drawManager);
+    //             drawManager = pmLayer.pm.options.drawManager;
+    //         }
+
+    //         // If the layer is a Draw layer, return its value
+    //         if (drawManager.options !== undefined) {
+
+    //             if (drawManager.options.status == 'draw') {
+    //                 let value = {
+    //                     'layer': layer,
+    //                     'drawManager': drawManager,
+    //                     'id': drawManager.options.id
+    //                 };
+    //                 return [true, value];
+    //             }
+    //         }
+    //     }
+    //     return [false, null, null];
+    // }
 
     /**
      * When a layer is added to the map, it is checked if it has a drawManager attribute and assign a id to it.
@@ -174,16 +193,29 @@ class DrawLayers extends SmartListCallbacks {
      * @access private
      */
     _onLayerAdd(args, e) {
-        let info = this._getDrawManager(e.layer);
-        let flag = info[0];
-        let value = info[1];
-        
-        if (flag) {
-            // console.log("DrawLayers: _onLayerAdd");
-            value.drawManager.options.id = this._id;
-            value.id = this._id;
+        let drawManager = this._getDrawManager(e.layer);
+
+        if (drawManager != null) {
+            let layerId = Object.assign({}, {}, { 'id': this._id }).id;
+
+            drawManager = Object.assign({}, {}, drawManager);
+            drawManager.options.id = layerId;
+            let value = {
+                'layer': e.layer,
+                'drawManager': drawManager,
+                'id': layerId
+            };
+
+            console.log("Add value with id: " + value.id);
+            console.log(value);
             super.addObject(value.id, value);
             this._id++;
+
+            console.log("Layer add");
+            let list = super.getList()
+            for (let i = 0; i < list.length; i++) {
+                console.log(super.getDictById(list[i]));
+            }
 
             // Add callback to the layer change
             let callback = this._onUserLayerChange.bind(this);
@@ -208,13 +240,11 @@ class DrawLayers extends SmartListCallbacks {
      */
     _onLayerRemove(args, e) {
         let event = Object.assign({}, e);
-        let info = this._getDrawManager(event.layer);
-        let flag = info[0];
-        let value = info[1];
+        let drawManager = this._getDrawManager(event.layer);
 
-        if (flag) {
-            // console.log("DrawLayers: _onLayerRemove - flag");
-            super.removeById(value.drawManager.id);
+        if (drawManager != null) {
+            console.log("DrawLayers: _onLayerRemove - flag");
+            super.removeById(drawManager.options.id);
         }
     }
 
@@ -225,12 +255,15 @@ class DrawLayers extends SmartListCallbacks {
      * @access private
      */
     _onUserLayerChange(e) {
-        let info = this._getDrawManager(e.target);
-        let flag = info[0];
-        let value = info[1];
-        if (flag) {
+        let drawManager = this._getDrawManager(e.target);
+        if (drawManager != null) {
             // console.log("DrawLayers: _onUserLayerChange")
-            super.updateObject(value.drawManager.id, value);
+            let value = {
+                'layer': e.layer,
+                'drawManager': drawManager,
+                'id': drawManager.options.id
+            };
+            super.updateObject(value.id, value);
         }
     }
 
@@ -241,12 +274,15 @@ class DrawLayers extends SmartListCallbacks {
      * @access private
      */
     _onCodeLayerChange(e) {
-        let info = this._getDrawManager(e.target);
-        let flag = info[0];
-        let value = info[1];
-        if (flag) {
+        let drawManager = this._getDrawManager(e.target);
+        if (drawManager != null) {
             // console.log("DrawLayers: _onCodeLayerChange")
-            super.updateObject(value.drawManager.id, value);
+            let value = {
+                'layer': e.layer,
+                'drawManager': drawManager,
+                'id': drawManager.options.id
+            };
+            super.updateObject(value.id, value);
         }
     }
 
@@ -313,7 +349,7 @@ class MissionManager extends ManagerPrototype {
         /**
          * List of colors for each id of the information.
          */
-         this.colors = [
+        this.colors = [
             ['#FFF2CC', '#FFF2CC'], // yellow
             ['#DAE8FC', '#6C8EBF'], // blue
             ['#D5E8D4', '#82B366'], // green
@@ -486,7 +522,7 @@ class MapManager {
      * @return {void}
      * @access public
      */
-    getUavPickerDict(type, id, othersElements=[], callback, ...args) {
+    getUavPickerDict(type, id, othersElements = [], callback, ...args) {
         let uavList = M.UAV_MANAGER.getList();
 
         // Add others elements to the list
@@ -499,7 +535,7 @@ class MapManager {
         }
 
         this._uavPickerCallbackList.push([id, callback, othersElements, args]);
-        
+
         // Create the picker with the uav list
         if (othersElements.length > 0) {
             let list = [];
@@ -532,7 +568,7 @@ class MapManager {
                     this._uavPickerAddCallback(id, name, callback, userargs);
                 }
                 // Add callback to the uavList
-                let uavList =  M.UAV_MANAGER.getList();
+                let uavList = M.UAV_MANAGER.getList();
                 for (let j = 0; j < uavList.length; j++) {
                     let name = uavList[j];
                     this._uavPickerAddCallback(id, name, callback, userargs);
@@ -630,11 +666,11 @@ class MapManager {
      */
     _uavPickerAddCallback(id, name, callback, userargs) {
         if (M.UAV_MANAGER.getList().includes(name)) {
-            let label = document.getElementById(id + '-'+ name + '-Label');
+            let label = document.getElementById(id + '-' + name + '-Label');
             label.style.setProperty("background-color", `${M.UAV_MANAGER.getColors(name)[1]}`, "important");
         }
 
-        let checkbox = document.getElementById(id + '-'+ name + '-Input');
+        let checkbox = document.getElementById(id + '-' + name + '-Input');
         checkbox.addEventListener('change', function () {
             let inputId = this.id.split('-');
             let uavName = inputId[inputId.length - 2];
@@ -661,7 +697,7 @@ class MapManager {
 
             if (divId == picker.id) {
                 // let checkBoxId = picker.id + '-'+ args[0] + '-Input';
-                
+
                 this._uavPickerAddCallback(picker.id, args[0], callback, userargs);
 
                 // Remove defaults checkboxes

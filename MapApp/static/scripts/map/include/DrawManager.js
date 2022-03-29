@@ -53,8 +53,6 @@ class DrawManager {
                 draw = L.circle(values[0], values[1], drawOption);
                 break;
             case 'Polygon':
-                console.log("Drawing polygon");
-                console.log(drawOption);
                 draw = L.polygon(values, drawOption);
                 break;
             default:
@@ -63,12 +61,19 @@ class DrawManager {
         }
         draw.addTo(M.MAP);
         this.codeLayerDrawn = draw;
+
+        if (drawOption.draggable == false) {
+            this.codeLayerDrawn.pm.setOptions({ draggable: false });
+        }
         return draw;
     }
 
     userDraw(options = {}, layerOptions = {}) {
         
         let drawOption = this.mergeOptions(options, layerOptions);
+
+        console.log("DrawManager.userDraw");
+        console.log(drawOption)
 
         switch (this.type) {
             case 'Marker':

@@ -579,8 +579,7 @@ class SmartListCallbacks extends SmartList {
      * @access public 
      */
     removeById(id) {
-        // console.log("Utils - removeById");
-        // console.log(id);
+        console.log("SmartListCallbacks.removeById: " + id);
         Utils.callCallbacks(this._infoAddCallbacks, id, 'remove');
         super.removeObject(id);
     }

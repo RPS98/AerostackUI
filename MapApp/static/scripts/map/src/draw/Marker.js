@@ -269,25 +269,35 @@ class Marker extends DrawManager {
       iconSize = [24, 40],
       iconAnchor = [12, 40]) {
 
-      let newIcon = Marker.getIcon(iconSvgGrey, fillColor, borderColor, iconSize, iconAnchor);
+      if (layerOptions.fillColor !== undefined) {
+         fillColor = layerOptions.fillColor;
+      }
+      if (layerOptions.borderColor !== undefined) {
+         borderColor = layerOptions.borderColor;
+      }
 
-      layerOptions['markerStyle'] = { 'icon': newIcon };
-      layerOptions['markerStyle'] = { 'icon': newIcon };
+      let icon = Marker.getIcon(iconSvgGrey, fillColor, borderColor, iconSize, iconAnchor);
+      
+      
+      layerOptions['markerStyle'] = { 'icon': icon };
+      layerOptions['icon'] = icon;
 
       super(status, 'Marker', name, options, layerOptions);
 
+      this.layerOptions = layerOptions;
+      this.icon = icon;
       this.iconSvgGrey = iconSvgGrey;
       this.iconSize = iconSize;
       this.iconAnchor = iconAnchor;
    }
 
-   codeDraw(id, values, options = undefined, layerOptions = {}, iconSvgGrey = this.iconSvgGrey, iconSize = this.iconSize, iconAnchor = this.iconAnchor) {
-      let colors = M.UAV_MANAGER.getColors(id);
-
-      layerOptions['icon'] = Marker.getIcon(iconSvgGrey, colors[1], colors[0], iconSize, iconAnchor);
-      let marker = super.codeDraw(values, options, layerOptions);
-      marker.pm.setOptions({ draggable: false });
-      return marker;
+   codeDraw(values, options = undefined, layerOptions = {}, uavId = undefined, iconSvgGrey = this.iconSvgGrey, iconSize = this.iconSize, iconAnchor = this.iconAnchor) {
+      if (uavId !== undefined) {
+         let colors = M.UAV_MANAGER.getColors(uavId);
+         layerOptions['icon'] = Marker.getIcon(iconSvgGrey, colors[1], colors[0], iconSize, iconAnchor);
+         this.layerOptions['icon'] = layerOptions['icon'];
+      }
+      super.codeDraw(values, options, layerOptions);
    }
 
    _addChangeCallback(id, info) {
@@ -331,21 +341,14 @@ class Marker extends DrawManager {
 }
 
 class PointOfInterest extends Marker {
-   constructor(status, fillColor = undefined, borderColor = undefined, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined) {
 
       super(
          status, 
          'PointOfInterest',
          options,
-         layerOptions = {},
-         iconSvgPointOfInterest,
-         fillColor,
-         borderColor);
-   }
-
-   userDraw(options = undefined, layerOptions = {}) {
-      layerOptions['continueDrawing'] = false;
-      return super.userDraw(options, layerOptions);
+         layerOptions,
+         iconSvgPointOfInterest);
    }
 
    drawInfoAdd(id, info) {
@@ -355,21 +358,14 @@ class PointOfInterest extends Marker {
 }
 
 class WayPoint extends Marker {
-   constructor(status, fillColor = undefined, borderColor = undefined, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined) {
 
       super(
          status, 
          'WayPoint',
          options,
-         layerOptions = {},
-         iconSvgWayPoint,
-         fillColor,
-         borderColor);
-   }
-
-   userDraw(options = undefined, layerOptions = {}) {
-      layerOptions['continueDrawing'] = true;
-      return super.userDraw(options, layerOptions);
+         layerOptions,
+         iconSvgWayPoint);
    }
 
    drawInfoAdd(id, info) {
@@ -379,21 +375,14 @@ class WayPoint extends Marker {
 }
 
 class LandPoint extends Marker {
-   constructor(status, fillColor = undefined, borderColor = undefined, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined) {
 
       super(
          status, 
-         'LandPoint',
+         'TakeOffPoint',
          options,
-         layerOptions = {},
-         iconSvgLandPoint,
-         fillColor,
-         borderColor);
-   }
-
-   userDraw(options = undefined, layerOptions = {}) {
-      layerOptions['continueDrawing'] = true;
-      return super.userDraw(options, layerOptions);
+         layerOptions,
+         iconSvgLandPoint);
    }
 
    drawInfoAdd(id, info) {
@@ -403,21 +392,14 @@ class LandPoint extends Marker {
 }
 
 class TakeOffPoint extends Marker {
-   constructor(status, fillColor = undefined, borderColor = undefined, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined) {
 
       super(
          status, 
          'TakeOffPoint',
          options,
-         layerOptions = {},
-         iconSvgTakeOffPoint,
-         fillColor,
-         borderColor);
-   }
-
-   userDraw(options = undefined, layerOptions = {}) {
-      layerOptions['continueDrawing'] = true;
-      return super.userDraw(options, layerOptions);
+         layerOptions,
+         iconSvgTakeOffPoint);
    }
 
    drawInfoAdd(id, info) {

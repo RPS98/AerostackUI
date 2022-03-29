@@ -3,10 +3,15 @@ class Line extends DrawManager {
         super(status, 'Line', name, options, layerOptions);
     }
 
-    codeDraw(values, options = undefined, layerOptions = undefined) {
-        if (values.length > 1) {
-            return super.codeDraw(values, options, layerOptions);
+    codeDraw(values, options = undefined, layerOptions = undefined, uavId = undefined) {
+        if (values.length < 1) {
+            return;
         }
+        if (uavId !== undefined) {
+            layerOptions['color'] = M.UAV_MANAGER.getColors(id)[1];
+            this.layerOptions['color'] = layerOptions['color'];
+        }
+        return super.codeDraw(values, options, layerOptions);
     }
 
     _addChangeCallback(id, info) {
@@ -81,22 +86,11 @@ class Odom extends Line {
     constructor(status, options = undefined, layerOptions = undefined) {
         super(status, 'Odom', options, layerOptions);
     }
-
-    codeDraw(id, values, options = undefined, layerOptions = {}) {
-        layerOptions['color'] = M.UAV_MANAGER.getColors(id)[1];
-        return super.codeDraw(values, options, layerOptions);
-    }
 }
 
 
 class DesiredPath extends Line {
     constructor(status, options = undefined, layerOptions = undefined) {
         super('DesiredPath', options, layerOptions);
-    }
-
-    codeDraw(id, values, options = undefined, layerOptions = {}) {
-        layerOptions['color'] = M.UAV_MANAGER.getColors(id)[1];
-        layerOptions['opacity'] = 0.5;
-        return super.codeDraw(values, options, layerOptions);
     }
 }

@@ -29,19 +29,26 @@ class MissionPlanner {
 
         let fillColor = '#b3b3b3';
         let borderColor = '#7f7f7f';
-        this.pointOfInterest = new PointOfInterest(status, fillColor, borderColor);
-        this.wayPoint = new WayPoint(status, fillColor, borderColor);
-        this.landPoint = new LandPoint(status, fillColor, borderColor);
-        this.takeOffPoint = new TakeOffPoint(status, fillColor, borderColor);
+        let layerOptions = {
+            'continueDrawing': false,
+            'fillColor': fillColor,
+            'borderColor': borderColor,
+        }
+        this.pointOfInterest = new PointOfInterest(status, undefined, layerOptions);
+        this.wayPoint = new WayPoint(status, undefined, layerOptions);
+        // this.wayPoint = new WayPoint(status, undefined, Object.assign({}, layerOptions, { 'continueDrawing': true })); // TODO: not supported
+        this.landPoint = new LandPoint(status, undefined, layerOptions);
+        this.takeOffPoint = new TakeOffPoint(status, undefined, layerOptions);
 
         let drawDefaultColor = '#B3B3B3';
-        let userDrawOptions = Object.assign({}, { 'color': drawDefaultColor });
+        let layerOptions2 = {
+            'continueDrawing': false,
+            'color': drawDefaultColor,
+        }
 
-        this.path = new Path(status, undefined, userDrawOptions);
-        this.area = new Area(status, undefined, userDrawOptions);
-        this.carea = new CircularArea(status, undefined, userDrawOptions);
-
-
+        this.path = new Path(status, undefined, layerOptions2);
+        this.area = new Area(status, undefined, layerOptions2);
+        this.carea = new CircularArea(status, undefined, layerOptions2);
     }
 
     addPlannerHTML() {
@@ -534,22 +541,49 @@ class MissionPlanner {
             let id = Object.keys(data)[i];
             let info = data[id];
 
-            switch (info['type']) {
+            let options = info.options;
+            let values = info.values;
+
+            console.log("For layer " + id);
+            console.log(info);
+
+            switch (options.type) {
                 case 'Marker':
-                    switch (info['name']) {
+                    switch (options.name) {
                         case 'TakeOffPoint':
+                            console.log("TakeOffPoint");
+                            console.log(values);
+                            console.log(options)
+                            this.takeOffPoint.codeDraw(values, options);
                             break;
                         case 'LandPoint':
+                            this.landPoint.codeDraw(values, options);
                             break;
                         default:
+                            throw new Error(`Unknown marker type ${options.name}`);
                             break;
                     }
                     break;
                 case 'Line':
+                    switch (options.name) {
+                        case 'Path':
+                            this.path.codeDraw(values, options);
+                            break;
+                        default:
+                            throw new Error(`Unknown line type ${options.name}`);
+                    }
                     break;
                 case 'Polygon':
+                    switch (options.name) {
+                        case 'Area':
+                            this.area.codeDraw(values, options);
+                            break;
+                        default:
+                            throw new Error(`Unknown polygon type ${options.name}`);
+                    }
                     break;
                 default:
+                    throw new Error(`Unknown type ${options.name}`);
                     break;
             }
         }
