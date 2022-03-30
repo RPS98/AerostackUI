@@ -34,11 +34,14 @@ class MissionPlanner {
             'fillColor': fillColor,
             'borderColor': borderColor,
         }
-        this.pointOfInterest = new PointOfInterest(status, undefined, layerOptions);
-        this.wayPoint = new WayPoint(status, undefined, layerOptions);
-        // this.wayPoint = new WayPoint(status, undefined, Object.assign({}, layerOptions, { 'continueDrawing': true })); // TODO: not supported
-        this.landPoint = new LandPoint(status, undefined, layerOptions);
-        this.takeOffPoint = new TakeOffPoint(status, undefined, layerOptions);
+
+        let option = {'status': 'draw'};
+
+        this.pointOfInterest = new PointOfInterest(status, option, layerOptions);
+        // this.wayPoint = new WayPoint(status, undefined, layerOptions);
+        this.wayPoint = new WayPoint(status, option, Object.assign({}, layerOptions, { 'continueDrawing': true })); // TODO: not supported
+        this.landPoint = new LandPoint(status, option, layerOptions);
+        this.takeOffPoint = new TakeOffPoint(status, option, layerOptions);
 
         let drawDefaultColor = '#B3B3B3';
         let layerOptions2 = {
@@ -46,9 +49,9 @@ class MissionPlanner {
             'color': drawDefaultColor,
         }
 
-        this.path = new Path(status, undefined, layerOptions2);
-        this.area = new Area(status, undefined, layerOptions2);
-        this.carea = new CircularArea(status, undefined, layerOptions2);
+        this.path = new Path(status, option, layerOptions2);
+        this.area = new Area(status, option, layerOptions2);
+        this.carea = new CircularArea(status, option, layerOptions2);
     }
 
     addPlannerHTML() {

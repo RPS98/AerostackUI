@@ -7,33 +7,24 @@ class DrawManager {
         this.type = type
         this.codeLayerDrawn = null;
 
-        this.options = {'drawManager': {}};
+        let optionsStructure = {
+            'drawManager': {
+                'options': {},
+                'instance': {},
+            }
+        }
 
-        let drawOptions = Object.assign(
-            {
-                'id': 'none',
-                'type': type,
-                'name': name,
-                'status': status,
-                'uavList': {},
-            },
-            options,
-        );
-
-        this.options['drawManager'] = Object.assign(
-            {
-                'instance': this,
-                'options': drawOptions,
-            },
-            options,
-        );
-
-        this.options = this.mergeOptions(options, layerOptions);
+        this.options = Object.assign(optionsStructure, layerOptions);
+        this.options.drawManager.options = options
+        this.options.instance = this;
     }
 
     mergeOptions(options, layerOptions) {
-        let drawOption = Object.assign(this.options, options, layerOptions);
-        drawOption['drawManager']['options'] = Object.assign(this.options['drawManager']['options'], options);
+
+        let drawOption = Object.assign({}, this.options, layerOptions);
+        drawOption.drawManager.options = Object.assign({}, drawOption.drawManager.options, options);
+        drawOption.drawManager.instance = this;
+
         return drawOption;
     }
 
@@ -169,8 +160,8 @@ class DrawManager {
     }
 
     _drawInfoGetHeight(id, info) {
-        let heightMin = info.layer.pm.options.height[0];
-        let heightMax = info.layer.pm.options.height[1];
+        let heightMin = info.drawManager.options.height[0];
+        let heightMax = info.drawManager.options.height[1];
 
         // Height range HTML
         let heightInputMin = HTMLUtils.addDict('input', `${id}-heightInputMin`, { 'class': 'form-control', 'required': 'required', 'value': heightMin }, 'text', heightMin);
