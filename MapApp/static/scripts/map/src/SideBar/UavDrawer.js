@@ -50,8 +50,8 @@ class UavDrawer
     updateUavParam(param, value, args) {
         let uavId = args[0];
 
-        if (this.UAV_LIST.getList().indexOf(id) === -1) {
-            this.UAV_LIST.addObject(id, {'id': id});
+        if (this.UAV_LIST.getList().indexOf(uavId) === -1) {
+            this.UAV_LIST.addObject(uavId, {'id': uavId});
         }
 
         if (param == 'odom' && value.length < 2 ||
@@ -111,7 +111,7 @@ class UavDrawer
 
                     this.UAV_LIST.getDictById(uavId)['layerPose'] = this.uavMarker;
                     this.UAV_LIST.getDictById(uavId)['layerPose'].codeDraw([pose['lat'], pose['lng']], undefined, undefined, uavId);
-                    this.UAV_LIST.getDictById(uavId)['layerPose'].drawOptions.options['state'] = value;
+                    this.UAV_LIST.getDictById(uavId)['layerPose'].options.drawManager.options['state'] = value;
                 default:
                     break;
             }

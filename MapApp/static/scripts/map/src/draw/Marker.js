@@ -261,6 +261,7 @@ class Marker extends DrawManager {
    constructor(
       status,
       name,
+      parameters = undefined, 
       options = undefined,
       layerOptions = {},
       iconSvgGrey,
@@ -282,7 +283,7 @@ class Marker extends DrawManager {
       layerOptions['markerStyle'] = { 'icon': icon };
       layerOptions['icon'] = icon;
 
-      super(status, 'Marker', name, options, layerOptions);
+      super(status, 'Marker', name, parameters, options, layerOptions);
 
       this.layerOptions = layerOptions;
       this.icon = icon;
@@ -295,7 +296,6 @@ class Marker extends DrawManager {
       if (uavId !== undefined) {
          let colors = M.UAV_MANAGER.getColors(uavId);
          layerOptions['icon'] = Marker.getIcon(iconSvgGrey, colors[1], colors[0], iconSize, iconAnchor);
-         this.layerOptions['icon'] = layerOptions['icon'];
       }
       super.codeDraw(values, options, layerOptions);
    }
@@ -341,11 +341,12 @@ class Marker extends DrawManager {
 }
 
 class PointOfInterest extends Marker {
-   constructor(status, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.PointOfInterest.parameters) {
 
       super(
          status, 
          'PointOfInterest',
+         parameters,
          options,
          layerOptions,
          iconSvgPointOfInterest);
@@ -358,11 +359,12 @@ class PointOfInterest extends Marker {
 }
 
 class WayPoint extends Marker {
-   constructor(status, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.WayPoint.parameters) {
 
       super(
          status, 
          'WayPoint',
+         parameters,
          options,
          layerOptions,
          iconSvgWayPoint);
@@ -375,11 +377,12 @@ class WayPoint extends Marker {
 }
 
 class LandPoint extends Marker {
-   constructor(status, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.LandPoint.parameters) {
 
       super(
          status, 
          'TakeOffPoint',
+         parameters,
          options,
          layerOptions,
          iconSvgLandPoint);
@@ -392,11 +395,12 @@ class LandPoint extends Marker {
 }
 
 class TakeOffPoint extends Marker {
-   constructor(status, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.TakeOffPoint.parameters) {
 
       super(
          status, 
          'TakeOffPoint',
+         parameters,
          options,
          layerOptions,
          iconSvgTakeOffPoint);
@@ -409,10 +413,11 @@ class TakeOffPoint extends Marker {
 }
 
 class UAVMarker extends Marker {
-   constructor(status, options = undefined, layerOptions = undefined) {
+   constructor(status, options = undefined, layerOptions = undefined, parameters = undefined) {
       super(
          status, 
          'UAVMarker',
+         parameters,
          options,
          layerOptions,
          iconSvgUav,

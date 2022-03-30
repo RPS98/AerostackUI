@@ -353,6 +353,9 @@ class MissionPlanner {
                     break;
             }
 
+            console.log("MissionPlanner");
+            console.log(layerInfo)
+
             // Layer coordinates values
             switch (drawManagerInfo.type) {
                 case 'Marker':

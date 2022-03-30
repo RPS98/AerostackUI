@@ -2,7 +2,19 @@
 // var idUserDraw = 0;
 
 class DrawManager {
-    constructor(status, type, name, options = {}, layerOptions = {}) {
+    constructor(status, type, name, parameters = [], options = {}, layerOptions = {}) {
+        this.parameters = parameters
+        for (let i = 0; i < parameters.length; i++) {
+            let parameter = parameters[i];
+            let type = parameter[0];
+            let name = parameter[1];
+            let value = parameter[2];
+            if (options.name !== undefined) {
+                value = options.name;
+            } else {
+                options.name = value;
+            }
+        }
 
         this.type = type
         this.codeLayerDrawn = null;
@@ -94,6 +106,45 @@ class DrawManager {
 
     // #region Draw Info
 
+    getHtmlParameters(id, options, parameters) {
+        let html = [];
+        for (let i = 0; i < parameters.length; i++) {
+            let parameter = parameters[i];
+            let type = parameter[0];
+            let name = parameter[1];
+            let value = parameter[2];
+            if (options.name !== undefined) {
+                value = options.name;
+            } else {
+                options.name = value;
+            }
+            let text = parameter[3];
+
+            let param = HTMLUtils.addDict('input', `${id}-${name}`, { 'class': 'form-control', 'required': 'required', 'value': value}, type, name);
+            let paramBtn = HTMLUtils.addDict('button', `${id}-${name}Btn`, { 'class': 'btn btn-primary' }, `${text}`);
+            let paramDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [param]);
+            let paramBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [paramBtn]);
+            html.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [paramDiv, paramBtnDiv]));
+        }
+        return html;
+    }
+
+    addParametersCallback(id, parameters, info) {
+        for (let i = 0; i < parameters.length; i++) {
+            let parameter = parameters[i];
+            let type = parameter[0];
+            let name = parameter[1];
+            let value = parameter[2];
+            Utils.addFormCallback( `${id}-${name}Btn`, [`${id}-${name}`], [name], this.parametersCallback.bind(this), name, info);
+        }
+    }
+
+    parametersCallback(myargs, inputs) {
+        let name = myargs[0];
+        let info = myargs[1];
+        info.drawManager.options[name] = inputs[name];
+    }
+
     drawInfoAdd(htmlId, info, name = info.drawManager.name, initialHtml = undefined, endHtml = undefined, uavPickerType = undefined) {
 
         let id = htmlId + '-' + info.id;
@@ -121,6 +172,11 @@ class DrawManager {
         }
     }
 
+    addParametersHtml(id, info) {
+        let paramList = this.getHtmlParameters(id, info.drawManager.options, info.drawManager.instance.parameters);
+        return HTMLUtils.addDict('collapse', `${id}-ParametersCollapse`, {}, 'Parameters', false, paramList)
+    }
+
     drawInfoGetHtml(id, info, initialHtml = [], endHtml = [], uavPickerType = 'none') {        
 
         initialHtml.push(this._drawInfoGetValues(id));
@@ -128,6 +184,14 @@ class DrawManager {
 
         let htmlBody = [];
         htmlBody.push(HTMLUtils.addDict('collapse', `${id}-ValuesCollapse`, {}, 'Modify', false, initialHtml));
+
+        if (this.parameters.length > 0) {
+            let html = this.addParametersHtml(id, info);
+            if (html != null) {
+                htmlBody.push(html);
+            }
+        }
+
 
         htmlBody.push(endHtml);
         if (uavPickerType != 'none') {

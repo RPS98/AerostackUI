@@ -1,13 +1,13 @@
 class Circle extends DrawManager
 {
-    constructor(status, name, options = undefined, layerOptions = undefined) {
-        super(status, 'Circle', name, options, layerOptions);
+    constructor(status, name, parameters = undefined, options = undefined, layerOptions = undefined) {
+        super(status, 'Circle', name, parameters, options, layerOptions);
     }
 }
 
 class CircularArea extends Circle
 {
-    constructor(status, options = undefined, layerOptions = undefined) {
-        super(status, 'CircularArea', options, layerOptions);
+    constructor(status, options = undefined, layerOptions = undefined, parameters = undefined) {
+        super(status, 'CircularArea', parameters, options, layerOptions);
     }
 }

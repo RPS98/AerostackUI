@@ -1,15 +1,14 @@
 class Line extends DrawManager {
-    constructor(status, name, options = undefined, layerOptions = undefined) {
-        super(status, 'Line', name, options, layerOptions);
+    constructor(status, name, parameters = undefined, options = undefined, layerOptions = undefined) {
+        super(status, 'Line', name, parameters, options, layerOptions);
     }
 
-    codeDraw(values, options = undefined, layerOptions = undefined, uavId = undefined) {
+    codeDraw(values, options = undefined, layerOptions = {}, uavId = undefined) {
         if (values.length < 1) {
             return;
         }
         if (uavId !== undefined) {
-            layerOptions['color'] = M.UAV_MANAGER.getColors(id)[1];
-            this.layerOptions['color'] = layerOptions['color'];
+            layerOptions['color'] = M.UAV_MANAGER.getColors(uavId)[1];
         }
         return super.codeDraw(values, options, layerOptions);
     }
@@ -71,8 +70,8 @@ class Line extends DrawManager {
 }
 
 class Path extends Line {
-    constructor(status, options = undefined, layerOptions = undefined) {
-        super(status, 'Path', options, layerOptions);
+    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Line.Path.parameters) {
+        super(status, 'Path', parameters, options, layerOptions);
     }
 
     drawInfoAdd(id, info) {
@@ -83,14 +82,14 @@ class Path extends Line {
 
 
 class Odom extends Line {
-    constructor(status, options = undefined, layerOptions = undefined) {
-        super(status, 'Odom', options, layerOptions);
+    constructor(status, options = undefined, layerOptions = undefined, parameters = undefined) {
+        super(status, 'Odom', parameters, options, layerOptions);
     }
 }
 
 
 class DesiredPath extends Line {
-    constructor(status, options = undefined, layerOptions = undefined) {
-        super('DesiredPath', options, layerOptions);
+    constructor(status, options = undefined, layerOptions = undefined, parameters = undefined) {
+        super(status, 'DesiredPath', parameters, options, layerOptions);
     }
 }

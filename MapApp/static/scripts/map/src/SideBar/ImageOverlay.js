@@ -28,7 +28,11 @@ class ImageOVerlay {
     addHTML() {
         let htmlList = [];
 
-        let file = HTMLUtils.addDict('fileInput', `${this.htmlId}-imageFile`, {}, 'Choose Image', this.imgUrl);
+        // let file = HTMLUtils.addDict('fileInput', `${this.htmlId}-imageFile`, {}, 'Choose Image', this.imgUrl);
+
+        let fileInput = HTMLUtils.addDict('input', `${this.htmlId}-imageFilenput`, { 'class': 'form-control', 'required': 'required' }, 'url', `Image URL`);
+        let fileBtn = HTMLUtils.addDict('button', `${this.htmlId}-imageFileBtn`, { 'class': 'btn btn-primary' }, 'Add URL');
+        let fileRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [fileInput, fileBtn], { 'class': 'col-md-6' });
 
         let topLeftLat = HTMLUtils.addDict('input', `${this.htmlId}-topLeftLat`, { 'class': 'form-control', 'required': 'required', 'value': this.point_list[0].lat }, 'text', 'Latitude');
         let topLeftLng = HTMLUtils.addDict('input', `${this.htmlId}-topLeftLng`, { 'class': 'form-control', 'required': 'required', 'value': this.point_list[0].lng }, 'text', 'Latitude');
@@ -52,7 +56,8 @@ class ImageOVerlay {
         let opacityBtn = HTMLUtils.addDict('button', `${this.htmlId}-opacityBtn`, { 'class': 'btn btn-primary' }, 'Set opacity (m)');
         let opacityRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [opacityInput, opacityBtn], { 'class': 'col-md-6' });
 
-        htmlList.push(file);
+        // htmlList.push(file);
+        htmlList.push(fileRow);
         htmlList.push(row1);
         htmlList.push(row2);
         htmlList.push(row3);
@@ -63,6 +68,9 @@ class ImageOVerlay {
     }
 
     addCallbacks() {
+
+        // Utils.addFileCallback(`${this.htmlId}-imageFile`, this.addImageUrlCallback.bind(this));
+        Utils.addFormCallback(`${this.htmlId}-imageFileBtn`, [`${this.htmlId}-imageFilenput`], ['imgURL'], this.addImageUrlCallback.bind(this));
 
         Utils.addFormCallback(`${this.htmlId}-opacityBtn`, [`${this.htmlId}-opacityInput`], ['opacity'], this.setOpacity.bind(this));
         Utils.addButtonCallback(`${this.htmlId}-removeOverlayBtn`, this._removeCallback.bind(this));
@@ -82,12 +90,12 @@ class ImageOVerlay {
             this.addImageOverlayCallback.bind(this)
         );
 
-        Utils.addFileCallback(`${this.htmlId}-imageFile`, this.addImageUrlCallback.bind(this));
+        
     }
 
-    addImageUrlCallback(args, input) {
-        this.imgUrl = '/static/scripts/map/img/' + input.target.files[0].name;
-        // TODO: Get absolute path
+    addImageUrlCallback(args, inputs) {
+        console.log("addImageUrlCallback");
+        this.imgUrl = inputs.imgURL;
     }
 
     addImageOverlayCallback(args, inputs) {
@@ -109,10 +117,16 @@ class ImageOVerlay {
         // Create the image overlay
         console.log("Adding image");
         console.log(this.imgUrl);
-        this.overlay = L.imageOverlay.rotated(this.imgUrl, this.point_list[0], this.point_list[1], this.point_list[2], {
-            opacity: this.opacity,
-            interactive: true,
-        });
+        if (this.overlay == null) {
+            this.overlay = L.imageOverlay.rotated(this.imgUrl, this.point_list[0], this.point_list[1], this.point_list[2], {
+                opacity: this.opacity,
+                interactive: true,
+            });
+        } else {
+            this.overlay.setUrl(this.imgUrl);
+            this.overlay.setBounds(this.point_list);
+            this.overlay.setOpacity(this.opacity);
+        }
 
         this.markerTL.on('drag dragend', this.repositionImage.bind(this));
         this.markerTR.on('drag dragend', this.repositionImage.bind(this));

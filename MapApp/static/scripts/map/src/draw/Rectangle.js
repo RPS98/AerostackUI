@@ -1,10 +1,10 @@
 class Rectangle extends DrawManager
 {
-    constructor(status, name, options = undefined, layerOptions = undefined) {
-        super(status, 'Rectangle', name, options, layerOptions);
+    constructor(status, name, parameters = undefined, options = undefined, layerOptions = undefined) {
+        super(status, 'Rectangle', name, parameters, options, layerOptions);
     }
 
     codeDraw(values, options={}) {
-        // TODO: Make rectangle draw on MAP
+       throw new Error("Not implemented");
     }
 }

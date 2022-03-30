@@ -115,8 +115,7 @@ class MissionController
 
     loadMissionFileCallback(data, myargs) {
 
-        let input = document.getElementById(`${this.htmlId}-missionFile`);
-        input.value = '';
+        Utils.resetLoadFileInput(`${this.htmlId}-missionFile`);
 
         console.log("TODO: Load mission file");
         console.log(data)
@@ -137,7 +136,7 @@ class MissionController
         for (let i = 0; i < missionUavList.length; i++) {
             let uavId = missionUavList[i];
             if (!uavList.includes(uavId)) {
-                alert(`UAV ${uavId} from file ${myargs} is not connected`);
+                alert(`UAV: ${uavId} from file ${myargs} is not connected`);
                 return;
             }
         }

@@ -9,23 +9,14 @@ class ManagerPrototype extends SmartListCallbacks {
      * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
      * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
      **/
-    constructor(infoAdd, infoSet, infoGet) {
+    constructor(colors, infoAdd, infoSet, infoGet) {
 
         super();
 
         /**
          * List of colors for each id of the information [border, fill].
          */
-        this.colors = [
-            ['#000dff', '#3d47ff'], // Custom blue and purple
-            ['#fc0000', '#fc5858'], // Custom red and orange
-            ['#DAE8FC', '#6C8EBF'], // blue
-            ['#F8CECC', '#F8CECC'], // red
-            ['#D5E8D4', '#82B366'], // green
-            ['#FFE6CC', '#D79B00'], // orange
-            ['#E1D5E7', '#9673A6'], // violet
-            ['#FFF2CC', '#FFF2CC'], // yellow
-        ];
+        this.colors = colors;
 
         // Callbacks for income information from server
         M.WS.addCallback('info', infoAdd, this._onInfo.bind(this), 'infoAdd');
@@ -261,8 +252,8 @@ class UavManager extends ManagerPrototype {
      * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
      * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
      **/
-    constructor(infoAdd, infoSet, infoGet) {
-        super(infoAdd, infoSet, infoGet);
+    constructor(colors, infoAdd, infoSet, infoGet) {
+        super(colors, infoAdd, infoSet, infoGet);
     }
 
     // #region Public methods
@@ -297,8 +288,8 @@ class MissionManager extends ManagerPrototype {
      * @param {string} missionSet - Name of the header of the info message that will be received from server when a mission is set/reset.
      * @param {string} missionGet - Name of the header of the request message that will be received from server when the mission list is requested.
      */
-    constructor(missionConfirm, missionAdd, missionSet, missionGet) {
-        super(missionAdd, missionSet, missionGet);
+    constructor(colors, missionConfirm, missionAdd, missionSet, missionGet) {
+        super(colors, missionAdd, missionSet, missionGet);
 
         /**
          * List of callbacks when a mission is confirmed/rejected.
@@ -309,18 +300,6 @@ class MissionManager extends ManagerPrototype {
 
         // Callback for confirm mission information from server
         M.WS.addCallback('request', missionConfirm, this._onMissionConfirm.bind(this));
-
-        /**
-         * List of colors for each id of the information.
-         */
-        this.colors = [
-            ['#FFF2CC', '#FFF2CC'], // yellow
-            ['#DAE8FC', '#6C8EBF'], // blue
-            ['#D5E8D4', '#82B366'], // green
-            ['#FFE6CC', '#D79B00'], // orange
-            ['#F8CECC', '#F8CECC'], // red    
-            ['#E1D5E7', '#9673A6'], // violet
-        ];
     }
 
     // #region Public methods
@@ -370,7 +349,10 @@ class MapManager {
      * @param {number} zoom - Initial zoom of the map.
      * @param {string} host - Host of the server.
      */
-    constructor(mapCenter, zoom, host) {
+    constructor(
+        mapCenter = config.Global.mapCenter, 
+        zoom = config.Global.zoom, 
+        host = config.WebSocket.host) {
 
         /**
          * Smart list with the information recived from server.
@@ -379,30 +361,28 @@ class MapManager {
          */
         this.MAP = new L.Map('mapid').setView(mapCenter, zoom);
 
+        let mapLayers = {};
+        let mapUrl = config.Global.mapUrl;
+        for (let i=0; i<config.Global.subdomains.length; i++) {
+            let subdomainsLabel = config.Global.subdomainsLabels[i];
+            let subdomainMaxZoom = config.Global.subdomainsMaxZoom[i];
+
+            mapLayers[subdomainsLabel] = new L.TileLayer(mapUrl, {
+                maxZoom: subdomainMaxZoom,
+                subdomains: config.Global.subdomains,
+            });
+
+            if (i == 0) {
+                mapLayers[subdomainsLabel].addTo(this.MAP);
+            }
+        }
+
         /**
          * Layer control of the map.
          * @type {L.control} - Control of the library Leaflet (Reference: https://leafletjs.com/).
          * @private
          */
-        this._layer_control = L.control.layers({
-            "hybrid": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
-                maxZoom: 22,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-            }).addTo(this.MAP),
-            "streets": L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                maxZoom: 22,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-            }),
-            "satellite": L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-                maxZoom: 22,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-            }),
-            "terrain": L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
-                maxZoom: 22,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-            })
-
-        }, {}, { position: 'topleft', collapsed: false }).addTo(this.MAP);
+        this._layer_control = L.control.layers(mapLayers, {}, { position: 'topleft', collapsed: false }).addTo(this.MAP);
 
         // Add a layer control to the map, with the latitude and longitude of the mouse
         L.control.coordinates({
@@ -447,8 +427,8 @@ class MapManager {
      * @access public
      */
     initialize() {
-        this.UAV_MANAGER = new UavManager('uavInfo', 'uavInfoSet', 'getUavList');
-        this.MISSION_MANAGER = new MissionManager('missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
+        this.UAV_MANAGER = new UavManager(config.UAV.colors, 'uavInfo', 'uavInfoSet', 'getUavList');
+        this.MISSION_MANAGER = new MissionManager(config.Mission.colors, 'missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
         this.DRAW_LAYERS = new DrawLayers();
 
         this.UAV_MANAGER.addInfoAddCallback(this._updateUavPickerListCallback.bind(this));

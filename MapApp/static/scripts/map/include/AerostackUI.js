@@ -5,3 +5,6 @@
  * @public
  */
 var M = null;
+
+var config = null;
+

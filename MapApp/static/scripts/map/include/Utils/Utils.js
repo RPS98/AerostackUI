@@ -368,6 +368,35 @@ class Utils {
         document.body.removeChild(element);
     }
 
+    static downloadImage(filename, image) {
+        var element = document.createElement('a');
+        element.setAttribute('href', image);
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    static getLocalFile(path, callback, ...args) {
+        fetch(path)
+            .then(response => response.blob()) 
+            .then(data => {
+                callback(data, args);
+            });
+    }
+
+    static loadLocalFile(path, callback, type='text', ...args) {
+        fetch(path)
+            .then(response => response.blob()) 
+            .then(data => {
+                Utils.loadFile(data, callback, type, args);
+        });
+    }
+
     static loadFile(file, callback, type="text", ...args) {
 
         var fileReader = new FileReader();
@@ -398,8 +427,7 @@ class Utils {
                 fileReader.readAsBinaryString(file);
                 break;
             default:
-                fileReader.readAsText(file, "UTF-8");
-                break;
+                throw `Error: Utils.loadFile - type ${type} not supported`;
         }
     }
 
