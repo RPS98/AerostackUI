@@ -402,6 +402,34 @@ class Utils {
                 break;
         }
     }
+
+    static resetLoadFileInput(input_id) {
+        let inputId = input_id + '-input';
+        document.getElementById(inputId).value = "";
+    }
+
+    static deepCopy(obj) {
+        if (Array.isArray(obj)) {
+            return [...obj];
+        } else if (typeof obj === 'object') {
+            return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
+        }
+    }
+
+    static deepCopyMergeDict(d1, d2) {
+        return Object.assign({}, d1, d2);
+    }
+
+    static hasMember(dict, memberList) {
+        let currentDict = dict;
+        for (let i = 0; i < memberList.length; i++) {
+            if (currentDict[memberList[i]] == undefined) {
+                return false;
+            }
+            currentDict = currentDict[memberList[i]];
+        }
+        return true;
+    }
 }
 
 

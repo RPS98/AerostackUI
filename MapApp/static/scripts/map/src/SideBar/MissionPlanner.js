@@ -537,18 +537,12 @@ class MissionPlanner {
         let input = document.getElementById(`${this.htmlId}-missionFile`);
         input.value = '';
 
-        console.log("TODO: Load mission file");
-        console.log(data)
-
         for (let i = 0; i < Object.keys(data).length; i++) {
             let id = Object.keys(data)[i];
             let info = data[id];
 
             let options = info.options;
             let values = info.values;
-
-            console.log("For layer " + id);
-            console.log(info);
 
             switch (options.type) {
                 case 'Marker':
@@ -561,6 +555,9 @@ class MissionPlanner {
                             break;
                         case 'LandPoint':
                             this.landPoint.codeDraw(values, options);
+                            break;
+                        case 'WayPoint':
+                            this.wayPoint.codeDraw(values, options);
                             break;
                         default:
                             throw new Error(`Unknown marker type ${options.name}`);
@@ -591,30 +588,7 @@ class MissionPlanner {
             }
         }
 
-        /*
-        let id = myargs;
-        let missionList = M.MISSION_MANAGER.getList();
-        let cont = 0;
-        while (missionList.includes(id)) {
-            id = `${myargs}-${cont}`;
-            cont++;
-        }
-
-        data.id = id;
-
-        let uavList = M.UAV_MANAGER.getList();
-        let missionUavList = data.uavList;
-
-        for (let i = 0; i < missionUavList.length; i++) {
-            let uavId = missionUavList[i];
-            if (!uavList.includes(uavId)) {
-                alert(`UAV ${uavId} from file ${myargs} is not connected`);
-                return;
-            }
-        }
-
-        M.WS.sendConfirmedMission(data);
-        */
+        Utils.resetLoadFileInput(`${this.htmlId}-missionFile`);
     }
 
     // #endregion

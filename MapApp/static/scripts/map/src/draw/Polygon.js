@@ -73,36 +73,67 @@ class Polygon extends DrawManager
 
 class Area extends Polygon
 {
-    constructor(status, options = undefined, layerOptions = undefined) {
+    constructor(status, options = {}, layerOptions = undefined) {
+
+        // Default values
+        let algorithmList = ['Back and force', 'Spiral'];
+        let algorithm = 'Back and force';
+        let streetSpacing = 1;
+        let wpSpace = 1;
+        let verticalOverlap = 50;
+        let horizontalOverlap = 50;
+
+        if (options.algorithmList == undefined) {
+            options.algorithmList = algorithmList;
+        }
+        if (options.algorithm == undefined) {
+            options.algorithm = algorithm;
+        }
+        if (options.streetSpacing == undefined) {
+            options.streetSpacing = streetSpacing;
+        }
+        if (options.wpSpace == undefined) {
+            options.wpSpace = wpSpace;
+        }
+        if (options.verticalOverlap == undefined) {
+            options.verticalOverlap = verticalOverlap;
+        }
+        if (options.horizontalOverlap == undefined) {
+            options.horizontalOverlap = horizontalOverlap;
+        }
+
         super(status, 'Area', options, layerOptions);
     }
 
     drawInfoAdd(htmlId, info) {
         let name = 'Area';
         let endHtml = [];
-        let algorithms = ['Back and force', 'Spiral'];
         let id = htmlId + '-' + info.id;
-        endHtml.push(HTMLUtils.initDropDown(`${id }-Swarming`, algorithms, 'Back and force'));
 
-        let streetSpacing = HTMLUtils.addDict('input', `${id}-streetSpacing`, { 'class': 'form-control', 'required': 'required', 'value': 1}, 'number', 'Value');
+        console.log(this)
+        let options = this.options.drawManager.options;
+
+        endHtml.push(HTMLUtils.initDropDown(`${id }-Swarming`, options.algorithmList, options.algorithm));
+
+        let streetSpacing = HTMLUtils.addDict('input', `${id}-streetSpacing`, { 'class': 'form-control', 'required': 'required', 'value': options.streetSpacing}, 'number', 'Value');
         let streetSpacingBtn = HTMLUtils.addDict('button', `${id}-streetSpacingBtn`, { 'class': 'btn btn-primary' }, 'Set street space (m)');
         let streetSpacingDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [streetSpacing]);
         let streetSpacingBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [streetSpacingBtn]);
         endHtml.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [streetSpacingDiv, streetSpacingBtnDiv]));
 
-        let wpSpace = HTMLUtils.addDict('input', `${id}-wpSpace`, { 'class': 'form-control', 'required': 'required', 'value': 1}, 'number', 'Value');
+        let wpSpace = HTMLUtils.addDict('input', `${id}-wpSpace`, { 'class': 'form-control', 'required': 'required', 'value': options.wpSpace}, 'number', 'Value');
         let wpSpaceBtn = HTMLUtils.addDict('button', `${id}-wpSpaceBtn`, { 'class': 'btn btn-primary' }, 'Set wp space (m)');
         let wpSpaceDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [wpSpace]);
         let wpSpaceBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [wpSpaceBtn]);
         endHtml.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [wpSpaceDiv, wpSpaceBtnDiv]));
 
-        let verticalOverlap = HTMLUtils.addDict('input', `${id}-verticalOverlap`, { 'class': 'form-control', 'required': 'required', 'value': 1}, 'number', 'Value');
+        let verticalOverlap = HTMLUtils.addDict('input', `${id}-verticalOverlap`, { 'class': 'form-control', 'required': 'required', 'value': options.verticalOverlap}, 'number', 'Value');
         let verticalOverlapBtn = HTMLUtils.addDict('button', `${id}-verticalOverlapBtn`, { 'class': 'btn btn-primary' }, 'Set vertical overlap (%)');
         let verticalOverlapDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [verticalOverlap]);
         let verticalOverlapBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [verticalOverlapBtn]);
         endHtml.push(HTMLUtils.addDict('div', `none`, { 'class': 'row my-1 mx-1' }, [verticalOverlapDiv, verticalOverlapBtnDiv]));
 
-        let horizontalOverlap = HTMLUtils.addDict('input', `${id}-horizontalOverlap`, { 'class': 'form-control', 'required': 'required', 'value': 1}, 'number', 'Value');
+        let horizontalOverlap = HTMLUtils.addDict('input', `${id}-horizontalOverlap`, { 'class': 'form-control', 'required': 'required', 'value': options.horizontalOverlap}, 'number', 'Value');
         let horizontalOverlapBtn = HTMLUtils.addDict('button', `${id}-horizontalOverlapBtn`, { 'class': 'btn btn-primary' }, 'Set horizontal overlap (%)');
         let horizontalOverlapDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col' }, [horizontalOverlap]);
         let horizontalOverlapBtnDiv = HTMLUtils.addDict('div', `none`, { 'class': 'col-6' }, [horizontalOverlapBtn]);
@@ -115,13 +146,8 @@ class Area extends Polygon
     }
 
     drawInfoInitialize(id, info) {
-        info.drawManager.options.algorithm = 'Back and force';
         Utils.addButtonsCallback(`${id}-Swarming-item`, this.clickAlgorithmsListCallback.bind(this), id, info);
-
-        info.drawManager.options.streetSpacing = 1;
         Utils.addFormCallback(`${id}-streetSpacingBtn`, [`${id}-streetSpacing`], ['streetSpacingValue'], this.streetSpacingCallback.bind(this), id, info);
-
-        info.drawManager.options.wpSpace = 1;
         Utils.addFormCallback(`${id}-wpSpaceBtn`, [`${id}-wpSpace`], ['wpSpaceValue'], this.wpSpaceCallback.bind(this), id, info);
 
         super.drawInfoInitialize(id, info);

@@ -131,39 +131,33 @@ class ManagerPrototype extends SmartListCallbacks {
     _getDrawManager(layer) {
 
         let pmLayer = null;
-        try {
+        // try {
+        //     pmLayer = layer.pm._layer;
+        // } catch (e) {
+        //     return [false, null, null];
+        // }
+        if (Utils.hasMember(layer, ['pm', '_layer'])) {
             pmLayer = layer.pm._layer;
-        } catch (e) {
-            return [false, null, null];
-        }
-
-        if (pmLayer !== undefined) {
 
             let drawManager = {};
             
             // Extract the drawManager attribute
             // If layer has been created by code
-            if (pmLayer.options.drawManager !== undefined) {
+            if (Utils.hasMember(pmLayer, ['options', 'drawManager'])) {
                 pmLayer.options.drawManager = Object.assign({}, pmLayer.options.drawManager);
                 drawManager = pmLayer.options.drawManager;
             // If layer has been created by user
-            } else if (pmLayer.pm.options.drawManager !== undefined) {
+            } else if (Utils.hasMember(pmLayer, ['pm', 'options', 'drawManager'])) {
                 pmLayer.pm.options.drawManager = Object.assign({}, pmLayer.pm.options.drawManager);
                 drawManager = pmLayer.pm.options.drawManager;
             }
-            console.log("_getDrawManager: ");
-            console.log(drawManager);
             // If the layer is a Draw layer, return its value
-            if (drawManager.options !== undefined) {
-                console.log(drawManager.options.status == 'draw');
-                
+            if (Utils.hasMember(drawManager, ['options', 'status'])) {
                 if (drawManager.options.status == 'draw') {
-
                     let value = {
                         'layer': layer,
                         'drawManager': drawManager,
                     };
-                    console.log(value);
                     return [true, value];
                 }
             }
@@ -184,7 +178,7 @@ class ManagerPrototype extends SmartListCallbacks {
         let value = info[1];
         
         if (flag) {
-            console.log("DrawLayers: _onLayerAdd")
+            // console.log("DrawLayers: _onLayerAdd")
             value.drawManager.id = this._id;
             value.id = this._id;
             super.addObject(value.drawManager.id, value);
@@ -257,225 +251,6 @@ class ManagerPrototype extends SmartListCallbacks {
 
     // #endregion
 }
-
-
-
-// /**
-//  * Class that manage draw mission layers, adding callbacks when the mission is added/removed/edited.
-//  */
-// class DrawLayers extends SmartListCallbacks {
-//     constructor() {
-//         super();
-
-//         // Callbacks for Map information
-//         M.addMapCallback('layeradd', this._onLayerAdd.bind(this));
-//         M.addMapCallback('layerremove', this._onLayerRemove.bind(this));
-
-//         /**
-//          * Id for each layer created.
-//          * @type {string} - Id of the layer.
-//          * @private
-//          */
-//         this._id = 0;
-//     }
-
-//     // #region Public methods
-
-//     /**
-//      * Remove the layer from the list of layers by its id.
-//      * @param {string} id - Id of the layer.
-//      * @return {void}
-//      * @access public
-//      */
-//     removeLayerById(id) {
-//         // console.log("MapManager: removeLayer");
-//         let layer = super.getDictById(id).layer;
-//         if (layer != null) {
-//             layer.remove();
-//         }
-//     }
-
-//     // #endregion
-
-//     // #region Private methods
-
-
-
-//     /**
-//      * Process the layer, finding the drawManager attribute and the value of the information.
-//      * @param {L.Layer} layer - Layer to be process.
-//      * @return {list} - List with two elements: flag, value. Flag is true if the layer has a drawManager, false otherwise.  Value is a dict with the layer and the drawManager attribute.
-//      * @access private
-//      */
-//     _getDrawManager(layer) {
-
-//         if (layer.pm !== undefined) {
-//             if (layer.pm._layer !== undefined) {
-
-//                 // If layer has been created by code
-//                 if (layer.pm._layer.options.drawManager !== undefined) {
-//                     return layer.pm._layer.options.drawManager;
-//                     // If layer has been created by user
-//                 } else if (layer.pm._layer.pm.options.drawManager !== undefined) {
-//                     return layer.pm._layer.pm.options.drawManager;
-//                 }
-//             }
-//         }
-//         return null;
-//     }
-//     // _getDrawManager(layer) {
-
-//     //     let pmLayer = null;
-//     //     try {
-//     //         pmLayer = layer.pm._layer;
-//     //     } catch (e) {
-//     //         return [false, null, null];
-//     //     }
-
-//     //     if (pmLayer !== undefined) {
-
-//     //         let drawManager = {};
-
-//     //         // Extract the drawManager attribute
-//     //         // If layer has been created by code
-//     //         if (pmLayer.options.drawManager !== undefined) {
-//     //             pmLayer.options.drawManager = Object.assign({}, {}, pmLayer.options.drawManager);
-//     //             drawManager = pmLayer.options.drawManager;
-//     //         // If layer has been created by user
-//     //         } else if (pmLayer.pm.options.drawManager !== undefined) {
-//     //             pmLayer.pm.options.drawManager = Object.assign({}, {}, pmLayer.pm.options.drawManager);
-//     //             drawManager = pmLayer.pm.options.drawManager;
-//     //         }
-
-//     //         // If the layer is a Draw layer, return its value
-//     //         if (drawManager.options !== undefined) {
-
-//     //             if (drawManager.options.status == 'draw') {
-//     //                 let value = {
-//     //                     'layer': layer,
-//     //                     'drawManager': drawManager,
-//     //                     'id': drawManager.options.id
-//     //                 };
-//     //                 return [true, value];
-//     //             }
-//     //         }
-//     //     }
-//     //     return [false, null, null];
-//     // }
-
-//     /**
-//      * When a layer is added to the map, it is checked if it has a drawManager attribute and assign a id to it.
-//      * @param {array} args - Empty array.
-//      * @param {event} e - Layer created event.
-//      * @return {void}
-//      * @access private
-//      */
-//     _onLayerAdd(args, e) {
-//         let drawManager = this._getDrawManager(e.layer);
-
-//         if (drawManager != null) {
-//             let layerId = Object.assign({}, { 'id': this._id }).id;
-//             drawManager.options.id = layerId;
-
-//             let value = {
-//                 'layer': e.layer,
-//                 'drawManager': Object.assign({}, {}, drawManager),
-//                 'id': layerId
-//             };
-
-//             // drawManager = Object.assign({}, {}, drawManager);
-//             // drawManager.options.id = layerId;
-//             // let value = {
-//             //     'layer': e.layer,
-//             //     'drawManager': drawManager,
-//             //     'id': layerId
-//             // };
-
-//             console.log("Add value with id: " + value.id);
-//             console.log(value);
-            
-//             super.addObject(value.drawManager.id, value);
-//             this._id++;
-
-//             console.log("Layer add");
-//             let list = super.getList()
-//             for (let i = 0; i < list.length; i++) {
-//                 console.log(super.getDictById(list[i]));
-//             }
-
-//             // Add callback to the layer change
-//             let callback = this._onUserLayerChange.bind(this);
-//             e.layer.on('pm:edit', (e2) => {
-//                 callback(e2);
-//             });
-
-//             // Add callback to the layer remove
-//             let callback2 = this._onCodeLayerChange.bind(this);
-//             e.layer.on('move', (e2) => {
-//                 callback2(e2);
-//             });
-//         }
-//     }
-
-//     /**
-//      * Layer remove callback.
-//      * @param {array} args - Empty array. 
-//      * @param {event} e - Layer remove event.
-//      * @return {void}
-//      * @access private
-//      */
-//     _onLayerRemove(args, e) {
-//         let event = Object.assign({}, e);
-//         let drawManager = this._getDrawManager(event.layer);
-
-//         if (drawManager != null) {
-//             console.log("DrawLayers: _onLayerRemove - flag");
-//             super.removeById(drawManager.options.id);
-//         }
-//     }
-
-//     /**
-//      * Layer change by user callback.
-//      * @param {event} e - Layer change event.
-//      * @return {void}
-//      * @access private
-//      */
-//     _onUserLayerChange(e) {
-//         let drawManager = this._getDrawManager(e.target);
-//         if (drawManager != null) {
-//             // console.log("DrawLayers: _onUserLayerChange")
-//             let value = {
-//                 'layer': e.layer,
-//                 'drawManager': drawManager,
-//                 'id': drawManager.options.id
-//             };
-//             super.updateObject(value.id, value);
-//         }
-//     }
-
-//     /**
-//      * Layer change by code callback.
-//      * @param {event} e - Layer change event.
-//      * @return {void}
-//      * @access private
-//      */
-//     _onCodeLayerChange(e) {
-//         let drawManager = this._getDrawManager(e.target);
-//         if (drawManager != null) {
-//             // console.log("DrawLayers: _onCodeLayerChange")
-//             let value = {
-//                 'layer': e.layer,
-//                 'drawManager': drawManager,
-//                 'id': drawManager.options.id
-//             };
-//             super.updateObject(value.id, value);
-//         }
-//     }
-
-//     // #endregion
-// }
-
-
 
 
 class UavManager extends ManagerPrototype {

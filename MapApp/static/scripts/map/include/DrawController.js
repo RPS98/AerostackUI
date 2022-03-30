@@ -70,12 +70,10 @@ class DrawController {
      * @static
      */
     static drawRemoveAll() {
-        let layers = M.getLayers();
+        let drawLayers = Utils.deepCopy(M.DRAW_LAYERS.getList());
 
-        for (let i = 0; i < layers.length; i++) {
-            if (layers[i].pm.options.status == 'draw') {
-                layers[i].remove();
-            }
+        for (let i = 0; i < drawLayers.length; i++) {
+            M.DRAW_LAYERS.removeLayerById(drawLayers[i]);
         }
     }
 }

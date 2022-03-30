@@ -64,6 +64,13 @@ window.onload = function () {
         sideBarsClass[i];
     }
 
+    let aux = {
+        'member1': {
+            'member1_2': 1,
+        }
+    };
+
+
     // let marker = new DrawManager('Marker', 'test');
     // marker.codeDraw(mapCenter, {'rotationAngle': 0});
     // marker.codeLayerDrawn.setLatLng(mapCenter);
