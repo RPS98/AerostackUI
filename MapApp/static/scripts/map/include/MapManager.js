@@ -359,7 +359,14 @@ class MapManager {
          * @type {L.Map} - Map of the library Leaflet (Reference: https://leafletjs.com/).
          * @public
          */
-        this.MAP = new L.Map('mapid').setView(mapCenter, zoom);
+        this.MAP = new L.Map(
+            'mapid',
+            {
+                center: mapCenter,
+                zoom: zoom,
+                doubleClickZoom: false
+            }
+        );
 
         let mapLayers = {};
         let mapUrl = config.Global.mapUrl;
@@ -370,6 +377,11 @@ class MapManager {
             mapLayers[subdomainsLabel] = new L.TileLayer(mapUrl, {
                 maxZoom: subdomainMaxZoom,
                 subdomains: config.Global.subdomains,
+                useCache: config.Global.useCache,
+	            crossOrigin: config.Global.useCache,
+                saveToCache: config.Global.saveToCache,
+                useOnlyCache: config.Global.useOnlyCache,
+                cacheMaxAge: config.Global.cacheMaxAgeInMs,
             });
 
             if (i == 0) {

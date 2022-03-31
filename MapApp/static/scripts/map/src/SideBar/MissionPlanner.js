@@ -8,8 +8,8 @@ class MissionPlanner {
 
         this.selectedMission = 'New Mission';
         this.selectedUavs = {};
-        this.selectedHeight = [3, 3];
-        this.selectedSpeed = 6
+        this.selectedHeight = [config.SideBars.MissionPlanner.defaultHeight, config.SideBars.MissionPlanner.defaultHeight];
+        this.selectedSpeed = config.SideBars.MissionPlanner.defaultSpeed;
 
         this.addDrawTypes();
 

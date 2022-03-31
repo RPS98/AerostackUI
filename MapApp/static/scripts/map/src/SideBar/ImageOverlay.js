@@ -2,24 +2,23 @@ class ImageOVerlay {
     constructor() {
         this.htmlId = 'sideBar-left-imageOverlay-content';
 
-        this.point_list = [];
-        this.point_list.push(L.latLng(28.14422, -16.50366));
-        this.point_list.push(L.latLng(28.14418, -16.50050));
-        this.point_list.push(L.latLng(28.14287, -16.50366));
+        this.imgUrl = config.SideBars.ImageOverlay.url;
+        this.opacity = config.SideBars.ImageOverlay.opacity;
+        let iconUrl = config.SideBars.ImageOverlay.icon;
 
-        // Drag icon image
-        let imageOverlayURL = "/static/scripts/map/img/arrows-alt-solid.svg";
+        this.point_list = [];
+        this.point_list.push(L.latLng(config.SideBars.ImageOverlay.topLeftCorner));
+        this.point_list.push(L.latLng(config.SideBars.ImageOverlay.topRightCorner));
+        this.point_list.push(L.latLng(config.SideBars.ImageOverlay.bottomLeftCorner));
 
         // Set image draggable icons
-        let imageOverlay = L.icon({ iconUrl: imageOverlayURL, iconSize: [30, 30] });
+        let imageOverlay = L.icon({ iconUrl: iconUrl, iconSize: [30, 30] });
 
         this.markerTL = L.marker(this.point_list[0], { draggable: true, pmIgnore: true, icon: imageOverlay })
         this.markerTR = L.marker(this.point_list[1], { draggable: true, pmIgnore: true, icon: imageOverlay })
         this.markerBL = L.marker(this.point_list[2], { draggable: true, pmIgnore: true, icon: imageOverlay })
 
         this.overlay = null;
-        this.imgUrl = "/static/scripts/map/img/Global1.JPG";
-        this.opacity = 0.7;
 
         this.addHTML();
         this.addCallbacks();
@@ -114,9 +113,6 @@ class ImageOVerlay {
         this.markerTR.setLatLng(L.latLng(inputs['toprightLat'], inputs['toprightLng']));
         this.markerBL.setLatLng(L.latLng(inputs['bottomLeftLat'], inputs['bottomLeftLng']));
 
-        // Create the image overlay
-        console.log("Adding image");
-        console.log(this.imgUrl);
         if (this.overlay == null) {
             this.overlay = L.imageOverlay.rotated(this.imgUrl, this.point_list[0], this.point_list[1], this.point_list[2], {
                 opacity: this.opacity,

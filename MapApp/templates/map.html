@@ -49,6 +49,11 @@
             <!-- Markers Rotate -->
             <script src="{% static 'scripts/map/libs/RotateMarker/rotatedMarker.js' %}"></script>
 
+            <!-- Save cache -->
+            {% comment %} <script src="{% static 'scripts/map/libs/Cache/leaflet-src.js' %}"></script> {% endcomment %}
+            <script src="{% static 'scripts/map/libs/Cache/pouchdb.js' %}"></script>
+            <script src="{% static 'scripts/map/libs/Cache/L.TileLayer.PouchDBCached.js' %}"></script>
+
             <!-- Style -->
             <link rel="stylesheet" type="text/css" href="{% static 'style/map.css' %}"/>
 

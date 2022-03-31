@@ -2,10 +2,10 @@ class Home {
     constructor() {
         this.htmlId = 'sideBar-left-home-content';
 
-        this.defaultGoTo = [28.14376, -16.50235];
-
-        this.defaultUAVname = 'UAV_name';
-        this.defaultUAV = [28.1439717, -16.5032634];
+        this.defaultGoTo = config.SideBars.Home.goTo;
+        this.defaultGoToZoom = config.SideBars.Home.goToZoom;
+        this.defaultUAVname = config.SideBars.Home.UAVname;
+        this.defaultUAV = config.SideBars.Home.UAVvalue;
 
         this.addHTML();
         this.addCallbacks();
@@ -45,7 +45,7 @@ class Home {
             [`${this.htmlId}-goToLat`, `${this.htmlId}-goToLng`],
             ['map_center_lat', 'map_center_lng'],
             Home.goToCallback,
-            19 // zoom
+            this.defaultGoToZoom // zoom
         );
 
         Utils.addFormCallback(

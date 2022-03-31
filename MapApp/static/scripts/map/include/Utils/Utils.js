@@ -448,6 +448,20 @@ class Utils {
         return Object.assign({}, d1, d2);
     }
 
+    static getMember(dict, memberList) {
+        let value = undefined;
+        let currentDict = dict;
+        for (let i = 0; i < memberList.length; i++) {
+            if (currentDict[memberList[i]] != undefined) {
+                value = currentDict[memberList[i]];
+                currentDict = currentDict[memberList[i]];
+            } else {
+                return undefined;
+            }
+        }
+        return value;
+    }
+
     static hasMember(dict, memberList) {
         let currentDict = dict;
         for (let i = 0; i < memberList.length; i++) {
@@ -457,6 +471,39 @@ class Utils {
             currentDict = currentDict[memberList[i]];
         }
         return true;
+    }
+
+    static generateList(infoTable, dict, roundTable = []) {
+        let infoList = [];
+        for (let i = 0; i < infoTable.length; i++) {
+            let row = infoTable[i];
+            let infoRow = [];
+            for (let j = 0; j < row.length; j++) {
+                let element = row[j];
+                let infoElement = '';
+                if (Array.isArray(element)) {
+                        
+                    if (Utils.hasMember(dict, element)) {
+                        infoElement = Utils.getMember(dict, element);
+                    } else {
+                        infoElement = 'N/A';
+                    }
+
+                    for (let k = 0; k < roundTable.length; k++) {
+                        let roundRow = roundTable[k];
+                        if (roundRow[0] == element) {
+                            infoElement = Utils.round(infoElement, roundRow[1]);
+                        }
+                    }
+
+                } else if (typeof element === 'string' || element instanceof String) {
+                    infoElement = element;
+                }
+                infoRow.push(infoElement);
+            }
+            infoList.push(infoRow);
+        }
+        return infoList;
     }
 }
 

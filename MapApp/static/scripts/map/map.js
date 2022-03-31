@@ -24,9 +24,6 @@ window.onload = function () {
 
     function initialize() {
 
-        console.log("config loaded");
-        console.log(config);
-
         /**
          * Map Manager global variable to be accessed from other modules
          * @type {MapManager}
