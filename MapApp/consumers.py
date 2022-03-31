@@ -66,6 +66,11 @@ class MissionManager(InfoManager):
         await super().initialize()
         await serverManager.addCallback('request', 'missionConfirm', self.on_confirm_mission)
         await serverManager.addCallback('request', 'missionStart', self.on_start_mission)
+        await serverManager.addCallback('request', 'missionStop', self.on_mission_info)
+        await serverManager.addCallback('request', 'missionEnd', self.on_mission_info)
+    
+    async def on_mission_info(self, id, rol, msg):
+        await serverManager.sendMessage(msg['from'], 1, msg)
     
     async def on_confirm_mission(self, id, rol, msg):
         
@@ -260,7 +265,7 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
         Args:
             message (str): JSON-decoded incoming message
         """
-        # print(f"Received message: {text_data}")        
+        print(f"Received message: {text_data}")        
         msg = json.loads(text_data)['message']
         
         if msg['type'] == 'basic' and msg['status'] == 'request':

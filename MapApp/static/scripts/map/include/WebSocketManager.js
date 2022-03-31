@@ -182,7 +182,7 @@ class WebSocketManager {
      * @return {void}
      * @access public
      */
-     sendStartMissionConfirm(missionId) {
+    sendStartMission(missionId) {
         this.sendRequest(
             'missionStart',
             {
@@ -192,7 +192,25 @@ class WebSocketManager {
         );
     }
 
-    
+    sendStopMission(missionId) {
+        this.sendRequest(
+            'missionStop',
+            {
+                'id': missionId,
+            },
+            'manager'
+        );
+    }
+
+    sendEndMission(missionId) {
+        this.sendRequest(
+            'missionEnd',
+            {
+                'id': missionId,
+            },
+            'manager'
+        );
+    }
 
     // #endregion
 
@@ -219,7 +237,7 @@ class WebSocketManager {
             }
         }
 
-        this._onMessage({'data': JSON.stringify(msg)});
+        this._onMessage({ 'data': JSON.stringify(msg) });
     }
 
     sendUavInfo(uavData) {
@@ -237,7 +255,7 @@ class WebSocketManager {
             }
         }
 
-        this._onMessage({'data': JSON.stringify(msg)});
+        this._onMessage({ 'data': JSON.stringify(msg) });
     }
 
     // #endregion
@@ -311,8 +329,8 @@ class WebSocketManager {
         // Get json message
         let msg = JSON.parse(webSocket.data).message;
 
-        // console.log("Message received");
-        // console.log(msg);
+        console.log("Message received");
+        console.log(msg);
 
         for (let i = 0; i < this._callbacksList.length; i++) {
             if (this._callbacksList[i].type == msg.type && this._callbacksList[i].header == msg.header) {

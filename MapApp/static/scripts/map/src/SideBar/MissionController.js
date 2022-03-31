@@ -12,8 +12,6 @@ class MissionController
     initializedLoad() {
         HTMLUtils.addToExistingElement(`${this.htmlId}`, [HTMLUtils.addDict('fileInput', `${this.htmlId}-missionFile`, {}, 'Choose Mission File', '')]);
         Utils.addFileCallback(`${this.htmlId}-missionFile`, this.loadMissionCallback.bind(this));
-        // HTMLUtils.addToExistingElement(`${this.htmlId}`, [HTMLUtils.addDict('button', `${this.htmlId}-LoadMission`, { 'class': 'btn btn-primary' }, 'Load Mission')]);
-        // Utils.addButtonCallback(`${this.htmlId}-LoadMission`, this.loadMissionCallback.bind(this), []);
     }
 
     addHTML() {
@@ -27,7 +25,7 @@ class MissionController
         // Buttons for draw mission
         let splitBtn = [];
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-btn-reload`, {'class': 'btn btn-primary',}, `Reload missions`));
-        splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-btn-edit`,   {'class': 'btn btn-primary',}, `Edit mission`));
+        // splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-btn-edit`,   {'class': 'btn btn-primary',}, `Edit mission`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-btn-save`,   {'class': 'btn btn-primary',}, `Save mission`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-btn-center`, {'class': 'btn btn-primary',}, `Center mission`));
         splitBtn.push(HTMLUtils.addDict('button', `${this.htmlId}-btn-start`,  {'class': 'btn btn-primary',}, `Start mission`));
@@ -43,7 +41,8 @@ class MissionController
     }
 
     addControllerCallbacks() {
-        Utils.addButtonCallback(`${this.htmlId}-btn-edit`,   this.editMissionCallback.bind(this), []);
+        Utils.addButtonCallback(`${this.htmlId}-btn-reload`, this.reloadMissionCallback.bind(this), []);
+        // Utils.addButtonCallback(`${this.htmlId}-btn-edit`,   this.editMissionCallback.bind(this), []);
         Utils.addButtonCallback(`${this.htmlId}-btn-save`,   this.saveMissionCallback.bind(this), []);
         Utils.addButtonCallback(`${this.htmlId}-btn-center`, this.centerMissionCallback.bind(this), []);
         Utils.addButtonCallback(`${this.htmlId}-btn-start`,  this.startMissionCallback.bind(this), []);
@@ -76,34 +75,45 @@ class MissionController
     }
 
     startMissionCallback(args) {
-        console.log(`Start mission ${this.selectedMissionId}`);
-        M.WS.sendStartMissionConfirm(this.selectedMissionId);
+        M.WS.sendStartMission(this.selectedMissionId);
     }
 
     editMissionCallback(args) {
         console.log(`Edit mission ${this.selectedMissionId}`);
+        // TODO: Implement
     }
 
     centerMissionCallback(args) {
-        console.log(`Center mission ${this.selectedMissionId}`);
+        let missionDict = M.MISSION_MANAGER.getDictById(this.selectedMissionId);
+        let center = missionDict.layers[0].values;
+
+        if (center.lat !== undefined && center.lng !== undefined) {
+            M.MAP.flyTo(center, M.MAP.getZoom());
+        } else if (center[0].lat !== undefined && center[0].lng !== undefined) {
+            M.MAP.flyToBounds(center, M.MAP.getZoom());
+        }
     }
 
     stopMissionCallback(args) {
-        console.log(`Stop mission ${this.selectedMissionId}`);
+        M.WS.sendStopMission(this.selectedMissionId);
     }
 
     endMissionCallback(args) {
-        console.log(`End mission ${this.selectedMissionId}`);
+        M.WS.sendEndMission(this.selectedMissionId);
+    }
+
+    reloadMissionCallback(args) {
+        let missionLayers = M.MISSION_LAYERS.getList();
+        for (let i = 0; i < missionLayers.length; i++) {
+            M.MISSION_LAYERS.removeLayerById(missionLayers[i]);
+        }
+
+        M.WS.sendRequestGetMissionList();
     }
 
     saveMissionCallback(myargs, args) {
-        console.log('Save mission');
-
         let missionId = this.selectedMissionId;
         let missionDict = M.MISSION_MANAGER.getDictById(missionId);
-
-        console.log(missionId);
-        console.log(missionDict);
 
         Utils.download(`Mission-${missionId}.txt`, missionDict);
     }
@@ -117,9 +127,6 @@ class MissionController
 
         Utils.resetLoadFileInput(`${this.htmlId}-missionFile`);
 
-        console.log("TODO: Load mission file");
-        console.log(data)
-        console.log(myargs)
         let id = myargs;
         let missionList = M.MISSION_MANAGER.getList();
         let cont = 0;

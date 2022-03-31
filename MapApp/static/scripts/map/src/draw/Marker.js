@@ -381,7 +381,7 @@ class LandPoint extends Marker {
 
       super(
          status, 
-         'TakeOffPoint',
+         'LandPoint',
          parameters,
          options,
          layerOptions,

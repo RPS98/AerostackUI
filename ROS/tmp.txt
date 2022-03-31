@@ -1,2 +1,8 @@
 31/03 -> Mission controller functionality (Center mission, Reload mission)  //  Start, stop and end mission messages  //  Layer tiles and order  //  Console side bar
 01/03 -> Debug project
+
+04/04 -> consumer.py
+05/04 -> webscoket_client.py // AerostackUI.py
+06/04 -> Debug project
+07/04 -> Debug project
+08/04 -> Documentation

@@ -2,32 +2,36 @@
 // var idUserDraw = 0;
 
 class DrawManager {
-    constructor(status, type, name, parameters = [], options = {}, layerOptions = {}) {
+    constructor(status, layerType, layerName, parameters = [], options = {}, layerOptions = {}) {
         this.parameters = parameters
         for (let i = 0; i < parameters.length; i++) {
             let parameter = parameters[i];
-            let type = parameter[0];
+            // let type = parameter[0];
             let name = parameter[1];
             let value = parameter[2];
             if (options.name !== undefined) {
-                value = options.name;
+                value = options[name];
             } else {
-                options.name = value;
+                options[name] = value;
             }
         }
 
-        this.type = type
+        this.type = layerType
         this.codeLayerDrawn = null;
 
         let optionsStructure = {
             'drawManager': {
-                'options': {},
+                'options': {
+                    'type': this.type,
+                    'name': layerName,
+                    'status': status,
+                },
                 'instance': {},
             }
         }
 
         this.options = Object.assign(optionsStructure, layerOptions);
-        this.options.drawManager.options = options
+        this.options.drawManager.options = Object.assign(this.options.drawManager.options, options);
         this.options.instance = this;
     }
 

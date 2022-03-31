@@ -35,13 +35,11 @@ class MissionPlanner {
             'borderColor': borderColor,
         }
 
-        let option = {'status': 'draw'};
-
-        this.pointOfInterest = new PointOfInterest(status, option, layerOptions);
+        this.pointOfInterest = new PointOfInterest(status, undefined, layerOptions);
         // this.wayPoint = new WayPoint(status, undefined, layerOptions);
-        this.wayPoint = new WayPoint(status, option, Object.assign({}, layerOptions, { 'continueDrawing': true })); // TODO: not supported
-        this.landPoint = new LandPoint(status, option, layerOptions);
-        this.takeOffPoint = new TakeOffPoint(status, option, layerOptions);
+        this.wayPoint = new WayPoint(status, undefined, Object.assign({}, layerOptions, { 'continueDrawing': true })); // TODO: not supported
+        this.landPoint = new LandPoint(status, undefined, layerOptions);
+        this.takeOffPoint = new TakeOffPoint(status, undefined, layerOptions);
 
         let drawDefaultColor = '#B3B3B3';
         let layerOptions2 = {
@@ -49,9 +47,9 @@ class MissionPlanner {
             'color': drawDefaultColor,
         }
 
-        this.path = new Path(status, option, layerOptions2);
-        this.area = new Area(status, option, layerOptions2);
-        this.carea = new CircularArea(status, option, layerOptions2);
+        this.path = new Path(status, undefined, layerOptions2);
+        this.area = new Area(status, undefined, layerOptions2);
+        this.carea = new CircularArea(status, undefined, layerOptions2);
     }
 
     addPlannerHTML() {
@@ -221,9 +219,10 @@ class MissionPlanner {
             );
 
             if (distance < minDistance) {
+
                 missionLayer['uavList'].push(selectedUavListTakeOff[j]);
                 selectedUavListTakeOff.splice(j, 1);
-                break;
+                return;
             }
         }
 
@@ -298,7 +297,6 @@ class MissionPlanner {
 
 
     missionInterpreter() {
-        console.log("Mission Interpreter");
 
         let selectedUavList = [];
         for (let key in this.selectedUavs) {
@@ -353,8 +351,6 @@ class MissionPlanner {
                     break;
             }
 
-            console.log("MissionPlanner");
-            console.log(layerInfo)
 
             // Layer coordinates values
             switch (drawManagerInfo.type) {
@@ -401,6 +397,7 @@ class MissionPlanner {
             if (uav == 'auto') {
                 continue;
             }
+
             let takeOffFound = false;
             let landFound = false;
             for (let j = 0; j < mission.length; j++) {
@@ -430,9 +427,6 @@ class MissionPlanner {
     }
 
     confirmBtnCallback(args = []) {
-        // TODO: websocket -> send mission to server
-        console.log('confirm mission');
-
         let output = this.missionInterpreter();
 
         let validation = output[0];
@@ -440,7 +434,7 @@ class MissionPlanner {
         let uavList = output[2];
         let mission = output[3];
 
-        if (validation) {
+        if (validation && uavList.length > 0) {
             console.log('mission is valid');
             console.log(uavList);
             console.log(mission);
@@ -450,9 +444,15 @@ class MissionPlanner {
                 mission
             );
         } else {
-            console.log("Mission validation failed");
-            console.log(info);
-            alert(info.join('\n'));
+            if (info.length > 0) {
+                console.log("Mission validation failed");
+                console.log(info);
+                alert(info.join('\n'));
+            } else {
+                console.log("Mission validation failed");
+                console.log(uavList);
+                alert("Uav list is empty");
+            }
         }
     }
 
@@ -494,8 +494,6 @@ class MissionPlanner {
     }
 
     saveMissionCallback(args) {
-        console.log("save mission");
-        console.log(args);
 
         let drawLayers = M.DRAW_LAYERS.getList();
 
@@ -511,9 +509,6 @@ class MissionPlanner {
                 'options': drawManager.options,
                 'values': []
             };
-
-            console.log("For layer " + drawManager.options.name);
-            console.log(layer);
 
             if (layer._latlng) {
                 saveInfo[id]['values'] = layer._latlng;

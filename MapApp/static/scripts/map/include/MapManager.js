@@ -78,12 +78,14 @@ class ManagerPrototype extends SmartListCallbacks {
  * Class that manage draw mission layers, adding callbacks when the mission is added/removed/edited.
  */
  class DrawLayers extends SmartListCallbacks {
-    constructor() {
+    constructor(status) {
         super();
 
         // Callbacks for Map information
         M.addMapCallback('layeradd', this._onLayerAdd.bind(this));
         M.addMapCallback('layerremove', this._onLayerRemove.bind(this));
+
+        this.status = status;
 
         /**
          * Id for each layer created.
@@ -122,11 +124,8 @@ class ManagerPrototype extends SmartListCallbacks {
     _getDrawManager(layer) {
 
         let pmLayer = null;
-        // try {
-        //     pmLayer = layer.pm._layer;
-        // } catch (e) {
-        //     return [false, null, null];
-        // }
+        
+
         if (Utils.hasMember(layer, ['pm', '_layer'])) {
             pmLayer = layer.pm._layer;
 
@@ -143,8 +142,11 @@ class ManagerPrototype extends SmartListCallbacks {
                 drawManager = pmLayer.pm.options.drawManager;
             }
             // If the layer is a Draw layer, return its value
+            console.log(Utils.hasMember(drawManager, ['options', 'status']));
             if (Utils.hasMember(drawManager, ['options', 'status'])) {
-                if (drawManager.options.status == 'draw') {
+                console.log("Status: " + this.status);
+                console.log("Status: " + drawManager.options.status);
+                if (drawManager.options.status == this.status) {
                     let value = {
                         'layer': layer,
                         'drawManager': drawManager,
@@ -152,6 +154,9 @@ class ManagerPrototype extends SmartListCallbacks {
                     return [true, value];
                 }
             }
+            console.log("No drawManager");
+            console.log(drawManager)
+
         }
         return [false, null, null];
     }
@@ -169,7 +174,7 @@ class ManagerPrototype extends SmartListCallbacks {
         let value = info[1];
         
         if (flag) {
-            // console.log("DrawLayers: _onLayerAdd")
+            console.log("DrawLayers: _onLayerAdd")
             value.drawManager.id = this._id;
             value.id = this._id;
             super.addObject(value.drawManager.id, value);
@@ -441,7 +446,8 @@ class MapManager {
     initialize() {
         this.UAV_MANAGER = new UavManager(config.UAV.colors, 'uavInfo', 'uavInfoSet', 'getUavList');
         this.MISSION_MANAGER = new MissionManager(config.Mission.colors, 'missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
-        this.DRAW_LAYERS = new DrawLayers();
+        this.DRAW_LAYERS = new DrawLayers('draw');
+        this.MISSION_LAYERS = new DrawLayers('confirmed');
 
         this.UAV_MANAGER.addInfoAddCallback(this._updateUavPickerListCallback.bind(this));
     }
