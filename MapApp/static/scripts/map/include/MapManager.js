@@ -142,10 +142,7 @@ class ManagerPrototype extends SmartListCallbacks {
                 drawManager = pmLayer.pm.options.drawManager;
             }
             // If the layer is a Draw layer, return its value
-            console.log(Utils.hasMember(drawManager, ['options', 'status']));
             if (Utils.hasMember(drawManager, ['options', 'status'])) {
-                console.log("Status: " + this.status);
-                console.log("Status: " + drawManager.options.status);
                 if (drawManager.options.status == this.status) {
                     let value = {
                         'layer': layer,
@@ -154,9 +151,6 @@ class ManagerPrototype extends SmartListCallbacks {
                     return [true, value];
                 }
             }
-            console.log("No drawManager");
-            console.log(drawManager)
-
         }
         return [false, null, null];
     }
@@ -399,7 +393,7 @@ class MapManager {
          * @type {L.control} - Control of the library Leaflet (Reference: https://leafletjs.com/).
          * @private
          */
-        this._layer_control = L.control.layers(mapLayers, {}, { position: 'topleft', collapsed: false }).addTo(this.MAP);
+        this.layerControl = L.control.layers(mapLayers, {}, { position: 'topleft', collapsed: false }).addTo(this.MAP);
 
         // Add a layer control to the map, with the latitude and longitude of the mouse
         L.control.coordinates({
@@ -446,8 +440,10 @@ class MapManager {
     initialize() {
         this.UAV_MANAGER = new UavManager(config.UAV.colors, 'uavInfo', 'uavInfoSet', 'getUavList');
         this.MISSION_MANAGER = new MissionManager(config.Mission.colors, 'missionConfirm', 'missionInfo', 'missionInfoSet', 'getMissionList');
+
         this.DRAW_LAYERS = new DrawLayers('draw');
         this.MISSION_LAYERS = new DrawLayers('confirmed');
+        this.UAV_LAYERS = new DrawLayers('uav');
 
         this.UAV_MANAGER.addInfoAddCallback(this._updateUavPickerListCallback.bind(this));
     }

@@ -51,7 +51,7 @@ window.onload = function () {
             new DrawInfo(),
             new MissionInfo(),
             new ImageOVerlay(),
-
+            new LayersControl(),
         ]
 
         // Instantiate sidebars elements
@@ -59,5 +59,12 @@ window.onload = function () {
             sideBarsClass[i];
         }
     }
-}
+
+    window.onerror = function (msg, url, line, col, error) {
+        var extra = !col ? '' : '\ncolumn: ' + col;
+        extra += !error ? '' : '\nerror: ' + error;
+        console.log('Error: ' + msg + '\nurl: ' + url + '\nline: ' + line + extra);
+        ConsoleSideBar.addError('Error: ' + msg + '\nurl: ' + url + '\nline: ' + line + extra);
+    }
+}   
 

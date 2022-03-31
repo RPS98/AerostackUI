@@ -16,7 +16,6 @@ class DrawInfo
             info.drawManager.instance.drawInfoAdd(this.htmlId, info);
         } else if (args[1] == 'remove') {
             let info = M.DRAW_LAYERS.getDictById(args[0]);
-            console.log(info)
             if (info != null) {
                 info.drawManager.instance.drawInfoRemove(this.htmlId + '-' + info.id);
             }

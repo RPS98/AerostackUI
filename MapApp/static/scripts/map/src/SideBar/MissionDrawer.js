@@ -44,23 +44,23 @@ class MissionDrawer {
 
             switch (layer.name) {
                 case 'TakeOffPoint':
-                    this.takeOffPoint.codeDraw([layer.values['lat'], layer.values['lng']], undefined, undefined, uavId);
+                    this.takeOffPoint.codeDraw([layer.values['lat'], layer.values['lng']], {'missionId': missionId}, undefined, uavId);
                     break;
                 case 'Path':
-                    this.path.codeDraw(layer.values, undefined, undefined, uavId);
+                    this.path.codeDraw(layer.values, {'missionId': missionId}, undefined, uavId);
                     break;
                 case 'LandPoint':
-                    this.landPoint.codeDraw([layer.values.lat, layer.values.lng], undefined, undefined, uavId);
+                    this.landPoint.codeDraw([layer.values.lat, layer.values.lng], {'missionId': missionId}, undefined, uavId);
                     break;
                 case 'WayPoint':
-                    this.wayPoint.codeDraw([layer.values.lat, layer.values.lng], undefined, undefined, uavId);
+                    this.wayPoint.codeDraw([layer.values.lat, layer.values.lng], {'missionId': missionId}, undefined, uavId);
                     break;
                 case 'Area':
-                    this.area.codeDraw(layer.values[0], undefined, {'opacity': 0.3}, missionId);
+                    this.area.codeDraw(layer.values[0], {'missionId': missionId}, {'opacity': 0.3}, missionId);
 
                     for (let j = 0; j < layer.uavList.length; j++) {
                         let uavId_aux = layer.uavList[j];
-                        this.path.codeDraw(layer.uavPath[uavId_aux], undefined, undefined, uavId);
+                        this.path.codeDraw(layer.uavPath[uavId_aux], {'missionId': missionId}, undefined, uavId);
                     }
 
                     break;
@@ -69,6 +69,8 @@ class MissionDrawer {
                     break;
             }
         }
+
+        ConsoleSideBar.addMessage("Mission " + missionId + " added");
 
         console.log("Mission loaded");
         console.log(M.MISSION_LAYERS);

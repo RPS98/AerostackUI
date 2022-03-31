@@ -79,9 +79,6 @@ class DrawManager {
         
         let drawOption = this.mergeOptions(options, layerOptions);
 
-        console.log("DrawManager.userDraw");
-        console.log(drawOption)
-
         switch (this.type) {
             case 'Marker':
                 M.MAP.pm.enableDraw('Marker', drawOption);

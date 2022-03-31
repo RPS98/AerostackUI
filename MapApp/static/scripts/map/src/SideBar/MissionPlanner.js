@@ -435,6 +435,7 @@ class MissionPlanner {
         let mission = output[3];
 
         if (validation && uavList.length > 0) {
+            ConsoleSideBar.addMessage(`Mission confirmed`);
             console.log('mission is valid');
             console.log(uavList);
             console.log(mission);
@@ -445,13 +446,15 @@ class MissionPlanner {
             );
         } else {
             if (info.length > 0) {
+                
+                ConsoleSideBar.addError("Mission validation failed: ", info);
                 console.log("Mission validation failed");
                 console.log(info);
                 alert(info.join('\n'));
             } else {
+                ConsoleSideBar.addError("Mission validation failed: UAV list is empty");
                 console.log("Mission validation failed");
                 console.log(uavList);
-                alert("Uav list is empty");
             }
         }
     }

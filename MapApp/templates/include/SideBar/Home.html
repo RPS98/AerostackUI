@@ -4,52 +4,6 @@
     <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
   </h1>
   <div class="d-grid gap-2 m-2" id="sideBar-left-home-content">
-    {% comment %} <textarea id="text-val" rows="4">This is the content of my file</textarea
-    ><br />
-    <input
-      type="button"
-      id="dwn-btn"
-      value="Download dinamically generated text file"
-    /> {% endcomment %}
-
 
   </div>
-
-  <script>
-    {% comment %} function download(filename, text) {
-      var element = document.createElement('a');
-      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-      element.setAttribute('download', filename);
-
-      element.style.display = 'none';
-      document.body.appendChild(element);
-
-      element.click();
-
-      document.body.removeChild(element);
-    }
-
-    // Start file download.
-    document.getElementById("dwn-btn").addEventListener("click", function(){
-      // Generate download of hello.txt file with some content
-      var text = document.getElementById("text-val").value;
-      var filename = "hello.txt";
-      
-      download(filename, text);
-    }, false); {% endcomment %}
-
-
-
-
-    {% comment %}
-    let checkbox = document.getElementById('flexCheckDefault');
-    checkbox.addEventListener('change', function() {
-        if (this.checked) {
-            console.log('checked');
-        } else {
-            console.log('unchecked');
-        }
-    });
-    {% endcomment %}
-  </script>
 </div>

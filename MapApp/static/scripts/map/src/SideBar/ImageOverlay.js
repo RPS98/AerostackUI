@@ -95,6 +95,7 @@ class ImageOVerlay {
     addImageUrlCallback(args, inputs) {
         console.log("addImageUrlCallback");
         this.imgUrl = inputs.imgURL;
+        ConsoleSideBar.addMessage(`Added image url: ${this.imgUrl}`);
     }
 
     addImageOverlayCallback(args, inputs) {
