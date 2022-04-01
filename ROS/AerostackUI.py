@@ -599,7 +599,7 @@ if __name__ == '__main__':
     #     'drone_sim_8',
     # ]
     uav_list = [
-        'drone_sim_rafa_0',
-        # 'drone_sim_rafa_1',
+        'M200',
+        'M300',
     ]
     aerostackUI = AerostackUI(uav_list)

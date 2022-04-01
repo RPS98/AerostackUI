@@ -251,10 +251,10 @@ export PX4_HOME_ALT=0
 cd ~/Downloads/
 ./QGroundControl.AppImage
 
-cd ~/aerostack2_ws/src/aerostack2/projects/copilot
+cd ~/aerostack2_ws/src/aerostack2/projects/project_copilot
 ./launch_simulator.bash
 
-cd ~/aerostack2_ws/src/aerostack2/projects/copilot
+cd ~/aerostack2_ws/src/aerostack2/projects/project_copilot
 ./main_launcher.bash
 
 
@@ -291,3 +291,39 @@ ros2 run rqt_gui rqt_gui
 
 
  make px4_sitl_rtps gazebo
+
+
+
+ros2 launch differential_flatness_based_controller differential_flattness_controller_launch.py drone_id:=drone0
+
+
+
+
+
+
+
+
+
+
+cd ~/aerostack2_ws/src/aerostack2/projects/project_copilot
+./launch_simulator.bash
+
+cd ~/aerostack2_ws/src/aerostack2/projects/project_copilot
+./main_launcher.bash
+
+cd ~/AerostackUI
+conda activate AerostackUI
+python manage.py runserver
+
+cd ~/AerostackUI/ROS
+conda activate AerostackUI
+python AerostackUI.py
+
+ros2 service call /M200_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
+
+ros2 service call /M300_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
+
+ros2 service call /M200_0/set_arming_state std_srvs/srv/SetBool data:\ true\
+
+ros2 service call /M300_0/set_arming_state std_srvs/srv/SetBool data:\ true\
+
