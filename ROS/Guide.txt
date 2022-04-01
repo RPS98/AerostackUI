@@ -267,9 +267,9 @@ conda activate ROSinterface
 python AerostackUI.py
 
 
-ros2 service call /drone_sim_rafa_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
+ros2 service call /drone_sim_rafa_0_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
 
-ros2 service call /drone_sim_rafa_0/set_arming_state std_srvs/srv/SetBool data:\ true\
+ros2 service call /drone_sim_rafa_0_0/set_arming_state std_srvs/srv/SetBool data:\ true\
 
 
 
@@ -281,8 +281,13 @@ UAV_Y=0.0
 UAV_Z=0.0
 ros2 launch flightros flight_pilot_launch.py drone_id:=$AEROSTACK2_SIMULATION_DRONE_ID scene_id:=$FLIGHTMARE_SCENE model:=$MODEL posx:=$UAV_X posy:=$UAV_Y posz:=$UAV_Z
 
-cd ~/aerostack2_ws/src/flightmare/flightrender/RPG_Flightmare
-./RPG_Flightmare.x86_64
+
 
 ros2 run rqt_gui rqt_gui
 
+
+
+
+
+
+ make px4_sitl_rtps gazebo

@@ -14,6 +14,8 @@ class UavInfo
     _newUavCallback(myargs, args) {
         let uavId = args[0];
 
+        ConsoleSideBar.addMessage(`UAV ${uavId} added`);
+
         if (this.uavSList.getList().indexOf(uavId) == -1) {
             this.uavSList.addObject(uavId, M.UAV_MANAGER.getDictById(uavId));
             this._addUav(uavId);

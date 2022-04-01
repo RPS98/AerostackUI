@@ -69,7 +69,6 @@ class UavDrawer
                     this.UAV_LIST.getDictById(uavId)['layerPose'] = this.uavMarker;
                     this.UAV_LIST.getDictById(uavId)['layerPose'].codeDraw([value['lat'], value['lng']], {'uavList': [uavId]}, {'rotationAngle': this._angleWrap(value['yaw'])}, uavId);
                     this.updatePopup(uavId);
-                    ConsoleSideBar.addMessage(`UAV ${uavId} added`);
                     break;
                 case 'odom':
                     this._checkLayer(uavId, 'layerOdom'); 
