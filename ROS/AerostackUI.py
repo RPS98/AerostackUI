@@ -1,3 +1,5 @@
+
+from tabnanny import verbose
 import rclpy
 import threading
 import time
@@ -20,7 +22,7 @@ class UavInterface(DroneInterface):
 
     def __init__(self, uav_id, speed):
         self.drone_interface = super(UavInterface, self)
-        self.drone_interface.__init__(uav_id)
+        self.drone_interface.__init__(uav_id, False)
         self.uav_id = uav_id
         # self.drone_interface = DroneInterface(uav_id)
         self.speed = speed
@@ -51,7 +53,9 @@ class UavInterface(DroneInterface):
         drone_interface = self.drone_interface
 
         for element in mission:
-            # print("Element: ", element)
+            print("Element: ")
+            print(element)
+            speed = float(element['speed'])
 
             if element['name'] == 'TakeOffPoint':
 
@@ -65,6 +69,10 @@ class UavInterface(DroneInterface):
                 print(waypoint[2])
                 drone_interface.takeoff(height=waypoint[2])
                 print(f"{uav} - Takeoff done")
+                
+                print(f"{uav} - Send takeoff waypoint")
+                drone_interface.follow_gps_path(waypoint, speed)
+                print(f"{uav} - Takeoff waypoint done")
 
             elif element['name'] == 'LandPoint':
                 waypoint = [
@@ -73,19 +81,21 @@ class UavInterface(DroneInterface):
                     element['values'][0][2]
                 ]
 
-                print("Send land point: {waypoint}")
+                print(f"{uav} - Send land point")
                 drone_interface.follow_gps_path([waypoint])
+                print(f"{uav} - Land point done")
 
-                print("Send land")
+                print(f"{uav} - Send land")
                 drone_interface.land()
-                print(f"Land done")
+                print(f"{uav} - Land done")
 
             elif element['name'] == 'Path':
                 waypoint = element['values']
 
                 print(f"{uav} - Send path")
-                # print(f"Send path: {waypoint}")
-                drone_interface.follow_gps_path(waypoint, self.speed)
+                # print(f"{uav} - Send path"): {waypoint}")
+                drone_interface.follow_gps_path(waypoint, speed)
+                print(f"{uav} - Path done")
 
             elif element['name'] == 'WayPoint':
                 waypoint = [
@@ -94,14 +104,14 @@ class UavInterface(DroneInterface):
                     element['values'][0][2]
                 ]
                 print(f"Send waypoint: {waypoint}")
-                drone_interface.follow_gps_wp([waypoint], self.speed)
+                drone_interface.follow_gps_wp([waypoint], speed)
+                print(f"{uav} - Waypoint done")
 
             elif element['name'] == 'Area':
                 waypoint = element['values']
                 print(f"{uav} - Send area")
-                # print(f"Send area: {waypoint[1:]}")
-                drone_interface.follow_gps_path(waypoint[1:], self.speed)
-                print(f"Area sent")
+                drone_interface.follow_gps_path(waypoint[1:], speed)
+                print(f"{uav} - Area done")
 
             else:
                 print("Unknown layer")
@@ -318,11 +328,12 @@ class MissionManager():
         uavList = layer['uavList']
         height = layer['height']
         values = layer['values']
-
+        speed = layer['speed']
         send_layer = {
             'name': name,
             'uavList': uavList,
             'height': height,
+            'speed': speed,
             'values': values
         }
 
@@ -338,6 +349,7 @@ class MissionManager():
 
             mission[uav].append({
                 'name': name,
+                'speed': speed,
                 'values': [marker_position]
             })
             send_layer['uavList'] = [uav]
@@ -356,6 +368,7 @@ class MissionManager():
 
             mission[uav].append({
                 'name': name,
+                'speed': speed,
                 'values': waypoints
             })
 
@@ -379,14 +392,22 @@ class MissionManager():
             next_position = self.get_next_position(
                 sublist, mission, last_position, first_uav, mission_info)
 
+            print("Sarming planning")
+            print(height)
+            print(values)
+            print(algorithm)
+            print(streetSpacing)
+            print(wpSpace)
+
             uavPath, path = self.swarm_planning(
-                uavListAux, last_position, next_position, height[1], values[0], algorithm, streetSpacing, wpSpace)
+                uavListAux, last_position, next_position, float(height[1]), values[0], str(algorithm), float(streetSpacing), float(wpSpace))
 
             send_layer['uavPath'] = {}
             for uav in uavListAux:
                 new_last_position[uav] = next_position[uav]
                 mission[uav].append({
                     'name': name,
+                    'speed': speed,
                     'values': path[uav]
                 })
 
@@ -435,17 +456,19 @@ class AerostackUI():
         # executor_thread = threading.Thread(target=executor.spin, daemon=True)
         # executor_thread.start()
 
-        self.uav_id_list_pos = [
-            [28.1439717, -16.5032634, 0.0],
-            [28.1438840, -16.5032570, 0.0],
-        ]
+        # self.uav_id_list_pos = [
+        #     [28.1439717, -16.5032634, 0.0],
+        #     [28.1438840, -16.5032570, 0.0],
+        # ]
 
         time.sleep(3)
 
         self.get_info_thread = threading.Thread(target=self.run)
         self.get_info_thread.start()
 
-        # self.fake_mission()
+        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['M300_0'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['M300_0'], 'values': {'lat': 28.143971, 'lng': -16.503213}}, {'name': 'WayPoint', 'height': [3, 3], 'uavList': ['M300_0'], 'values': {'lat': 28.14397380115398, 'lng': -16.502596735954288}}, {'name': 'Path', 'height': [3, 3], 'uavList': ['M300_0'], 'values': [{'lat': 28.14388984084043, 'lng': -16.502568572759632}, {'lat': 28.143876832898638, 'lng': -16.503172069787983}]}, {
+        #     'name': 'Area', 'height': ['10', '10'], 'uavList': ['M300_0'], 'algorithm': 'Back and force', 'streetSpacing': 1, 'wpSpace': 1, 'verticalOverlap': 50, 'horizontalOverlap': 50, 'values': [[{'lat': 28.143827166197262, 'lng': -16.503166705369953}, {'lat': 28.143666340530004, 'lng': -16.50313720107079}, {'lat': 28.14368289612455, 'lng': -16.502500176429752}, {'lat': 28.143840174145087, 'lng': -16.50252833962441}]]}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['M300_0'], 'values': {'lat': 28.143624951532455, 'lng': -16.502462625503544}}]}, 'from': 2, 'to': 'broadcast'}
+        # self.fake_mission(msg)
 
     def auto_spin(self):
         while rclpy.ok() and self.keep_running:
@@ -453,38 +476,9 @@ class AerostackUI():
             self.executor.spin()
             time.sleep(0.1)
 
-    def fake_mission(self):
-        uav_id_mission = [
-            'drone_sim_rafa_0',
-            'drone_sim_8',
-        ]
-
-        uav_id_list_last_pos = [
-            [28.1439717, -16.5032634, 0.0],
-            [28.1438460, -16.5032560, 0.0],
-        ]
-
-        streetSpacing = 8.0
-        wpSpace = 1.0
-        height = 10
-
-        # n UAVs
-        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': uav_id_mission, 'layers': []}, 'from': 2, 'to': None}
-
-        # for index, uav in enumerate(uav_id_mission):
-        #     msg['payload']['layers'].append({'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': [uav], 'values': {'lat': self.uav_id_list_pos[index][0], 'lng': self.uav_id_list_pos[index][1]}})
-
-        # msg['payload']['layers'].append({'name': 'Area', 'height': [height, height], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': streetSpacing, 'wpSpace': wpSpace, 'values': [[{'lat': 28.14400218209017, 'lng': -16.50320559740067}, {'lat': 28.143673435785125, 'lng': -16.503107696771625}, {'lat': 28.143685261209285, 'lng': -16.502482742071155}, {'lat': 28.144018737632805, 'lng': -16.50258600711823}]]})
-
-        # for index, uav in enumerate(uav_id_mission):
-        #     msg['payload']['layers'].append({'name': 'LandPoint', 'height': [3, 3], 'uavList': [uav], 'values': {'lat': uav_id_list_last_pos[index][0], 'lng': uav_id_list_last_pos[index][1]}})
-
-        # msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_8'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.1439711, 'lng': -16.5032646}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_8'], 'values': {'lat': 28.1439709, 'lng': -16.503213}}, {'name': 'Area', 'height': [10, 10], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': 5, 'wpSpace': 1, 'values': [[{'lat': 28.144008094784244, 'lng': -16.503208279609684}, {'lat': 28.143668705615095, 'lng': -16.503123790025715}, {'lat': 28.143676983412508, 'lng': -16.502502858638767}, {'lat': 28.144027015403147, 'lng': -16.5025806427002}]]}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.1439711, 'lng': -16.5032646}}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_8'], 'values': {'lat': 28.143680531039788, 'lng': -16.50316268205643}}]}, 'from': 3, 'to': None}
-
-        msg = {'type': 'request', 'header': 'missionConfirm', 'status': 'request', 'payload': {'status': 'request', 'id': 'New Mission', 'uavList': ['drone_sim_rafa_0', 'drone_sim_rafa_1'], 'layers': [{'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.1439711, 'lng': -16.5032644}}, {'name': 'TakeOffPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.1439711, 'lng': -16.5032645}}, {'name': 'Area', 'height': [10, 10], 'uavList': ['auto'], 'algorithm': 'Back and force', 'streetSpacing': 4, 'wpSpace': 1, 'values': [[{'lat': 28.14400572970666, 'lng': -16.503208279609684}, {'lat': 28.143673435785125, 'lng': -16.503118425607685}, {'lat': 28.143685261209285, 'lng': -16.5024907886982}, {'lat': 28.14401519001672, 'lng': -16.502592712640766}]]}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_0'], 'values': {'lat': 28.143902848780623, 'lng': -16.503228396177295}}, {'name': 'LandPoint', 'height': [3, 3], 'uavList': ['drone_sim_rafa_1'], 'values': {'lat': 28.143673435785125, 'lng': -16.503165364265445}}]}, 'from': 2, 'to': None}
-
+    def fake_mission(self, msg):
         time.sleep(3)
-        self.mission_confirm_callback(msg)
+        self.mission_confirm_callback(msg, [])
 
     def mission_confirm_callback(self, msg, args):
         confirm_msg = self.mission_manager.mission_interpreter(msg)
@@ -575,9 +569,13 @@ class AerostackUI():
                     [send_info['pose']['lat'], send_info['pose']['lng']])
                 send_info['odom'] = odom[uav]
 
-                pose_fail = {'lat': 0.0, 'lng': 0.0}
-                
-                if send_info['pose']['lat'] != pose_fail['lat'] or send_info['pose']['lng'] != pose_fail['lng']:
+                pose_fail1 = {'lat': 0.0, 'lng': 0.0}
+                pose_fail2 = {'lat': float('NaN'), 'lng': float('NaN')}
+
+                if send_info['pose']['lat'] != pose_fail1['lat'] or send_info['pose']['lng'] != pose_fail1['lng'] or \
+                   send_info['pose']['lat'] != pose_fail2['lat'] or send_info['pose']['lng'] != pose_fail2['lng']:
+                    # print("Sending info for ", uav)
+                    # print(send_info)
                     self.client.send_uav_info(send_info)
                 else:
                     print("Error sending info for ", uav)
@@ -599,7 +597,7 @@ if __name__ == '__main__':
     #     'drone_sim_8',
     # ]
     uav_list = [
-        'M200',
-        'M300',
+        # 'M200_0',
+        'M300_0',
     ]
     aerostackUI = AerostackUI(uav_list)
