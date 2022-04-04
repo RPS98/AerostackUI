@@ -6,5 +6,12 @@
  */
 var M = null;
 
+
+/**
+ * Config data of all config files readed
+ * @type {dict} - Dict with config data for each config file
+ * @global
+ * @public
+ */
 var config = null;
 

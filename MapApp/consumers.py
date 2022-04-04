@@ -265,7 +265,7 @@ class CLientWebsocket(AsyncJsonWebsocketConsumer):
         Args:
             message (str): JSON-decoded incoming message
         """
-        print(f"Received message: {text_data}")        
+        # print(f"Received message: {text_data}")        
         msg = json.loads(text_data)['message']
         
         if msg['type'] == 'basic' and msg['status'] == 'request':

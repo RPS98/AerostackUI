@@ -465,6 +465,10 @@ class Utils {
     static hasMember(dict, memberList) {
         let currentDict = dict;
         for (let i = 0; i < memberList.length; i++) {
+            if (currentDict == undefined) {
+                return false;
+            } 
+            
             if (currentDict[memberList[i]] == undefined) {
                 return false;
             }

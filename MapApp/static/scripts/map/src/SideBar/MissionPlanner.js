@@ -115,8 +115,11 @@ class MissionPlanner {
     addPlannerCallbacks() {
 
         // Heigh input
-        Utils.addFormCallback(`${this.htmlId}-heightBtn`, [`${this.htmlId}-heightInput`], ['height'], this.heightCallback.bind(this));
+        Utils.addFormCallback(`${this.htmlId}-heightBtn`, [`${this.htmlId}-heightInput`], ['value'], this.inputCallback.bind(this), 'height');
         Utils.addFormCallback(`${this.htmlId}-heighRangeBtn`, [`${this.htmlId}-heightInputMin`, `${this.htmlId}-heightInputMax`], ['heightMin', 'heightMax'], this.heightRangeCallback.bind(this));
+
+        // Speed input
+        Utils.addFormCallback(`${this.htmlId}-speedBtn`, [`${this.htmlId}-speedInput`], ['value'], this.inputCallback.bind(this), 'speed');
 
         // Buttons for change draw mode
         Utils.addButtonCallback(`${this.htmlId}-mouse`, DrawController.drawMouse, []);
@@ -154,8 +157,12 @@ class MissionPlanner {
     }
 
     // #region Callbacks
-    heightCallback(arg, input) {
-        this.selectedHeight = [input['height'], input['height']];
+    inputCallback(arg, input) {
+        if (args[0] == 'height') {
+            this.selectedHeight = [input['height'], input['height']];
+        } else if (args[0] == 'speed') {
+            this.selectedSpeed = input['speed'];
+        }
     }
 
     heightRangeCallback(arg, input) {
@@ -163,7 +170,7 @@ class MissionPlanner {
     }
 
     userDrawCallbacks(args = []) {
-        args[0][0].userDraw({ 'height': this.selectedHeight });
+        args[0][0].userDraw({ 'height': this.selectedHeight, 'speed': this.selectedSpeed });
     }
 
     // #endregion
@@ -289,9 +296,15 @@ class MissionPlanner {
             }
         }
 
-        missionLayer['algorithm'] = layerInfo.drawManager.options.algorithm;
-        missionLayer['streetSpacing'] = layerInfo.drawManager.options.streetSpacing;
-        missionLayer['wpSpace'] = layerInfo.drawManager.options.wpSpace;
+        console.log("missionInterpreterArea");
+        console.log(layerInfo.drawManager.options);
+
+        for (let j = 0; j < config.Layers.Polygon.Area.sendParameters.length; j++) {
+            let key = config.Layers.Polygon.Area.sendParameters[j];
+            if (layerInfo.drawManager.options[key] != undefined) {
+                missionLayer[key] = layerInfo.drawManager.options[key];
+            }
+        }
     }
 
 
@@ -329,6 +342,7 @@ class MissionPlanner {
             let missionLayer = {
                 'name': drawManagerInfo.name,
                 'height': drawManagerInfo.height,
+                'speed': drawManagerInfo.speed,
                 'uavList': [],
             }
 

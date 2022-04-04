@@ -14,7 +14,9 @@ class ManagerPrototype extends SmartListCallbacks {
         super();
 
         /**
-         * List of colors for each id of the information [border, fill].
+         * List of colors for each id of the information. Pair [background, border].
+         * @type {list}
+         * @access private
          */
         this.colors = colors;
 
@@ -77,7 +79,12 @@ class ManagerPrototype extends SmartListCallbacks {
 /**
  * Class that manage draw mission layers, adding callbacks when the mission is added/removed/edited.
  */
- class DrawLayers extends SmartListCallbacks {
+class DrawLayers extends SmartListCallbacks {
+
+    /**
+     * Create a new instance of the class DrawLayers.
+     * @param {string} status - Status of the draw layer to be stored. 
+     */
     constructor(status) {
         super();
 
@@ -85,7 +92,12 @@ class ManagerPrototype extends SmartListCallbacks {
         M.addMapCallback('layeradd', this._onLayerAdd.bind(this));
         M.addMapCallback('layerremove', this._onLayerRemove.bind(this));
 
-        this.status = status;
+        /**
+         * Status of the layer. Use to identify the type of the layer, for example, draw, confirmed, etc.
+         * @type {string}
+         * @access private
+         */
+        this._status = status;
 
         /**
          * Id for each layer created.
@@ -114,7 +126,7 @@ class ManagerPrototype extends SmartListCallbacks {
     // #endregion
 
     // #region Private methods
-    
+
     /**
      * Process the layer, finding the drawManager attribute and the value of the information.
      * @param {L.Layer} layer - Layer to be process.
@@ -124,26 +136,26 @@ class ManagerPrototype extends SmartListCallbacks {
     _getDrawManager(layer) {
 
         let pmLayer = null;
-        
+
 
         if (Utils.hasMember(layer, ['pm', '_layer'])) {
             pmLayer = layer.pm._layer;
 
             let drawManager = {};
-            
+
             // Extract the drawManager attribute
             // If layer has been created by code
             if (Utils.hasMember(pmLayer, ['options', 'drawManager'])) {
                 pmLayer.options.drawManager = Object.assign({}, pmLayer.options.drawManager);
                 drawManager = pmLayer.options.drawManager;
-            // If layer has been created by user
+                // If layer has been created by user
             } else if (Utils.hasMember(pmLayer, ['pm', 'options', 'drawManager'])) {
                 pmLayer.pm.options.drawManager = Object.assign({}, pmLayer.pm.options.drawManager);
                 drawManager = pmLayer.pm.options.drawManager;
             }
             // If the layer is a Draw layer, return its value
             if (Utils.hasMember(drawManager, ['options', 'status'])) {
-                if (drawManager.options.status == this.status) {
+                if (drawManager.options.status == this._status) {
                     let value = {
                         'layer': layer,
                         'drawManager': drawManager,
@@ -152,7 +164,7 @@ class ManagerPrototype extends SmartListCallbacks {
                 }
             }
         }
-        return [false, null, null];
+        return [false, null];
     }
 
     /**
@@ -166,7 +178,7 @@ class ManagerPrototype extends SmartListCallbacks {
         let info = this._getDrawManager(e.layer);
         let flag = info[0];
         let value = info[1];
-        
+
         if (flag) {
             console.log("DrawLayers: _onLayerAdd")
             value.drawManager.id = this._id;
@@ -202,7 +214,6 @@ class ManagerPrototype extends SmartListCallbacks {
         let value = info[1];
 
         if (flag) {
-            // console.log("DrawLayers: _onLayerRemove - flag");
             super.removeById(value.drawManager.id);
         }
     }
@@ -218,7 +229,6 @@ class ManagerPrototype extends SmartListCallbacks {
         let flag = info[0];
         let value = info[1];
         if (flag) {
-            // console.log("DrawLayers: _onUserLayerChange")
             super.updateObject(value.drawManager.id, value);
         }
     }
@@ -234,7 +244,6 @@ class ManagerPrototype extends SmartListCallbacks {
         let flag = info[0];
         let value = info[1];
         if (flag) {
-            // console.log("DrawLayers: _onCodeLayerChange")
             super.updateObject(value.drawManager.id, value);
         }
     }
@@ -242,11 +251,14 @@ class ManagerPrototype extends SmartListCallbacks {
     // #endregion
 }
 
-
+/**
+ * Class that manage UAV draw layers, adding callbacks when the UAV is added/removed/edited.
+ */
 class UavManager extends ManagerPrototype {
 
     /**
      * Create a new instance of the class ManagerPrototype.
+     * @param {list} colors - List of colors for each id of the information. Pair [background, border].
      * @param {string} infoAdd - Name of the header of the info message that will be received from server when a parameter is add/modified.
      * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
      * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
@@ -257,6 +269,14 @@ class UavManager extends ManagerPrototype {
 
     // #region Public methods
 
+    /**
+     * Add a UAV to the map, to use the system without real UAV connected.
+     * @param {string} id - Id of the UAV.
+     * @param {string} state - State of the UAV.
+     * @param {dict} pose - Pose of the UAV. Dictionary with the following keys: lat, lng, alt, yaw.
+     * @return {void}
+     * @access public
+     */
     addVirtualUav(id, state, pose) {
 
         let uavInfo = {
@@ -282,6 +302,7 @@ class MissionManager extends ManagerPrototype {
 
     /**
      * Create a new instance of the class MissionManager.
+     * @param {list} colors - List of colors for each id of the information. Pair [background, border].
      * @param {string} missionConfirm - Name of the header of the info message that will be received from server when a mission is confirmed/rejected.
      * @param {string} missionAdd - Name of the header of the info message that will be received from server when a parameter of the mission is add/modified.
      * @param {string} missionSet - Name of the header of the info message that will be received from server when a mission is set/reset.
@@ -325,9 +346,9 @@ class MissionManager extends ManagerPrototype {
      * @access private
      */
     _onMissionConfirm(payload) {
-        if (payload['status'] == 'confirmed') {
+        if (payload.status == 'confirmed') {
             Utils.callCallbacks(this._missionConfirmCallbacks, payload);
-        } else if (payload['status'] == 'rejected') {
+        } else if (payload.status == 'rejected') {
             // TODO: manage reject
             console.log('Mission rejected');
         }
@@ -349,8 +370,8 @@ class MapManager {
      * @param {string} host - Host of the server.
      */
     constructor(
-        mapCenter = config.Global.mapCenter, 
-        zoom = config.Global.zoom, 
+        mapCenter = config.Global.mapCenter,
+        zoom = config.Global.zoom,
         host = config.WebSocket.host) {
 
         /**
@@ -367,9 +388,10 @@ class MapManager {
             }
         );
 
+        // Add tile layers to the map by the config file
         let mapLayers = {};
         let mapUrl = config.Global.mapUrl;
-        for (let i=0; i<config.Global.subdomains.length; i++) {
+        for (let i = 0; i < config.Global.subdomains.length; i++) {
             let subdomainsLabel = config.Global.subdomainsLabels[i];
             let subdomainMaxZoom = config.Global.subdomainsMaxZoom[i];
 
@@ -377,7 +399,7 @@ class MapManager {
                 maxZoom: subdomainMaxZoom,
                 subdomains: config.Global.subdomains,
                 useCache: config.Global.useCache,
-	            crossOrigin: config.Global.useCache,
+                crossOrigin: config.Global.useCache,
                 saveToCache: config.Global.saveToCache,
                 useOnlyCache: config.Global.useOnlyCache,
                 cacheMaxAge: config.Global.cacheMaxAgeInMs,
@@ -391,7 +413,7 @@ class MapManager {
         /**
          * Layer control of the map.
          * @type {L.control} - Control of the library Leaflet (Reference: https://leafletjs.com/).
-         * @private
+         * @public
          */
         this.layerControl = L.control.layers(mapLayers, {}, { position: 'topleft', collapsed: false }).addTo(this.MAP);
 
@@ -433,7 +455,7 @@ class MapManager {
     // #region Public methods
 
     /**
-     * Initialize UAV Manager and Mission Manager.
+     * Initialize UAV, mission and layers managers.
      * @return {void}
      * @access public
      */
@@ -539,18 +561,33 @@ class MapManager {
 
     // #region Private methods
 
+    /**
+     * This callback is called when a layer is created and manage it options.
+     * @param {array} args - Empty array. 
+     * @param {event} e - Event of the layer creation.
+     */
+    _pmOnCreateCallback(args, e) {
+        // Change layer color if the option color is set
+
+        if (Utils.hasMember(e.layer.pm.options.color, ['color'])) {
+            e.layer.options.color = e.layer.options.color;
+        }
+    }
+
     // #region Web Socket Callbacks
 
     /**
      * Callback to basic message with header handshake, and ask for the mission and UAVs state.
-     * @param {dict} payload - payload of the handshake message
+     * @param {dict} payload - payload of the handshake message. Must contain the key 'response' and must be 'success' to continue.
      * @return {void}
      * @access private
      */
     _onHandshake(payload) {
-        if (payload['response'] == 'success') {
+        if (payload.response == 'success') {
             this.WS.sendRequestGetUavList();
             this.WS.sendRequestGetMissionList();
+        } else {
+            throw new Error('Handshake failed');
         }
     }
 
@@ -598,22 +635,7 @@ class MapManager {
 
     // #endregion
 
-    /**
-     * This callback is called when a layer is created and manage it options.
-     * @param {array} args - Empty array. 
-     * @param {event} e - Event of the layer creation.
-     */
-    _pmOnCreateCallback(args, e) {
-        let layers = M.getLayers();
-
-        // Change layer color if the option color is set
-        if ('color' in e.layer.pm.options) {
-            e.layer.setStyle({ color: e.layer.pm.options['color'] });
-            if ('color' in e.layer.options) {
-                e.layer.options['color'] = e.layer.options['color'];
-            }
-        }
-    }
+    // #region Uav Picker
 
     /**
      * Add callback to the checkbox element
@@ -621,7 +643,7 @@ class MapManager {
      * @param {string} name - Name of the picker element.
      * @param {function} callback - Function to be called when the uav picker is pick.
      * @param {array} userargs - Arguments to be passed to the callback.
-     */
+    */
     _uavPickerAddCallback(id, name, callback, userargs) {
         if (M.UAV_MANAGER.getList().includes(name)) {
             let label = document.getElementById(id + '-' + name + '-Label');
@@ -678,6 +700,8 @@ class MapManager {
             this._updateUavPickerList(myargs, args, pickers[i]);
         }
     }
+
+    // #endregion
 
     // #endregion
 }

@@ -80,30 +80,30 @@ class Area extends Polygon {
         return super.drawInfoAdd(htmlId, info, name, undefined, undefined, 'checkbox');
     }
 
-    drawInfoInitialize(id, info) {
-        Utils.addButtonsCallback(`${id}-Swarming-item`, this.clickAlgorithmsListCallback.bind(this), id, info);
-        super.addParametersCallback(id, this.parameters, info);
-        super.drawInfoInitialize(id, info);
-    }
+    // drawInfoInitialize(id, info) {
+    //     Utils.addButtonsCallback(`${id}-Swarming-item`, this.clickAlgorithmsListCallback.bind(this), id, info);
+    //     super.addParametersCallback(id, this.parameters, info);
+    //     super.drawInfoInitialize(id, info);
+    // }
 
-    clickAlgorithmsListCallback(e, args) {
-        args[1].drawManager.options.algorithm = e.innerText;
+    // clickAlgorithmsListCallback(e, args) {
+    //     args[1].drawManager.options.algorithm = e.innerText;
 
-        let button = document.getElementById(`${args[0]}-Swarming-DropDown-Btn`);
-        button.innerHTML = e.innerHTML;
-    }
+    //     let button = document.getElementById(`${args[0]}-Swarming-DropDown-Btn`);
+    //     button.innerHTML = e.innerHTML;
+    // }
 
     // Replace add Parameters
-    addParametersHtml(id, info) {
-        let options = info.drawManager.options;
-        let endHtml = [];
-        endHtml.push(HTMLUtils.initDropDown(`${id}-Swarming`, this.configFile.algorithmList, this.configFile.algorithm));
+    // addParametersHtml(id, info) {
+    //     let options = info.drawManager.options;
+    //     let endHtml = [];
+    //     endHtml.push(HTMLUtils.initDropDown(`${id}-Swarming`, this.configFile.algorithmList, this.configFile.algorithm));
 
-        let paramHtml = super.getHtmlParameters(id, options, this.parameters);
-        for (let i = 0; i < paramHtml.length; i++) {
-            endHtml.push(paramHtml[i]);
-        }
+    //     let paramHtml = super.getHtmlParameters(id, options, this.parameters);
+    //     for (let i = 0; i < paramHtml.length; i++) {
+    //         endHtml.push(paramHtml[i]);
+    //     }
 
-        return HTMLUtils.addDict('collapse', `${this.htmlId}-SwarmCollapse`, {}, 'Planner', true, endHtml);
-    }
+    //     return HTMLUtils.addDict('collapse', `${this.htmlId}-SwarmCollapse`, {}, 'Planner', true, endHtml);
+    // }
 }

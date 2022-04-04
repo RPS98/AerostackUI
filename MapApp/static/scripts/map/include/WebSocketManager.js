@@ -192,6 +192,12 @@ class WebSocketManager {
         );
     }
 
+    /**
+     * Send a request of Stop Mission to the Web Socket server.
+     * @param {string} missionId - Id of the mission to start.
+     * @return {void}
+     * @access public
+     */
     sendStopMission(missionId) {
         this.sendRequest(
             'missionStop',
@@ -202,6 +208,12 @@ class WebSocketManager {
         );
     }
 
+    /**
+     * Send a request of End Mission to the Web Socket server.
+     * @param {string} missionId - Id of the mission to start.
+     * @return {void}
+     * @access public
+     */
     sendEndMission(missionId) {
         this.sendRequest(
             'missionEnd',
@@ -214,6 +226,16 @@ class WebSocketManager {
 
     // #endregion
 
+    // #region Info messages
+
+    /**
+     * Send a info message to the Web Socket server.
+     * @param {string} header - The header of the message.
+     * @param {dict} payload - The payload of the message.
+     * @param {string} [to='broadcast'] - Optional. The id of the client to send the message to. Default: 'broadcast'.
+     * @return {void}
+     * @access public
+     */
     sendInfo(header, payload = {}, to = 'broadcast') {
         this._send({
             'type': 'info',
@@ -222,6 +244,12 @@ class WebSocketManager {
         }, to);
     }
 
+    /**
+     * Send a info message with a mission confirmed.
+     * @param {dict} missionData - Mission information.
+     * @return {void}
+     * @access public
+     */
     sendConfirmedMission(missionData) {
         this.sendInfo(
             'missionInfo',
@@ -240,6 +268,12 @@ class WebSocketManager {
         this._onMessage({ 'data': JSON.stringify(msg) });
     }
 
+    /**
+     * Send info message with a new UAV added.
+     * @param {dict} uavData - UAV information.
+     * @return {void}
+     * @access public
+     */
     sendUavInfo(uavData) {
         this.sendInfo(
             'uavInfo',
@@ -257,6 +291,8 @@ class WebSocketManager {
 
         this._onMessage({ 'data': JSON.stringify(msg) });
     }
+
+    // #endregion
 
     // #endregion
 
