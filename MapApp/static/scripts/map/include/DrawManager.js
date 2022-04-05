@@ -86,9 +86,6 @@ class DrawManager {
 
         switch (this.type) {
             case 'Marker':
-                console.log("cdeDraw: Marker");
-                console.log(drawOption);
-                console.log(drawOption.icon.options.html)
                 draw = L.marker(values, drawOption);
                 break;
             case 'Polyline':
