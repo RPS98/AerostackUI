@@ -1,159 +1,28 @@
-// List class of [type, fileName]
-var blocksClassList = []
-
-class HTMLUtils {
-
-    static setDict(type, id = 'none', attributes = {}, content) {
-        return {
-            'type': type,
-            'id': id,
-            'attributes': attributes,
-            'content': content,
-        }
-    }
-
-    static addTypeDict(type, id = 'none', attributes = {}, ...args) {
-        throw new Error('Not implemented');
-    }
-
-    static addTypeHTML(content) {
-        throw new Error('Not implemented');
-    }
-
-    static _addAttribute(element, id, attributes) {
-        if (id != 'none') {
-            element.setAttribute('id', id);
-        }
-        for (let key in attributes) {
-            if (element.getAttribute(key) == null) {
-                element.setAttribute(key, attributes[key]);
-            } else {
-                element.setAttribute(key, element.getAttribute(key) + ' ' + attributes[key]);
-            }
-        }
-        return element;
-    }
-
-    static addDict(type, id = 'none', attributes = {}, ...args) {
-        for (let i = 0; i < blocksClassList.length; i++) {
-            if (blocksClassList[i][0] == type) {
-                return blocksClassList[i][1].addTypeDict(type, id, attributes, ...args);
-            }
-        }
-    }
-
-    static addHTML(parent, childDict) {
-        let child = null;
-        let flag = true;
-
-        if (childDict == undefined) {
-            return;
-        }
-
-        if (Object.keys(childDict).length === 0) {
-            return;
-        }
-
-        if (Array.isArray(childDict)) {
-            for (let j = 0; j < childDict.length; j++) {
-                HTMLUtils.addHTML(parent, childDict[j])
-            }
-            return;
-        }
-
-        for (let i = 0; i < blocksClassList.length; i++) {
-            if (blocksClassList[i][0] == childDict.type) {
-                child = blocksClassList[i][1].addTypeHTML(childDict.content);
-                HTMLUtils._addAttribute(child, childDict.id, childDict.attributes);
-                parent.appendChild(child);
-                flag = false;
-                break; // If types are unique, break after first match to optimize performance
-            }
-        }
-
-        if (flag) {
-            console.log("Unknown type of HTML block");
-            console.log(childDict)
-            console.log(typeof childDict)
-            console.log(Array.isArray(childDict))
-            throw new Error('Unknown type of HTML block');
-        }
-    }
-
-    static dictToHTML(dict) {
-        let child = null;
-
-        for (let i = 0; i < blocksClassList.length; i++) {
-            if (blocksClassList[i][0] == dict.type) {
-                child = blocksClassList[i][1].addTypeHTML(dict.content);
-                HTMLUtils._addAttribute(child, dict.id, dict.attributes);
-                return child;
-            }
-        }
-
-        console.log("Unknown type of HTML block");
-        console.log(dict)
-        throw new Error('Unknown type of HTML block');
-    }
-
-    static addToExistingElement(id, blockList) {
-        let parent = document.getElementById(id);
-
-        for (let i = 0; i < blockList.length; i++) {
-            HTMLUtils.addHTML(parent, blockList[i]);
-        }
-    }
-
-    static initDropDown(id, list, defaultValue) {
-        let dropDownBtn = HTMLUtils.addDict('dropDownBtn', `${id}-DropDown-Btn`, { 'class': 'btn btn-info' }, defaultValue);
-
-        let dropDownExpandList = [];
-        for (let i = 0; i < list.length; i++) {
-            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, { 'class': `btn btn-secondary ${id}-item w-75`, 'style': "background: #dae8fc" }, list[i]));
-        }
-
-        let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
-        return HTMLUtils.addDict('dropDown', `${id}-DropDown`, { 'class': 'row m-1 gap-2' }, dropDownBtn, dropDownExpand);
-    }
-
-    static updateDropDown(id, list) {
-        let expand = document.getElementById(`${id}-DropDown-menu`);
-        expand.innerHTML = '';
-
-        let dropDownExpandList = [];
-        for (let i = 0; i < list.length; i++) {
-            dropDownExpandList.push(HTMLUtils.addDict('button', `${id}-DropDown-Expand-${list[i]}`, { 'class': `btn btn-secondary ${id}-item w-75`, 'style': "background: #dae8fc" }, list[i]));
-        }
-
-        let dropDownExpand = HTMLUtils.addDict('dropDownExpand', `${id}-DropDown-Expand`, {}, dropDownExpandList);
-        HTMLUtils.addToExistingElement(`${id}-DropDown-menu`, [dropDownExpand]);
-    }
-
-    static updateCheckBoxes(idCheckBoxes, type, list, attributes = {}) {
-        console.log("updateCheckBoxes")
-        console.log(list)
-        let checkBoxes = document.getElementById(`${idCheckBoxes}`);
-        checkBoxes.innerHTML = '';
-        for (let i = 0; i < list.length; i++) {
-            let checkBox = HTMLUtils.addDict('checkBox', `${idCheckBoxes}-${list[i]}`, attributes, type, list[i]);
-            HTMLUtils.addToExistingElement(`${idCheckBoxes}`, [checkBox]);
-        }
-    }
-
-    static addCheckBox(idParent, idContent, type, name, attributes = {}) {
-        let parentElement = document.getElementById(idParent);
-        HTMLUtils.addHTML(parentElement, HTMLUtils.addDict('checkBox', `${idContent}-${name}`, attributes, type, name));
-    }
-}
-
-
+/**
+ * Class that contains utility static methods.
+ */
 class Utils {
+
+    static onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+    }
+
+    // #region HTML input callbacks
+
+    /**
+     * Dumb function to initialize callbacks
+     * @param {Object} input - Functions inputs 
+     */
+     static _nullFunct(input) {
+        ConsoleSideBar.addWarning("Dumb callback function");
+        console.log("Dumb callback function");
+    };
 
     /**
      * Call each function in the list with the arguments
      * @param {array} callbackList - list of pair with the function to be called and the arguments to be passed
-     * @param {...any} args - other arguments to be passed to the functions
-     * @return {void} 
+     * @param {...any} args - Other arguments to be passed to the functions
+     * @return {void}
      * @access public
      * @static
      */
@@ -166,11 +35,11 @@ class Utils {
     /**
      * Call each function in the list if the param changed is the desired one.
      * If desired param is '*' this function will be also called.
-     * @param {array} callbackList - list of functions to be called 
-     * @param {string} param - name of the param that changed
-     * @param {any} value - value of the param that changed
-     * @param {...any} args - other arguments to be passed to the functions
-     * @return {void} 
+     * @param {array} callbackList - List of functions to be called 
+     * @param {string} param - Name of the param that changed
+     * @param {any} value - Value of the param that changed
+     * @param {...any} args - Other arguments to be passed to the functions
+     * @return {void}
      * @access public
      * @static
      */
@@ -183,18 +52,13 @@ class Utils {
     }
 
     /**
-     * Dumb function to initialize callbacks
-     * @param {Object} input - functions inputs 
-     */
-    static _nullFunct(input) {
-        console.log("Dumb callback function");
-    };
-
-    /**
      * Add a callback function to a toggle button
-     * @param {string}   button_id  - id of the button
-     * @param {function} callback   - callback when press button
-     * @param {list}     args       - arguments list pass to callback
+     * @param {string} button_id - Id of the button
+     * @param {function} callback - Callback when press button. Args will be passed to callback.
+     * @param {...any} args - Other arguments to be passed to the functions
+     * @return {void}
+     * @access public
+     * @static
      */
     static addButtonCallback(button_id, callback = Utils._nullFunct, ...args) {
         // get button element
@@ -210,10 +74,20 @@ class Utils {
                 callback(args);
             });
         } else {
+            ConsoleSideBar.addWarning("Utils.addButtonCallback - button not found");
             console.log("Warning: Utils.addButtonCallback - button not found");
         }
     }
 
+    /**
+     * Add a callback function to a list of buttons by their class
+     * @param {string} button_class - Class of the buttons 
+     * @param {function} callback - Callback when press button. Event.target and args will be passed to callback.
+     * @param  {...any} args - Arguments list pass to callback
+     * @return {void}
+     * @access public
+     * @static
+     */
     static addButtonsCallback(button_class, callback = Utils._nullFunct, ...args) {
         const btns = document.getElementsByClassName(button_class);
 
@@ -231,11 +105,14 @@ class Utils {
 
     /**
      * Add a listener for number inputs by a button
-     * @param {string}   button_id - id of the button
-     * @param {string}   inputs_id - list of form inputs id
-     * @param {string}   names_id  - name of elements in the list
-     * @param {function} callback  - callback when press button
-     * @param {list}     args      - arguments list pass to callback
+     * @param {string} button_id - Id of the button
+     * @param {string} inputs_id - List of form inputs id
+     * @param {string} names_id - Name of elements in the list
+     * @param {function} callback - Callback when press button. Args and Inputs will be passed to callback.
+     * @param {...any} args - Other arguments to be passed to the functions
+     * @return {void}
+     * @access public
+     * @static
      */
     static addFormCallback(button_id, inputs_id, names_id, callback = Utils._nullFunct, ...args) {
 
@@ -244,6 +121,7 @@ class Utils {
 
         // check if inputs and names has the same length
         if (inputs_id.length != names_id.length) {
+            ConsoleSideBar.addError("Utils.addFormCallback - inputs and names must have the same length");
             throw "Input id and names id lengths are not equals";
         }
 
@@ -268,10 +146,24 @@ class Utils {
                 callback(args, inputs);
             });
         } else {
+            ConsoleSideBar.addWarning("Utils.addFormCallback - button not found");
             console.log("Warning: Utils.addFormCallback - button not found");
         }
     }
 
+    // #endregion
+
+    // #region Files management
+
+    /**
+     * Add a File input listener
+     * @param {string} button_id - Id of the button that load the file
+     * @param {function} callback - Callback when file is added. Args and event will be passed to callback.
+     * @param  {...any} args - Arguments list pass to callback
+     * @return {void}
+     * @access public
+     * @static
+     */
     static addFileCallback(button_id, callback = Utils._nullFunct, ...args) {
         const btn = document.getElementById(button_id);
 
@@ -284,45 +176,35 @@ class Utils {
                 callback(args, e);
             });
         } else {
+            ConsoleSideBar.addWarning("Utils.addFileCallback - button not found");
             console.log("Warning: Utils.addFileCallback - button not found");
         }
     }
 
-    static addlatLngCallback(button_id, input_id, callback = Utils._nullFunct, ...args) {
-        // get button element
-        const btn = document.getElementById(button_id);
-
-        // add a button listener
-        if (btn != null) {
-            btn.addEventListener('click', (e) => {
-                // disable the refresh on the page when submit
-                e.preventDefault();
-
-                // call the callback
-                callback(args, document.getElementById(input_id).value);
-            });
-        }
-    }
-
-    static setColor(map, UAV_color) {
-        map.pm.setPathOptions({ color: UAV_color });
-    }
-
-    static onlyUnique(value, index, self) {
-        return self.indexOf(value) === index;
-    }
-
+    /**
+     * Read a file and return its content as text
+     * @param {string} path - Path of the file
+     * @return {string} - File content
+     * @access public
+     * @static
+     */
     static readFileText(path) {
         let output = null;
         fetch(path)
             .then(response => response.text())
             .then(data => {
                 output = data;
-                //console.log(output)
             });
         return output;
     }
 
+    /**
+     * Read a file and return its content as blob
+     * @param {string} path - Path of the file
+     * @return {blob} - Blob of the file
+     * @access public
+     * @static
+     */
     static readFileImage(path) {
         let output = null;
         fetch(path)
@@ -333,6 +215,13 @@ class Utils {
         return output;
     }
 
+    /**
+     * Read a file and return its content as JSON
+     * @param {string} path - Path of the file
+     * @return {JSON} - JSON object
+     * @access public
+     * @static
+     */
     static readFileJson(path) {
         let output = null;
         fetch(path)
@@ -343,64 +232,54 @@ class Utils {
         return output;
     }
 
-    static round(value, decimals) {
-        return Number(Math.round((value + 0.000001) + 'e' + decimals) + 'e-' + decimals); // Number.EPSILON
-    }
-
-    static distance(x1, y1, x2, y2) {
-
-        // Euclidean distance
-        let x = x2 - x1;
-        let y = y2 - y1;
-        return Math.sqrt(x * x + y * y);
-    }
-
-    static download(filename, text) {
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(text)));
-        element.setAttribute('download', filename);
-
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-
-        document.body.removeChild(element);
-    }
-
-    static downloadImage(filename, image) {
-        var element = document.createElement('a');
-        element.setAttribute('href', image);
-        element.setAttribute('download', filename);
-
-        element.style.display = 'none';
-        document.body.appendChild(element);
-
-        element.click();
-
-        document.body.removeChild(element);
-    }
-
-    static getLocalFile(path, callback, ...args) {
+    /**
+     * Read a local file and return its blob by the callback function
+     * @param {string} path - Path of the file
+     * @param {function} callback - Callback when file is loaded. Blob and args will be passed to callback.
+     * @param  {...any} args - Arguments list pass to callback
+     * @return {void}
+     * @access public
+     * @static
+     */
+     static getLocalFile(path, callback, ...args) {
         fetch(path)
-            .then(response => response.blob()) 
+            .then(response => response.blob())
             .then(data => {
                 callback(data, args);
             });
     }
 
-    static loadLocalFile(path, callback, type='text', ...args) {
+    /**
+     * Read a local file and return its content as text by the callback function
+     * @param {string} path - Path of the file
+     * @param {function} callback - Callback when file is loaded. File content and args will be passed to callback.
+     * @param  {...any} args - Arguments list pass to callback
+     * @return {void}
+     * @access public
+     * @static
+     */
+    static loadLocalFile(path, callback, type = 'text', ...args) {
         fetch(path)
-            .then(response => response.blob()) 
+            .then(response => response.blob())
             .then(data => {
                 Utils.loadFile(data, callback, type, args);
-        });
+            });
     }
 
-    static loadFile(file, callback, type="text", ...args) {
+    /**
+     * Load a file and return its content as type by the callback function
+     * @param {string} path - Path of the file
+     * @param {function} callback - Callback when file is loaded. File content and args will be passed to callback.
+     * @param {string} type - Type of the file read. Can be 'text', 'json', 'arraybuffer' or 'binary
+     * @param  {...any} args - Arguments list pass to callback
+     * @return {void}
+     * @access public
+     * @static
+     */
+    static loadFile(file, callback, type = "text", ...args) {
 
         var fileReader = new FileReader();
-        fileReader.onload = function(fileLoadedEvent){
+        fileReader.onload = function (fileLoadedEvent) {
             var dataFromFileLoaded = fileLoadedEvent.target.result;
             switch (type) {
                 case 'json':
@@ -410,7 +289,7 @@ class Utils {
                     callback(dataFromFileLoaded, args);
                     break;
             }
-            
+
         };
 
         switch (type) {
@@ -431,23 +310,149 @@ class Utils {
         }
     }
 
+    /**
+     * Reset the load file input to empty
+     * @param {string} input_id - Id of the file html input
+     * @return {void}
+     * @access public
+     * @static
+     */
     static resetLoadFileInput(input_id) {
         let inputId = input_id + '-input';
         document.getElementById(inputId).value = "";
     }
 
-    static deepCopy(obj) {
-        if (Array.isArray(obj)) {
-            return [...obj];
-        } else if (typeof obj === 'object') {
-            return Object.assign(Object.create(Object.getPrototypeOf(obj)), obj);
+    /**
+     * Download a file with the input JSON content
+     * @param {string} filename - Name of the file
+     * @param {JSON} json - Text, dict or JSON to be written in the file
+     * @access public
+     * @static
+     */
+    static download(filename, json) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(json)));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    /**
+     * Download a Image with the input Blob content
+     * @param {string} filename - Name of the file
+     * @param {href} imageHref - URL of the image
+     * @return {void}
+     * @access public
+     * @static
+     */
+    static downloadImage(filename, imageHref) {
+        var element = document.createElement('a');
+        element.setAttribute('href', imageHref);
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    // #endregion
+
+    /**
+     * Round a number to a given decimal
+     * @param {number} value - Number to be rounded
+     * @param {number} decimals - Number of decimal to be rounded
+     * @returns {number} - Rounded number
+     * @access public
+     * @static
+     */
+    static round(value, decimals) {
+        return Number(Math.round((value + 0.000001) + 'e' + decimals) + 'e-' + decimals); // Number.EPSILON
+    }
+
+    /**
+     * Compute the distance between two points
+     * @param {number} x1 - X coordinate of the first point 
+     * @param {number} y1 - Y coordinate of the first point
+     * @param {number} x2 - X coordinate of the second point
+     * @param {number} y2 - Y coordinate of the second point
+     * @returns {number} - Distance between the two points
+     * @access public
+     * @static
+     */
+    static distance(x1, y1, x2, y2) {
+
+        // Euclidean distance
+        let x = x2 - x1;
+        let y = y2 - y1;
+        return Math.sqrt(x * x + y * y);
+    }
+
+    /**
+     * Create a deep copy of an object
+     * @param {Object} object - Object to be copied
+     * @returns {Object} - Copy of the object
+     * @access public
+     * @static
+     */
+    static deepCopy(object) {
+        if (Array.isArray(object)) {
+            return [...object];
+        } else if (typeof object === 'object') {
+            return Object.assign(Object.create(Object.getPrototypeOf(object)), object);
         }
     }
 
+    /**
+     * Create a deep copy of two dictionaries
+     * @param {dict} d1 - First dictionary to be copied. Duplicate keys will be overwritten by the second dictionary
+     * @param {dict} d2 - Second dictionary to be copied
+     * @returns {dict} - Copy of the dictionaries
+     * @access public
+     * @static
+     */
     static deepCopyMergeDict(d1, d2) {
         return Object.assign({}, d1, d2);
     }
 
+    /**
+     * Check if an object has members given by a list of keys. If yes, return True. If not, return False.
+     * @param {dict} dict - Dictionary to be checked
+     * @param {list} memberList - List of keys to be checked
+     * @returns {boolean} - True if all keys are in the dictionary
+     * @access public
+     * @static
+     */
+     static hasMember(dict, memberList) {
+        let currentDict = dict;
+        for (let i = 0; i < memberList.length; i++) {
+            if (currentDict == undefined) {
+                return false;
+            }
+
+            if (currentDict[memberList[i]] == undefined) {
+                return false;
+            }
+            currentDict = currentDict[memberList[i]];
+        }
+        return true;
+    }
+
+
+    /**
+     * Check if an object has members given by a list of keys. If yes, return it value. If not, return undefined.
+     * @param {dict} dict - Dictionary to be accessed
+     * @param {list} memberList - List of keys to be accessed
+     * @returns {Object} - Value of the last key in the list. If not found, return undefined
+     * @access public
+     * @static
+     */
     static getMember(dict, memberList) {
         let value = undefined;
         let currentDict = dict;
@@ -462,21 +467,15 @@ class Utils {
         return value;
     }
 
-    static hasMember(dict, memberList) {
-        let currentDict = dict;
-        for (let i = 0; i < memberList.length; i++) {
-            if (currentDict == undefined) {
-                return false;
-            } 
-            
-            if (currentDict[memberList[i]] == undefined) {
-                return false;
-            }
-            currentDict = currentDict[memberList[i]];
-        }
-        return true;
-    }
-
+    /**
+     * Generate a list by the given list of keys and the given dictionary
+     * @param {list} infoTable - List of list for each row. Each element is a list of keys to be accessed
+     * @param {dict} dict - Dictionary to be accessed
+     * @param {list} roundTable - List of keys and decimals to be rounded
+     * @returns {list} - List of values
+     * @access public
+     * @static
+     */
     static generateList(infoTable, dict, roundTable = []) {
         let infoList = [];
         for (let i = 0; i < infoTable.length; i++) {
@@ -486,7 +485,7 @@ class Utils {
                 let element = row[j];
                 let infoElement = '';
                 if (Array.isArray(element)) {
-                        
+
                     if (Utils.hasMember(dict, element)) {
                         infoElement = Utils.getMember(dict, element);
                     } else {
@@ -510,7 +509,6 @@ class Utils {
         return infoList;
     }
 }
-
 
 /**
  * Class that own a list of id and a dictionary of values for each id

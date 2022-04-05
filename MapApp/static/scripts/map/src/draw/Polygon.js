@@ -103,6 +103,9 @@ class Polygon extends DrawManager {
     // #endregion
 }
 
+/**
+ * Type of Polygon, use to draw the mission area.
+ */
 class Area extends Polygon {
     constructor(status, options = {}, layerOptions = undefined, parameters = config.Layers.Polygon.Area.parameters) {
         super(status, 'Area', parameters, options, layerOptions);

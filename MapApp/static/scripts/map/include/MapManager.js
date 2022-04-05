@@ -44,7 +44,7 @@ class ManagerPrototype extends SmartListCallbacks {
     /**
      * Callback to info message with header infoAdd, that add/updates the information, or
      * with header infoSet, that set the information, and calls the callbacks.
-     * @param {dict} payload - payload of the info message
+     * @param {dict} payload - Payload of the info message
      * @return {void} 
      * @access private
      */
@@ -63,7 +63,7 @@ class ManagerPrototype extends SmartListCallbacks {
 
     /**
      * Callback to request message with header infoGet, that get the list of information and calls the callbacks.
-     * @param {dict} payload - payload of the request message
+     * @param {dict} payload - Payload of the request message
      * @return {void} 
      * @access private
      */
