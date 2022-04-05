@@ -102,8 +102,6 @@ class Config
 
         this[markerName][markerType].svg = data;
 
-        console.log(this)
-
         this._contSvg++;
         if (this._contSvg == this._dataSVGLenght) {
             this._cont++;

@@ -12,7 +12,6 @@ class Marker extends DrawManager {
     * @param {svg} svgConfig - Icon to use for the marker, and can change it color. Optional.
     */
    constructor(status, name, parameters = undefined, options = undefined, layerOptions = {}, svgConfig) {
-
       Marker._getIcon(svgConfig, layerOptions);
 
       super(status, 'Marker', name, parameters, options, layerOptions);
@@ -27,9 +26,11 @@ class Marker extends DrawManager {
          svgConfig.baseColor = layerOptions.baseColor;
       }
       if (layerOptions.iconSize !== undefined) {
+         console.log("Change icon size " + layerOptions.iconSize);
          svgConfig.iconSize = layerOptions.iconSize;
       }
       if (layerOptions.iconAnchor !== undefined) {
+         console.log("Change icon anchor " + layerOptions.iconAnchor);
          svgConfig.iconAnchor = layerOptions.iconAnchor;
       }
 
@@ -40,6 +41,8 @@ class Marker extends DrawManager {
       if (layerOptions.borderColor !== undefined) {
          desiredColor[1] = layerOptions.borderColor;
       }
+
+      console.log("Change icon color " + desiredColor);
 
       let icon = Marker._changeIconColor(svgConfig.svg, desiredColor, svgConfig.baseColor, svgConfig.iconSize, svgConfig.iconAnchor);
 
@@ -65,6 +68,7 @@ class Marker extends DrawManager {
       if (desiredColor !== undefined) {
          layerOptions.fillColor = desiredColor[0];
          layerOptions.borderColor = desiredColor[1];
+
          Marker._getIcon(this.svgConfig, layerOptions);
       }
       super.codeDraw(values, options, layerOptions);
@@ -108,18 +112,11 @@ class Marker extends DrawManager {
 
       let iconSvgModified = svg.replace(new RegExp(baseColor[0], 'g'), desiredColor[0]).replace(new RegExp(baseColor[1], 'g'), desiredColor[1]);
 
-      console.log("_changeIconColor");
-      console.log(iconSize);
-      console.log(iconAnchor);
-
-      let iconSize2 = [24, 40];
-      let iconAnchor2 = [12, 40];
-
       return L.divIcon({
          html: iconSvgModified,
          className: "svg-icon",
-         iconSize: iconSize2,
-         iconAnchor: iconAnchor2,
+         iconSize: iconSize,
+         iconAnchor: iconAnchor,
       });
    }
 
