@@ -579,7 +579,7 @@ class MissionPlanner {
                             break;
                     }
                     break;
-                case 'Line':
+                case 'Polyline':
                     switch (options.name) {
                         case 'Path':
                             this.path.codeDraw(values, options);

@@ -257,18 +257,27 @@ var iconSvgUav = `
 
 // #endregion
 
+/**
+ * Extends the Draw Manager to enable Marker drawing.
+ */
 class Marker extends DrawManager {
+   /**
+    * Creates a new Marker Draw Manager.
+    * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
+    * @param {string} name - Name of the layer, for example: 'PointOffInterest', 'LandPoint', 'UAVMarker'.
+    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    * @param {dict} options - Options of the Draw Manager. Optional.
+    * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
+    * @param {svg} iconSvgBase - Icon to use for the marker, and can change it color. Optional.
+    * @param {string} fillColor - Color fill of the marker. Optional.
+    * @param {string} borderColor - Color stroke of the marker. Optional.
+    * @param {list} iconSize - List with the width and height of the icon. Optional.
+    * @param {list} iconAnchor - List with the x and y offset of the icon. Optional.
+    */
    constructor(
-      status,
-      name,
-      parameters = undefined, 
-      options = undefined,
-      layerOptions = {},
-      iconSvgGrey,
-      fillColor = '#b3b3b3',
-      borderColor = '#7f7f7f',
-      iconSize = [24, 40],
-      iconAnchor = [12, 40]) {
+      status, name, parameters = undefined, options = undefined, layerOptions = {},
+      iconSvgBase, fillColor = '#b3b3b3', borderColor = '#7f7f7f', iconSize = [24, 40], iconAnchor = [12, 40]
+   ) {
 
       if (layerOptions.fillColor !== undefined) {
          fillColor = layerOptions.fillColor;
@@ -277,39 +286,69 @@ class Marker extends DrawManager {
          borderColor = layerOptions.borderColor;
       }
 
-      let icon = Marker.getIcon(iconSvgGrey, fillColor, borderColor, iconSize, iconAnchor);
-      
-      
+      let icon = Marker.changeIconColor(iconSvgBase, fillColor, borderColor, iconSize, iconAnchor);
+
       layerOptions['markerStyle'] = { 'icon': icon };
       layerOptions['icon'] = icon;
 
       super(status, 'Marker', name, parameters, options, layerOptions);
 
-      this.layerOptions = layerOptions;
-      this.icon = icon;
-      this.iconSvgGrey = iconSvgGrey;
-      this.iconSize = iconSize;
-      this.iconAnchor = iconAnchor;
+      /**
+       * Icon to use for the marker, and can change it color.
+       * @type {svg}
+       * @private
+       */
+      this._iconSvgBase = iconSvgBase;
+
+      /**
+       * List with the width and height of the icon.
+       * @type {list}
+       * @private
+       */
+      this._iconSize = iconSize;
+
+      /**
+       * List with the x and y offset of the icon.
+       * @type {list}
+       * @private
+       */
+      this._iconAnchor = iconAnchor;
    }
 
-   codeDraw(values, options = undefined, layerOptions = {}, uavId = undefined, iconSvgGrey = this.iconSvgGrey, iconSize = this.iconSize, iconAnchor = this.iconAnchor) {
+   // #region Public methods
+
+   /**
+    * Extends the Draw Manager codeDraw to assign color to the Marker by the UAV id.
+    * @param {L.latlng} values - Leaflet latitude and longitude of the layer (Reference: https://leafletjs.com/).
+    * @param {dict} options - Extra options to add to the Draw Manager. Optional.
+    * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
+    * @param {string} uavId - UAV id. Optional.
+    * @param {svg} iconSvgBase - Icon to use for the marker, and can change it color. Optional.
+    * @param {list} iconSize - List with the width and height of the icon. Optional.
+    * @param {list} iconAnchor - List with the x and y offset of the icon. Optional.
+    * @returns {L.Layer} - Instance of the layer created (Reference: https://leafletjs.com/).
+    * @public
+    */
+   codeDraw(values, options = undefined, layerOptions = {}, uavId = undefined, iconSvgBase = this._iconSvgBase, iconSize = this._iconSize, iconAnchor = this._iconAnchor) {
       if (uavId !== undefined) {
          let colors = M.UAV_MANAGER.getColors(uavId);
-         layerOptions['icon'] = Marker.getIcon(iconSvgGrey, colors[1], colors[0], iconSize, iconAnchor);
+         layerOptions['icon'] = Marker.changeIconColor(iconSvgBase, colors[1], colors[0], iconSize, iconAnchor);
       }
       super.codeDraw(values, options, layerOptions);
    }
 
-   _addChangeCallback(id, info) {
-      Utils.addFormCallback(`${id}-change`, [`${id}-lat`, `${id}-lng`], ['lat', 'lng'], this._changeCallback.bind(this), id, info);
-  }
-
-   _changeCallback(myargs, inputs) {
-      let layer = myargs[1].layer;
-      layer.setLatLng(L.latLng(inputs.lat, inputs.lng));
-   }
-
-   drawInfoAdd(htmlId, info, name = "Marker", initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
+   /**
+    * Extends the drawInfoAdd of DrawManager to add Markers coordinates.
+    * @param {string} htmlId - Base id of the HTML element to add.
+    * @param {dict} info - Dict with the layer and the Draw Manager options.
+    * @param {string} name - Name of the layer.
+    * @param {list} initialHtml - List with the HTML to add at the beginning of the info.
+    * @param {list} endHtml - List with the HTML to add at the end of the info.
+    * @param {string} uavPickerType - Type of the UAV picker, for example 'checkbox' or 'radio'.
+    * @returns {void}
+    * @public
+    */
+   drawInfoAdd(htmlId, info, name = info.drawManager.options.name, initialHtml = [], endHtml = undefined, uavPickerType = 'radio') {
 
       let lat = info.layer._latlng.lat;
       let lng = info.layer._latlng.lng;
@@ -322,14 +361,19 @@ class Marker extends DrawManager {
       return super.drawInfoAdd(htmlId, info, name, initialHtml, endHtml, uavPickerType);
    }
 
-   static getIcon(
-      iconSvgGrey,
-      fillColor = '#b3b3b3',
-      borderColor = '#7f7f7f',
-      iconSize = [24, 40],
-      iconAnchor = [12, 40]) {
+   /**
+    * Modifies the Marker color.
+    * @param {svg} iconSvgBase - Icon to use for the marker, and can change it color. Optional.
+    * @param {string} fillColor - Color fill of the marker. Optional.
+    * @param {string} borderColor - Color stroke of the marker. Optional.
+    * @param {list} iconSize - List with the width and height of the icon. Optional.
+    * @param {list} iconAnchor - List with the x and y offset of the icon. Optional.
+    * @returns {L.DivIcon} - Icon with the new color (Reference: https://leafletjs.com/).
+    * @public
+    */
+   static changeIconColor(iconSvgBase, fillColor = '#b3b3b3', borderColor = '#7f7f7f', iconSize = [24, 40], iconAnchor = [12, 40]) {
 
-      let iconSvgModified = iconSvgGrey.replace(new RegExp('#BORDER', 'g'), borderColor).replace(new RegExp('#FILL', 'g'), fillColor);
+      let iconSvgModified = iconSvgBase.replace(new RegExp('#BORDER', 'g'), borderColor).replace(new RegExp('#FILL', 'g'), fillColor);
 
       return L.divIcon({
          html: iconSvgModified,
@@ -338,92 +382,113 @@ class Marker extends DrawManager {
          iconAnchor: iconAnchor,
       });
    }
+
+   // #endregion
+
+   // #region Private methods
+
+   /**
+    * Overload the Draw Manager _addChangeCallback manage change coordinates of the Marker.
+    * @param {string} id - Base id of the HTML element to add.
+    * @param {dict} info - Dict with the layer and the Draw Manager options.
+    * @returns {void}
+    * @private
+    */
+   _addChangeCallback(id, info) {
+      Utils.addFormCallback(`${id}-change`, [`${id}-lat`, `${id}-lng`], ['lat', 'lng'], this._changeCallback.bind(this), info);
+   }
+
+   /**
+    * Overload the Draw Manager _changeCallback to change the coordinates of the marker.
+    * @param {list} myargs - List with the info dict, that has the layer and the Draw Manager options.
+    * @param {dict} args - Dict with ['${id}-lat', '${id}-lng'] as keys and their values.
+    * @returns {void}
+    * @private
+    */
+   _changeCallback(myargs, inputs) {
+      let layer = myargs[0].layer;
+      layer.setLatLng(L.latLng(inputs.lat, inputs.lng));
+   }
+
+   // #endregion
 }
 
+/**
+ * Type of Marker, use to create a Point of Interest.
+ */
 class PointOfInterest extends Marker {
+   /**
+    * Creates a new Point of Interest Marker Draw Manager.
+    * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
+    * @param {dict} options - Options of the Draw Manager. Optional.
+    * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
+    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    */
    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.PointOfInterest.parameters) {
-
-      super(
-         status, 
-         'PointOfInterest',
-         parameters,
-         options,
-         layerOptions,
-         iconSvgPointOfInterest);
-   }
-
-   drawInfoAdd(id, info) {
-      let name = 'Point of Interest';
-      return super.drawInfoAdd(id, info, name, undefined, undefined, 'radio');
+      super(status, 'PointOfInterest', parameters, options, layerOptions, iconSvgPointOfInterest);
    }
 }
 
-class WayPoint extends Marker {
+/**
+ * Type of Marker, use to create a Waypoint.
+ */
+ class WayPoint extends Marker {
+   /**
+    * Creates a new WayPoint Marker Draw Manager.
+    * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
+    * @param {dict} options - Options of the Draw Manager. Optional.
+    * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
+    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    */
    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.WayPoint.parameters) {
-
-      super(
-         status, 
-         'WayPoint',
-         parameters,
-         options,
-         layerOptions,
-         iconSvgWayPoint);
-   }
-
-   drawInfoAdd(id, info) {
-      let name = 'Waypoint';
-      return super.drawInfoAdd(id, info, name, undefined, undefined, 'radio');
+      super(status, 'WayPoint', parameters, options, layerOptions, iconSvgWayPoint);
    }
 }
 
-class LandPoint extends Marker {
+/**
+ * Type of Marker, use to create a Land Point.
+ */
+ class LandPoint extends Marker {
+   /**
+    * Creates a new LandPoint Marker Draw Manager.
+    * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
+    * @param {dict} options - Options of the Draw Manager. Optional.
+    * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
+    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    */
    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.LandPoint.parameters) {
-
-      super(
-         status, 
-         'LandPoint',
-         parameters,
-         options,
-         layerOptions,
-         iconSvgLandPoint);
-   }
-
-   drawInfoAdd(id, info) {
-      let name = 'Land Point';
-      return super.drawInfoAdd(id, info, name, undefined, undefined, 'radio');
+      super(status, 'LandPoint', parameters, options, layerOptions, iconSvgLandPoint);
    }
 }
 
-class TakeOffPoint extends Marker {
+/**
+ * Type of Marker, use to create a Take Off Point.
+ */
+ class TakeOffPoint extends Marker {
+   /**
+    * Creates a new TakeOffPoint Marker Draw Manager.
+    * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
+    * @param {dict} options - Options of the Draw Manager. Optional.
+    * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
+    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    */
    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.TakeOffPoint.parameters) {
-
-      super(
-         status, 
-         'TakeOffPoint',
-         parameters,
-         options,
-         layerOptions,
-         iconSvgTakeOffPoint);
-   }
-
-   drawInfoAdd(id, info) {
-      let name = 'Take Off Point';
-      return super.drawInfoAdd(id, info, name);
+      super(status, 'TakeOffPoint', parameters, options, layerOptions, iconSvgTakeOffPoint);
    }
 }
 
-class UAVMarker extends Marker {
+/**
+ * Type of Marker, use to create a UAV.
+ */
+ class UAVMarker extends Marker {
+   /**
+    * Creates a new UAVMarker Marker Draw Manager.
+    * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
+    * @param {dict} options - Options of the Draw Manager. Optional.
+    * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
+    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    */
    constructor(status, options = undefined, layerOptions = undefined, parameters = undefined) {
-      super(
-         status, 
-         'UAVMarker',
-         parameters,
-         options,
-         layerOptions,
-         iconSvgUav,
-         undefined,
-         undefined,
-         [30, 30],
-         [15, 15]);
+      super(status, 'UAVMarker', parameters, options, layerOptions, iconSvgUav);
    }
 }

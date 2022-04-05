@@ -116,7 +116,6 @@ class DrawLayers extends SmartListCallbacks {
      * @access public
      */
     removeLayerById(id) {
-        // console.log("MapManager: removeLayer");
         let layer = super.getDictById(id).layer;
         if (layer != null) {
             layer.remove();
@@ -180,7 +179,6 @@ class DrawLayers extends SmartListCallbacks {
         let value = info[1];
 
         if (flag) {
-            console.log("DrawLayers: _onLayerAdd")
             value.drawManager.id = this._id;
             value.id = this._id;
             super.addObject(value.drawManager.id, value);
@@ -349,8 +347,8 @@ class MissionManager extends ManagerPrototype {
         if (payload.status == 'confirmed') {
             Utils.callCallbacks(this._missionConfirmCallbacks, payload);
         } else if (payload.status == 'rejected') {
-            // TODO: manage reject
             console.log('Mission rejected');
+            ConsoleSideBar.addWarning('Mission rejected: ' + payload);
         }
     }
 
@@ -568,9 +566,11 @@ class MapManager {
      */
     _pmOnCreateCallback(args, e) {
         // Change layer color if the option color is set
-
-        if (Utils.hasMember(e.layer.pm.options.color, ['color'])) {
-            e.layer.options.color = e.layer.options.color;
+        if (Utils.hasMember(e.layer.pm.options, ['color'])) {
+            e.layer.setStyle({ color: e.layer.pm.options.color });
+            if (Utils.hasMember(e.layer.options, ['color'])) {
+                e.layer.options.color = e.layer.options.color;
+            }
         }
     }
 
