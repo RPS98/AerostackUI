@@ -15,26 +15,25 @@ class Polyline extends DrawManager {
     }
 
     // #region Public Methods
-
-    /**
-     * Extends the Draw Manager codeDraw to assign color to the line by the UAV id.
-     * @param {L.latlng} values - Leaflet latitude and longitude of the layer (Reference: https://leafletjs.com/).
-     * @param {dict} options - Extra options to add to the Draw Manager. Optional.
-     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
-     * @param {string} uavId - UAV id. Optional.
-    * @returns {L.Layer} - Instance of the layer created (Reference: https://leafletjs.com/).
-     * @public
-     */
-    codeDraw(values, options = undefined, layerOptions = {}, uavId = undefined) {
-        if (values.length < 1) {
-            return;
-        }
-        if (uavId !== undefined) {
-            layerOptions['color'] = M.UAV_MANAGER.getColors(uavId)[1];
-        }
-        return super.codeDraw(values, options, layerOptions);
-    }
-
+    // /**
+    //  * Extends the Draw Manager codeDraw to assign color to the line by the UAV id.
+    //  * @param {L.latlng} values - Leaflet latitude and longitude of the layer (Reference: https://leafletjs.com/).
+    //  * @param {dict} options - Extra options to add to the Draw Manager. Optional.
+    //  * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
+    //  * @param {string} uavId - UAV id. Optional.
+    // * @returns {L.Layer} - Instance of the layer created (Reference: https://leafletjs.com/).
+    //  * @public
+    //  */
+    // codeDraw(values, options = undefined, layerOptions = {}, uavId = undefined) {
+    //     if (values.length < 1) {
+    //         return;
+    //     }
+    //     if (uavId !== undefined) {
+    //         console.log(M.UAV_MANAGER.getColors(uavId));
+    //         layerOptions['color'] = M.UAV_MANAGER.getColors(uavId)[1];
+    //     }
+    //     return super.codeDraw(values, options, layerOptions);
+    // }
     /**
      * Extends the drawInfoAdd of DrawManager to add polyline vertex coordinates.
      * @param {string} htmlId - Base id of the HTML element to add.

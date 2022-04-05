@@ -268,7 +268,8 @@ class MissionPlanner {
     }
 
     missionInterpreterArea(layerInfo, missionLayer, selectedUavList, validation, info) {
-
+        console.log("LayerInfo");
+        console.log(layerInfo);
         let uavList = Object.keys(layerInfo.drawManager.options.uavList);
 
         if (uavList.length > 2 && uavList.includes('auto')) {

@@ -441,12 +441,12 @@ class AerostackUI():
         self.drone_interface = {}
         for uav_id in self.uav_id_list:
             # self.drone_interface[uav_id] = DroneInterface(uav_id)
-            # if uav_id == 'drone_sim_8':
-            #     self.drone_interface[uav_id] = None
-            # else:
-            drone_node = UavInterface(uav_id, self.speed)
-            self.executor.add_node(drone_node)
-            self.drone_interface[uav_id] = drone_node
+            if uav_id == 'M300_0':
+                self.drone_interface[uav_id] = None
+            else:
+                drone_node = UavInterface(uav_id, self.speed)
+                self.executor.add_node(drone_node)
+                self.drone_interface[uav_id] = drone_node
 
         self.keep_running = True
         self.spin_thread = threading.Thread(
@@ -456,10 +456,10 @@ class AerostackUI():
         # executor_thread = threading.Thread(target=executor.spin, daemon=True)
         # executor_thread.start()
 
-        # self.uav_id_list_pos = [
-        #     [28.1439717, -16.5032634, 0.0],
-        #     [28.1438840, -16.5032570, 0.0],
-        # ]
+        self.uav_id_list_pos = [
+            [28.1439717, -16.5032634, 0.0],
+            [28.1438840, -16.5032570, 0.0],
+        ]
 
         time.sleep(3)
 
@@ -562,8 +562,8 @@ class AerostackUI():
                 else:
 
                     send_info = drone_interface_i.get_info()
-                    # print(f"Send info for {uav}")
-                    # print(send_info)
+                    print(f"Send info for {uav}")
+                    print(send_info)
 
                 odom[uav].append(
                     [send_info['pose']['lat'], send_info['pose']['lng']])

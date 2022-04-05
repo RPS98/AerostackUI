@@ -48,7 +48,7 @@ class MissionDrawer {
                     this.takeOffPoint.codeDraw([layer.values['lat'], layer.values['lng']], {'missionId': missionId}, undefined, desiredColor);
                     break;
                 case 'Path':
-                    this.path.codeDraw(layer.values, {'missionId': missionId}, undefined, desiredColor);
+                    this.path.codeDraw(layer.values, {'missionId': missionId}, {'color': desiredColor[0]});
                     break;
                 case 'LandPoint':
                     this.landPoint.codeDraw([layer.values.lat, layer.values.lng], {'missionId': missionId}, undefined, desiredColor);
@@ -57,11 +57,11 @@ class MissionDrawer {
                     this.wayPoint.codeDraw([layer.values.lat, layer.values.lng], {'missionId': missionId}, undefined, desiredColor);
                     break;
                 case 'Area':
-                    this.area.codeDraw(layer.values[0], {'missionId': missionId}, {'opacity': 0.3, 'color': M.MISSION_MANAGER.getColors(missionId)[1]}, uavId);
+                    this.area.codeDraw(layer.values[0], {'missionId': missionId}, {'opacity': 0.3, 'color': M.MISSION_MANAGER.getColors(missionId)[1]});
 
                     for (let j = 0; j < layer.uavList.length; j++) {
                         let uavId_aux = layer.uavList[j];
-                        this.path.codeDraw(layer.uavPath[uavId_aux], {'missionId': missionId}, undefined, desiredColor);
+                        this.path.codeDraw(layer.uavPath[uavId_aux], {'missionId': missionId}, undefined, {'color': desiredColor[0]});
                     }
 
                     break;

@@ -708,6 +708,7 @@ class SmartListCallbacks extends SmartList {
      * Change the value of an id
      * @param {string} id - Id to be changed
      * @param {dict} objectInfo - Value to be added
+     * @param {boolean} override - If true, the value will be overrided. If false, the value will be added to the current value.
      * @returns {void}
      * @access public
      */
@@ -735,18 +736,6 @@ class SmartListCallbacks extends SmartList {
                 Utils.callCallbackByParam(this._paramChangeCallbacks, key, newInfo[key], id);
             }
         }
-
-        // for (let key in objectInfo) {
-        //     if (!(key in oldInfo)) {
-        //         if (oldInfo[key] !== newInfo[key]) {
-        //             Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
-        //         }
-        //     }
-        // }
-
-        // for (let key in objectInfo) {
-        //     Utils.callCallbackByParam(this._paramChangeCallbacks, key, objectInfo[key], id);
-        // }
     }
     // #endregion
 }

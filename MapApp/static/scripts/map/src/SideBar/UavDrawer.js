@@ -76,12 +76,12 @@ class UavDrawer
                     if (value.length < 2) {
                         odomValue = [value, value];
                     }
-                    this.UAV_LIST.getDictById(uavId)['layerOdom'].codeDraw(odomValue, {'uavList': [uavId]}, undefined, desiredColor);
+                    this.UAV_LIST.getDictById(uavId)['layerOdom'].codeDraw(odomValue, {'uavList': [uavId]}, {'color': desiredColor[0]});
                     break;
                 case 'desiredPath':
                     this._checkLayer(uavId, 'layerDesiredPath');
                     this.UAV_LIST.getDictById(uavId)['layerDesiredPath'] = this.desiredPath
-                    this.UAV_LIST.getDictById(uavId)['layerDesiredPath'].codeDraw(value, {'uavList': [uavId]}, undefined, desiredColor);
+                    this.UAV_LIST.getDictById(uavId)['layerDesiredPath'].codeDraw(value, {'uavList': [uavId]}, {'color': desiredColor[0]});
                     break;
                 case 'state':
                     this._checkLayer(uavId, 'layerPose');

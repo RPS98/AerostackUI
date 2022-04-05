@@ -27,7 +27,7 @@ class Polygon extends DrawManager {
      * @returns {void}
      * @public
      */
-    drawInfoAdd(htmlId, info, name = info.drawManager.options.name, initialHtml = [], endHtml = undefined, uavPickerType = undefined) {
+    drawInfoAdd(htmlId, info, name = info.drawManager.options.name, initialHtml = [], endHtml = undefined, uavPickerType = 'checkbox') {
 
         let id = htmlId + '-' + info.id;
 
