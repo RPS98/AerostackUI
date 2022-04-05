@@ -17,25 +17,6 @@ class Polygon extends DrawManager {
     // #region Public Methods
 
     /**
-     * Extends the Draw Manager codeDraw to assign color to the polygon by the Mission id.
-     * @param {L.latlng} values - Leaflet latitude and longitude of the layer (Reference: https://leafletjs.com/).
-     * @param {dict} options - Extra options to add to the Draw Manager.
-     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options.
-     * @param {string} missionId - UAV id.
-    * @returns {L.Layer} - Instance of the layer created (Reference: https://leafletjs.com/).
-     * @public
-     */
-    codeDraw(values, options = undefined, layerOptions = {}, missionId = undefined) {
-        if (values.length < 1) {
-            return;
-        }
-        if (missionId !== undefined) {
-            layerOptions['color'] = M.MISSION_MANAGER.getColors(missionId)[1];
-        }
-        return super.codeDraw(values, options, layerOptions);
-    }
-
-    /**
      * Extends the drawInfoAdd of DrawManager to add polygon vertex coordinates.
      * @param {string} htmlId - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.

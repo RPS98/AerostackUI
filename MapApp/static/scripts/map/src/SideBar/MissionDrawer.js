@@ -41,26 +41,27 @@ class MissionDrawer {
         for (let i = 0; i < missionDict.layers.length; i++) {
             let layer = missionDict.layers[i];
             let uavId = layer['uavList'][0];
+            let desiredColor = M.UAV_MANAGER.getColors(uavId);
 
             switch (layer.name) {
                 case 'TakeOffPoint':
-                    this.takeOffPoint.codeDraw([layer.values['lat'], layer.values['lng']], {'missionId': missionId}, undefined, uavId);
+                    this.takeOffPoint.codeDraw([layer.values['lat'], layer.values['lng']], {'missionId': missionId}, undefined, desiredColor);
                     break;
                 case 'Path':
-                    this.path.codeDraw(layer.values, {'missionId': missionId}, undefined, uavId);
+                    this.path.codeDraw(layer.values, {'missionId': missionId}, undefined, desiredColor);
                     break;
                 case 'LandPoint':
-                    this.landPoint.codeDraw([layer.values.lat, layer.values.lng], {'missionId': missionId}, undefined, uavId);
+                    this.landPoint.codeDraw([layer.values.lat, layer.values.lng], {'missionId': missionId}, undefined, desiredColor);
                     break;
                 case 'WayPoint':
-                    this.wayPoint.codeDraw([layer.values.lat, layer.values.lng], {'missionId': missionId}, undefined, uavId);
+                    this.wayPoint.codeDraw([layer.values.lat, layer.values.lng], {'missionId': missionId}, undefined, desiredColor);
                     break;
                 case 'Area':
-                    this.area.codeDraw(layer.values[0], {'missionId': missionId}, {'opacity': 0.3}, missionId);
+                    this.area.codeDraw(layer.values[0], {'missionId': missionId}, {'opacity': 0.3, 'color': M.MISSION_MANAGER.getColors(missionId)[1]}, uavId);
 
                     for (let j = 0; j < layer.uavList.length; j++) {
                         let uavId_aux = layer.uavList[j];
-                        this.path.codeDraw(layer.uavPath[uavId_aux], {'missionId': missionId}, undefined, uavId);
+                        this.path.codeDraw(layer.uavPath[uavId_aux], {'missionId': missionId}, undefined, desiredColor);
                     }
 
                     break;

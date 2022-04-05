@@ -30,6 +30,20 @@ class Config
          */
         this._dataLenght = null;
 
+        /**
+         * Counter of config SVG loaded.
+         * @type {number}
+         * @private
+         */
+         this._contSvg = 0;
+
+        /**
+         * Number of SVG files to be loaded.
+         * @type {number}
+         * @private
+         */
+        this._dataSVGLenght = null;
+
         // Load main config file
         Utils.loadLocalFile(this._basePath + filePath, this._intialize.bind(this), 'json', callback);
     }
@@ -47,7 +61,11 @@ class Config
         for (let i = 0; i < Object.keys(data).length; i++) {
             let key = Object.keys(data)[i];
             let filePath = data[key];
-            Utils.loadLocalFile(this._basePath + filePath, this._onLoadConfigFile.bind(this), 'json', key, callback[0]);
+            if (key == "Markers") {
+                Utils.loadLocalFile(this._basePath + filePath, this._onLoadConfigMarkersFile.bind(this), 'json', key, callback[0]);
+            } else {
+                Utils.loadLocalFile(this._basePath + filePath, this._onLoadConfigFile.bind(this), 'json', key, callback[0]);
+            }
         }
     }
 
@@ -62,6 +80,36 @@ class Config
         this._cont++;
         if (this._cont == this._dataLenght) {
             args[1]();
+        }
+    }
+
+    _onLoadConfigMarkersFile(data, args) {
+        this[args[0]] = data;
+        this._dataSVGLenght = Object.keys(data).length;
+
+        for (let i = 0; i < Object.keys(data).length; i++) {
+            let key = Object.keys(data)[i];
+            let content = data[key];
+            
+            Utils.loadLocalFile(content.svgUrl, this._onLoadSVGFile.bind(this), 'text', args[0], key, args[1]);
+        }
+    }
+
+    _onLoadSVGFile(data, args) {
+        let markerName = args[0][0];
+        let markerType = args[0][1];
+        let callback = args[0][2];
+
+        this[markerName][markerType].svg = data;
+
+        console.log(this)
+
+        this._contSvg++;
+        if (this._contSvg == this._dataSVGLenght) {
+            this._cont++;
+            if (this._cont == this._dataLenght) {
+                callback();
+            }
         }
     }
 }

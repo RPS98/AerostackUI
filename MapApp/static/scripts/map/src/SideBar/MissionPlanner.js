@@ -36,8 +36,7 @@ class MissionPlanner {
         }
 
         this.pointOfInterest = new PointOfInterest(status, undefined, layerOptions);
-        // this.wayPoint = new WayPoint(status, undefined, layerOptions);
-        this.wayPoint = new WayPoint(status, undefined, Object.assign({}, layerOptions, { 'continueDrawing': true })); // TODO: not supported
+        this.wayPoint = new WayPoint(status, undefined, Utils.deepCopyMergeDict(layerOptions, { 'continueDrawing': true }));
         this.landPoint = new LandPoint(status, undefined, layerOptions);
         this.takeOffPoint = new TakeOffPoint(status, undefined, layerOptions);
 
