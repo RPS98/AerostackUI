@@ -6,7 +6,7 @@ class Polygon extends DrawManager {
      * Creates a new Polygon Draw Manager.
      * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
      * @param {string} name - Name of the layer, for example: 'Path', 'Odom', 'DesiredPath'.
-     * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+     * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
      * @param {dict} options - Options of the Draw Manager. Optional.
      * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
      */
@@ -21,11 +21,11 @@ class Polygon extends DrawManager {
      * @param {string} htmlId - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @param {string} name - Name of the layer.
-     * @param {list} initialHtml - List with the HTML to add at the beginning of the info.
-     * @param {list} endHtml - List with the HTML to add at the end of the info.
+     * @param {array} initialHtml - List with the HTML to add at the beginning of the info.
+     * @param {array} endHtml - List with the HTML to add at the end of the info.
      * @param {string} uavPickerType - Type of the UAV picker, for example 'checkbox' or 'radio'.
      * @returns {void}
-     * @public
+     * @access public
      */
     drawInfoAdd(htmlId, info, name = info.drawManager.options.name, initialHtml = [], endHtml = undefined, uavPickerType = 'checkbox') {
 
@@ -55,7 +55,7 @@ class Polygon extends DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {void}
-     * @private
+     * @access private
      */
     _addChangeCallback(id, info) {
         let htmlId = [];
@@ -73,10 +73,10 @@ class Polygon extends DrawManager {
 
     /**
      * Overload the Draw Manager _changeCallback to change the coordinates of the line.
-     * @param {list} myargs - List with the info dict, that has the layer and the Draw Manager options.
+     * @param {array} myargs - List with the info dict, that has the layer and the Draw Manager options.
      * @param {dict} args - Dict with ['${id}-${i}-lat', '${id}-${i}-lng'] as keys and their values, for each vertex of the polygon.
      * @returns {void}
-     * @private
+     * @access private
      */
     _changeCallback(myargs, inputs) {
         let layer = myargs[0].layer;
@@ -113,7 +113,7 @@ class Area extends Polygon {
         /**
          * Config dict of the Area.
          * @type {dict}
-         * @public
+         * @access public
          */
         this.configFile = config.Layers.Polygon.Area;
     }

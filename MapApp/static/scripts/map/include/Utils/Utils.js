@@ -424,7 +424,7 @@ class Utils {
     /**
      * Check if an object has members given by a list of keys. If yes, return True. If not, return False.
      * @param {dict} dict - Dictionary to be checked
-     * @param {list} memberList - List of keys to be checked
+     * @param {array} memberList - List of keys to be checked
      * @returns {boolean} - True if all keys are in the dictionary
      * @access public
      * @static
@@ -448,7 +448,7 @@ class Utils {
     /**
      * Check if an object has members given by a list of keys. If yes, return it value. If not, return undefined.
      * @param {dict} dict - Dictionary to be accessed
-     * @param {list} memberList - List of keys to be accessed
+     * @param {array} memberList - List of keys to be accessed
      * @returns {Object} - Value of the last key in the list. If not found, return undefined
      * @access public
      * @static
@@ -469,9 +469,9 @@ class Utils {
 
     /**
      * Generate a list by the given list of keys and the given dictionary
-     * @param {list} infoTable - List of list for each row. Each element is a list of keys to be accessed
+     * @param {array} infoTable - List of list for each row. Each element is a list of keys to be accessed
      * @param {dict} dict - Dictionary to be accessed
-     * @param {list} roundTable - List of keys and decimals to be rounded
+     * @param {array} roundTable - List of keys and decimals to be rounded
      * @returns {list} - List of values
      * @access public
      * @static
@@ -622,21 +622,21 @@ class SmartListCallbacks extends SmartList {
         /**
          * List of callbacks when a parameter is modified
          * @type {array}
-         * @private
+         * @access private
          */
         this._infoChangeCallbacks = [];
 
         /**
          * List of callbacks when a object is added or removed
          * @type {array}
-         * @private
+         * @access private
          */
         this._infoAddCallbacks = [];
 
         /**
          * List of callbacks when the a parameter is changed
          * @type {array}
-         * @private
+         * @access private
          */
         this._paramChangeCallbacks = [];
     }

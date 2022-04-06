@@ -1,28 +1,66 @@
-class LayersControl
-{
+/**
+ * Class that manage Layers Control, to add or remove group of layers by a checkbox.
+ */
+class LayersControl {
+    /**
+     * Creates a new LayersControl instance.
+     */
     constructor() {
-        M.DRAW_LAYERS.addInfoAddCallback(this.addDrawLayerCallback.bind(this));
-        M.MISSION_LAYERS.addInfoAddCallback(this.addMissionLayerCallback.bind(this));
-        M.UAV_LAYERS.addInfoAddCallback(this.addUavLayerCallback.bind(this));
+        // Add layers add/remove callbacks
+        M.DRAW_LAYERS.addInfoAddCallback(this._addDrawLayerCallback.bind(this));
+        M.MISSION_LAYERS.addInfoAddCallback(this._addMissionLayerCallback.bind(this));
+        M.UAV_LAYERS.addInfoAddCallback(this._addUavLayerCallback.bind(this));
 
-        this.drawControlLayer = L.layerGroup();
-        this.drawControlLayer.addTo(M.MAP);
-        M.layerControl.addOverlay(this.drawControlLayer, 'Draw Layers');
-        this.uavControlLayers = new SmartList();
+        /**
+         * Control for draw layer.
+         * @type {L.Control}
+         * @access private
+         */
+        this._drawControlLayer = L.layerGroup();
+
+        // Add control to map        
+        this._drawControlLayer.addTo(M.MAP);
+        M.layerControl.addOverlay(this._drawControlLayer, 'Draw Layers');
+
+        /**
+         * SmartList that contain control for each UAV.
+         * @type {SmartList}
+         * @access private
+         */
+        this._uavControlLayers = new SmartList();
+
+        /**
+         * SmartList that contain control for each mission.
+         * @type {SmartList}
+         * @access private
+         */
         this.missionControlLayers = new SmartList();
-
     }
 
-    addDrawLayerCallback(myargs, args) {
+    /**
+     * Add layer to draw control when it is created.
+     * @param {array} myargs - List of arguments passed to the callback.
+     * @param {array} args - List with the id of the layer and if the layer is added or removed
+     * @returns {void}
+     * @access private
+     */
+    _addDrawLayerCallback(myargs, args) {
         let layerId = args[0];
         
         if (args[1] == 'add') {
             let info = M.DRAW_LAYERS.getDictById(layerId);
-            this.drawControlLayer.addLayer(info.layer);
+            this._drawControlLayer.addLayer(info.layer);
         }
     }
 
-    addMissionLayerCallback(myargs, args) {
+    /**
+     * Add layer to mission control when it is created.
+     * @param {array} myargs - List of arguments passed to the callback.
+     * @param {array} args - List with the id of the layer and if the layer is added or removed
+     * @returns {void}
+     * @access private
+     */
+     _addMissionLayerCallback(myargs, args) {
         let layerId = args[0];
         
         if (args[1] == 'add') {
@@ -41,21 +79,28 @@ class LayersControl
         }
     }
 
-    addUavLayerCallback(myargs, args) {
+    /**
+     * Add layer to UAV control when a UAV is added.
+     * @param {array} myargs - List of arguments passed to the callback.
+     * @param {array} args - List with the id of the layer and if the layer is added or removed
+     * @returns {void}
+     * @access private
+     */
+    _addUavLayerCallback(myargs, args) {
         let layerId = args[0];
         
         if (args[1] == 'add') {
             let info = M.UAV_LAYERS.getDictById(layerId);
             let uavId = info.drawManager.options.uavList[0];
-            let dict = this.uavControlLayers.getDictById(uavId);
+            let dict = this._uavControlLayers.getDictById(uavId);
             if (dict == null) {
                 let uavControlLayer = L.layerGroup();
                 uavControlLayer.addTo(M.MAP);
                 M.layerControl.addOverlay(uavControlLayer, uavId);
 
-                this.uavControlLayers.addObject(uavId, {'controlLayer': uavControlLayer});
+                this._uavControlLayers.addObject(uavId, {'controlLayer': uavControlLayer});
             }
-            dict = this.uavControlLayers.getDictById(uavId);
+            dict = this._uavControlLayers.getDictById(uavId);
             dict.controlLayer.addLayer(info.layer);
 
         }

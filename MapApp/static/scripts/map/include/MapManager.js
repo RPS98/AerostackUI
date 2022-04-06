@@ -15,7 +15,7 @@ class ManagerPrototype extends SmartListCallbacks {
 
         /**
          * List of colors for each id of the information. Pair [background, border].
-         * @type {list}
+         * @type {array}
          * @access private
          */
         this.colors = colors;
@@ -32,6 +32,7 @@ class ManagerPrototype extends SmartListCallbacks {
      * Return a list of two colors for each id of the information.
      * @param {any} id - Id of the information.
      * @returns {list} - List of two colors, one for the background and one for the border.
+     * @access public
      */
     getColors(id) {
         return this.colors[super.getList().indexOf(id) % this.colors.length];
@@ -256,7 +257,7 @@ class UavManager extends ManagerPrototype {
 
     /**
      * Create a new instance of the class ManagerPrototype.
-     * @param {list} colors - List of colors for each id of the information. Pair [background, border].
+     * @param {array} colors - List of colors for each id of the information. Pair [background, border].
      * @param {string} infoAdd - Name of the header of the info message that will be received from server when a parameter is add/modified.
      * @param {string} infoSet - Name of the header of the info message that will be received from server when the information is set/reset.
      * @param {string} infoGet - Name of the header of the request message that will be received from server when the information is requested.
@@ -300,7 +301,7 @@ class MissionManager extends ManagerPrototype {
 
     /**
      * Create a new instance of the class MissionManager.
-     * @param {list} colors - List of colors for each id of the information. Pair [background, border].
+     * @param {array} colors - List of colors for each id of the information. Pair [background, border].
      * @param {string} missionConfirm - Name of the header of the info message that will be received from server when a mission is confirmed/rejected.
      * @param {string} missionAdd - Name of the header of the info message that will be received from server when a parameter of the mission is add/modified.
      * @param {string} missionSet - Name of the header of the info message that will be received from server when a mission is set/reset.
@@ -363,7 +364,7 @@ class MapManager {
 
     /**
      * Create the instance of the MapManager.
-     * @param {list} mapCenter - List of the coordinates [latitude, longitude] of the center of the map.
+     * @param {array} mapCenter - List of the coordinates [latitude, longitude] of the center of the map.
      * @param {number} zoom - Initial zoom of the map.
      * @param {string} host - Host of the server.
      */
@@ -375,7 +376,7 @@ class MapManager {
         /**
          * Smart list with the information recived from server.
          * @type {L.Map} - Map of the library Leaflet (Reference: https://leafletjs.com/).
-         * @public
+         * @access public
          */
         this.MAP = new L.Map(
             'mapid',
@@ -411,7 +412,7 @@ class MapManager {
         /**
          * Layer control of the map.
          * @type {L.control} - Control of the library Leaflet (Reference: https://leafletjs.com/).
-         * @public
+         * @access public
          */
         this.layerControl = L.control.layers(mapLayers, {}, { position: 'topleft', collapsed: false }).addTo(this.MAP);
 
@@ -432,7 +433,7 @@ class MapManager {
         /**
          * Web Socket Manager instance to manage the connection with the server.
          * @type {WebSocketManager}
-         * @public
+         * @access public
          */
         this.WS = new WebSocketManager(host);
 
@@ -563,6 +564,8 @@ class MapManager {
      * This callback is called when a layer is created and manage it options.
      * @param {array} args - Empty array. 
      * @param {event} e - Event of the layer creation.
+     * @returns {void}
+     * @access private
      */
     _pmOnCreateCallback(args, e) {
         // Change layer color if the option color is set
@@ -643,6 +646,8 @@ class MapManager {
      * @param {string} name - Name of the picker element.
      * @param {function} callback - Function to be called when the uav picker is pick.
      * @param {array} userargs - Arguments to be passed to the callback.
+     * @return {void}
+     * @access private
     */
     _uavPickerAddCallback(id, name, callback, userargs) {
         if (M.UAV_MANAGER.getList().includes(name)) {
@@ -660,6 +665,14 @@ class MapManager {
         });
     }
 
+    /**
+     * Update UAV picker when a new UAV is added or removed.
+     * @param {array} myargs - List of arguments passed to the callback.
+     * @param {array} args - List with the id of the uav added or removed.
+     * @param {HTMLElement} picker - HTML element of the picker.
+     * @return {void}
+     * @access private
+     */
     _updateUavPickerList(myargs, args, picker) {
 
         // Update the checkbox HTML
@@ -676,7 +689,6 @@ class MapManager {
             let userargs = this._uavPickerCallbackList[i][3];
 
             if (divId == picker.id) {
-                // let checkBoxId = picker.id + '-'+ args[0] + '-Input';
 
                 this._uavPickerAddCallback(picker.id, args[0], callback, userargs);
 
@@ -694,6 +706,14 @@ class MapManager {
         }
     }
 
+    /**
+     * Update UAV picker list callback when a new UAV is added or removed.
+     * @param {array} myargs - List of arguments passed to the callback.
+     * @param {array} args - UAV name added or removed.
+     * @param {HTMLElement} picker - HTML element of the picker.
+     * @return {void}
+     * @access private
+     */
     _updateUavPickerListCallback(myargs, args) {
         let pickers = document.getElementsByClassName('UavPicker');
         for (let i = 0; i < pickers.length; i++) {

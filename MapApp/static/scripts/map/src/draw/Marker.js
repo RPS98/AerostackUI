@@ -6,7 +6,7 @@ class Marker extends DrawManager {
     * Creates a new Marker Draw Manager.
     * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
     * @param {string} name - Name of the layer, for example: 'PointOffInterest', 'LandPoint', 'UAVMarker'.
-    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
     * @param {dict} options - Options of the Draw Manager. Optional.
     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
     * @param {dict} svgConfig - Icon config file, with the svg, it size and it color. Optional.
@@ -19,7 +19,7 @@ class Marker extends DrawManager {
       /**
        * Icon config file, with the svg, it size and it color.
        * @type {dict}
-       * @private
+       * @access private
        */
       this._svgConfig = svgConfig;
    }
@@ -31,7 +31,7 @@ class Marker extends DrawManager {
     * @param {dict} svgConfig - Icon config file, with the svg, it size and it color.
     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options.
     * @returns {void}
-    * @private
+    * @access private
     * @static
     */
    static _getIcon(svgConfig, layerOptions) {
@@ -65,12 +65,12 @@ class Marker extends DrawManager {
    /**
     * Modifies the Marker color.
     * @param {svg} svg - Icon to use for the marker, and can change it color.
-    * @param {list} desiredColor - List with the desired color.
-    * @param {list} baseColor - List with the base color to be replace to desiredColor.
-    * @param {list} iconSize - List with the width and height of the icon.
-    * @param {list} iconAnchor - List with the x and y offset of the icon.
+    * @param {array} desiredColor - List with the desired color.
+    * @param {array} baseColor - List with the base color to be replace to desiredColor.
+    * @param {array} iconSize - List with the width and height of the icon.
+    * @param {array} iconAnchor - List with the x and y offset of the icon.
     * @returns {L.DivIcon} - Icon with the new color (Reference: https://leafletjs.com/).
-    * @private
+    * @access private
     * @static
     */
    static _changeIconColor(svg, desiredColor, baseColor, iconSize, iconAnchor) {
@@ -94,10 +94,10 @@ class Marker extends DrawManager {
     * @param {L.latlng} values - Leaflet latitude and longitude of the layer (Reference: https://leafletjs.com/).
     * @param {dict} options - Extra options to add to the Draw Manager. Optional.
     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
-    * @param {list} desiredColor - List with the desired color [fill, birder]. Optional.
+    * @param {array} desiredColor - List with the desired color [fill, birder]. Optional.
     * @param {dict} svgConfig - Icon config file, with the svg, it size and it color. Optional.
     * @returns {L.Layer} - Instance of the layer created (Reference: https://leafletjs.com/).
-    * @public
+    * @access public
     */
    codeDraw(values, options = undefined, layerOptions = {}, desiredColor = undefined, svg = this._svgConfig) {
       if (desiredColor !== undefined) {
@@ -114,11 +114,11 @@ class Marker extends DrawManager {
     * @param {string} htmlId - Base id of the HTML element to add.
     * @param {dict} info - Dict with the layer and the Draw Manager options.
     * @param {string} name - Name of the layer.
-    * @param {list} initialHtml - List with the HTML to add at the beginning of the info.
-    * @param {list} endHtml - List with the HTML to add at the end of the info.
+    * @param {array} initialHtml - List with the HTML to add at the beginning of the info.
+    * @param {array} endHtml - List with the HTML to add at the end of the info.
     * @param {string} uavPickerType - Type of the UAV picker, for example 'checkbox' or 'radio'.
     * @returns {void}
-    * @public
+    * @access public
     */
    drawInfoAdd(htmlId, info, name = info.drawManager.options.name, initialHtml = [], endHtml = undefined, uavPickerType = 'radio') {
 
@@ -142,7 +142,7 @@ class Marker extends DrawManager {
     * @param {string} id - Base id of the HTML element to add.
     * @param {dict} info - Dict with the layer and the Draw Manager options.
     * @returns {void}
-    * @private
+    * @access private
     */
    _addChangeCallback(id, info) {
       Utils.addFormCallback(`${id}-change`, [`${id}-lat`, `${id}-lng`], ['lat', 'lng'], this._changeCallback.bind(this), info);
@@ -150,10 +150,10 @@ class Marker extends DrawManager {
 
    /**
     * Overload the Draw Manager _changeCallback to change the coordinates of the marker.
-    * @param {list} myargs - List with the info dict, that has the layer and the Draw Manager options.
+    * @param {array} myargs - List with the info dict, that has the layer and the Draw Manager options.
     * @param {dict} args - Dict with ['${id}-lat', '${id}-lng'] as keys and their values.
     * @returns {void}
-    * @private
+    * @access private
     */
    _changeCallback(myargs, inputs) {
       let layer = myargs[0].layer;
@@ -172,7 +172,7 @@ class PointOfInterest extends Marker {
     * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
     * @param {dict} options - Options of the Draw Manager. Optional.
     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
-    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
     * @param {dict} svgConfig - Configuration of the SVG icon. Optional.
     */
    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.PointOfInterest.parameters, svgConfig = config.Markers.PointOfInterest) {
@@ -189,7 +189,7 @@ class PointOfInterest extends Marker {
     * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
     * @param {dict} options - Options of the Draw Manager. Optional.
     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
-    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
     * @param {dict} svgConfig - Configuration of the SVG icon. Optional.
     */
    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.WayPoint.parameters, svgConfig = config.Markers.WayPoint) {
@@ -206,7 +206,7 @@ class PointOfInterest extends Marker {
     * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
     * @param {dict} options - Options of the Draw Manager. Optional.
     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
-    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
     * @param {dict} svgConfig - Configuration of the SVG icon. Optional.
     */
    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.LandPoint.parameters, svgConfig = config.Markers.LandPoint) {
@@ -223,7 +223,7 @@ class PointOfInterest extends Marker {
     * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
     * @param {dict} options - Options of the Draw Manager. Optional.
     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
-    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
     * @param {dict} svgConfig - Configuration of the SVG icon. Optional.
     */
    constructor(status, options = undefined, layerOptions = undefined, parameters = config.Layers.Marker.TakeOffPoint.parameters, svgConfig = config.Markers.TakeOffPoint) {
@@ -240,7 +240,7 @@ class PointOfInterest extends Marker {
     * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
     * @param {dict} options - Options of the Draw Manager. Optional.
     * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
-    * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+    * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
     * @param {dict} svgConfig - Configuration of the SVG icon. Optional.
     */
    constructor(status, options = undefined, layerOptions = undefined, parameters = undefined, svgConfig = config.Markers.UAVMarker) {

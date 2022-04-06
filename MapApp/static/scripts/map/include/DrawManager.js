@@ -7,15 +7,15 @@ class DrawManager {
      * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
      * @param {string} layerType - Type of layer to draw, for example: 'Marker', 'Line', 'Circle', 'Polygon'.
      * @param {string} layerName - Name of the layer, for example: 'TakeOffPoint', 'LandPoint', 'Path'.
-     * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button].
+     * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button].
      * @param {dict} options - Options of the Draw Manager.
      * @param {dict} layerOptions - Options of the layer with Leaflet and PM options.
      */
     constructor(status, layerType, layerName, parameters = [], options = {}, layerOptions = {}) {
         /**
          * List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button].
-         * @type {list}
-         * @public
+         * @type {array}
+         * @access public
          */
         this.parameters = parameters
 
@@ -35,14 +35,14 @@ class DrawManager {
         /**
          * Type of layer to draw, for example: 'Marker', 'Line', 'Circle', 'Polygon'.
          * @type {string}
-         * @public
+         * @access public
          */
         this.type = layerType;
 
         /**
          * Instance of the draw layer created.
          * @type {object}
-         * @public
+         * @access public
          */
         this.codeLayerDrawn = null;
 
@@ -61,7 +61,7 @@ class DrawManager {
         /**
          * Options of the Draw Manager. Dict with 'options' and 'instance' keys.
          * @type {dict}
-         * @public
+         * @access public
          */
         this.options = Object.assign(optionsStructure, layerOptions);
 
@@ -77,7 +77,7 @@ class DrawManager {
      * @param {dict} options - Extra options to add to the Draw Manager.
      * @param {dict} layerOptions - Options of the layer with Leaflet and PM options.
     * @returns {L.Layer} - Instance of the layer created (Reference: https://leafletjs.com/).
-     * @public
+     * @access public
      */
     codeDraw(values, options = {}, layerOptions = {}) {
         let drawOption = this._mergeOptions(options, layerOptions);
@@ -115,7 +115,7 @@ class DrawManager {
      * @param {dict} options - Extra options to add to the Draw Manager.
      * @param {dict} layerOptions - Options of the layer with Leaflet and PM options.
      * @returns {void}
-     * @public
+     * @access public
      */
     userDraw(options = {}, layerOptions = {}) {
 
@@ -150,7 +150,7 @@ class DrawManager {
      * Remove the HTML info for this layer.
      * @param {string} id - Base id of the HTML element to remove. 
      * @returns {void}
-     * @public
+     * @access public
      */
     drawInfoRemove(id) {
         let drawInfoHtml = document.getElementById(`${id}-Collapse`);
@@ -166,11 +166,11 @@ class DrawManager {
      * @param {string} htmlId - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @param {string} name - Name of the layer.
-     * @param {list} initialHtml - List with the HTML to add at the beginning of the info.
-     * @param {list} endHtml - List with the HTML to add at the end of the info.
+     * @param {array} initialHtml - List with the HTML to add at the beginning of the info.
+     * @param {array} endHtml - List with the HTML to add at the end of the info.
      * @param {string} uavPickerType - Type of the UAV picker, for example 'checkbox' or 'radio'.
      * @returns {void}
-     * @public
+     * @access public
      */
     drawInfoAdd(htmlId, info, name = info.drawManager.options.name, initialHtml = undefined, endHtml = undefined, uavPickerType = undefined) {
 
@@ -198,7 +198,7 @@ class DrawManager {
      * @param {dict} options - Extra options to add to the Draw Manager. 
      * @param {dict} layerOptions - Options of the layer with Leaflet and PM options.
      * @returns {dict} - Options to be pass to layers.
-     * @private
+     * @access private
      */
     _mergeOptions(options, layerOptions) {
         let drawOption = Object.assign({}, this.options, layerOptions);
@@ -217,7 +217,7 @@ class DrawManager {
      * @param {*} endHtml - HTML to add at the end of the info.
      * @param {*} uavPickerType - Type of the UAV picker. If undefined, no UAV picker will be added.
      * @returns {dict} - HTML dict of parameters for the layer.
-     * @private
+     * @access private
      */
     _drawInfoGetHtml(id, info, initialHtml = [], endHtml = [], uavPickerType = 'none') {
 
@@ -247,7 +247,7 @@ class DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {void}
-     * @private
+     * @access private
      */
     _drawInfoInitialize(id, info) {
         this._addChangeCallback(id, info);
@@ -271,7 +271,7 @@ class DrawManager {
      * Add the HTML for the change of the coordinates and the remove button.
      * @param {string} id - Base id of the HTML element to add.
      * @returns {dict} - HTML dict of parameters for the layer.
-     * @private
+     * @access private
      */
     _drawInfoGetValues(id) {
         let change = HTMLUtils.addDict('button', `${id}-change`, { 'class': 'btn btn-primary' }, 'Change');
@@ -286,7 +286,7 @@ class DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {void}
-     * @private
+     * @access private
      */
     _addRemoveCallback(id, info) {
         Utils.addButtonCallback(`${id}-remove`, this._removeCallback.bind(this), info.id);
@@ -297,7 +297,7 @@ class DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {void}
-     * @private
+     * @access private
      */
     _addChangeCallback(id, info) {
         Utils.addButtonCallback(`${id}-change`, this._changeCallback.bind(this), info.id);
@@ -305,9 +305,9 @@ class DrawManager {
 
     /**
      * Callback for the remove button of the layer. Remove the layer.
-     * @param {list} myargs - List with the id of the layer.
+     * @param {array} myargs - List with the id of the layer.
      * @returns {void}
-     * @private
+     * @access private
      */
     _removeCallback(myargs) {
         M.DRAW_LAYERS.removeLayerById(myargs[0]);
@@ -315,9 +315,9 @@ class DrawManager {
 
     /**
      * Callback for the change button of the layer. Change the layer coordinates.
-     * @param {list} myargs - List with the id of the layer.
+     * @param {array} myargs - List with the id of the layer.
      * @returns {void}
-     * @private
+     * @access private
      */
     _changeCallback(myargs) {
         throw new Error("Not implemented Drawmanager._changeCallback. You must implement it in your class.");
@@ -331,7 +331,7 @@ class DrawManager {
      * Add the HTML for the change of the height.
      * @param {string} id - Base id of the HTML element to add.
      * @returns {dict} - HTML dict of parameters for the layer.
-     * @private
+     * @access private
      */
     _drawInfoGetHeight(id, info) {
         let heightMin = info.drawManager.options.height[0];
@@ -354,7 +354,7 @@ class DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {void}
-     * @private
+     * @access private
      */
     _addHeightRangeCallback(id, info) {
         Utils.addFormCallback(`${id}-heightRangeBtn`, [`${id}-heightInputMin`, `${id}-heightInputMax`], ['heightMin', 'heightMax'], this._updateHeightRangeCallback.bind(this), info);
@@ -362,10 +362,10 @@ class DrawManager {
 
     /**
      * Callback for the height range button of the layer. Change the height range in the options of the layer
-     * @param {list} myargs - List with the info dict, that has the layer and the Draw Manager options.
+     * @param {array} myargs - List with the info dict, that has the layer and the Draw Manager options.
      * @param {dict} args - Dict with ['heightMin', 'heightMax'] as keys and their values.
      * @returns {void}
-     * @private
+     * @access private
      */
     _updateHeightRangeCallback(myargs, args) {
         myargs[0].drawManager.options.height = [args.heightMin, args.heightMax];
@@ -379,7 +379,7 @@ class DrawManager {
      * Add the HTML for the change of the speed.
      * @param {string} id - Base id of the HTML element to add.
      * @returns {dict} - HTML dict of parameters for the layer.
-     * @private
+     * @access private
      */
     _drawInfoGetSpeed(id, info) {
         let speed = info.drawManager.options.speed;
@@ -398,7 +398,7 @@ class DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {void}
-     * @private
+     * @access private
      */
     _addSpeedCallback(id, info) {
         Utils.addFormCallback(`${id}-speedBtn`, [`${id}-speedInput`], ['speed'], this._updateSpeedCallback.bind(this), info);
@@ -407,10 +407,10 @@ class DrawManager {
 
     /**
      * Callback for the speed button of the layer. Change the speed in the options of the layer.
-     * @param {list} myargs - List with the info dict, that has the layer and the Draw Manager options.
+     * @param {array} myargs - List with the info dict, that has the layer and the Draw Manager options.
      * @param {dict} args - Dict with ['speed'] as key and it value.
      * @returns {void}
-     * @private
+     * @access private
      */
     _updateSpeedCallback(myargs, args) {
         myargs[0].drawManager.options.speed = args.speed;
@@ -425,7 +425,7 @@ class DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {dict} - HTML dict of parameters for the layer.
-     * @private
+     * @access private
      */
     _addParametersHtml(id, info) {
         let paramList = this._getHtmlParameters(id, info.drawManager.options, info.drawManager.instance.parameters);
@@ -436,9 +436,9 @@ class DrawManager {
      * Generate HTML dict of parameters for the layer.
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} options - Options of the Draw Manager. Parameters will be added to this options. 
-     * @param {list} parameters - List of parameters to add. Each parameter is a list of [type, name, value, text to add in input button].
+     * @param {array} parameters - List of parameters to add. Each parameter is a list of [type, name, value, text to add in input button].
      * @returns {dict} - HTML dict of parameters for the layer.
-     * @private
+     * @access private
      */
     _getHtmlParameters(id, options, parameters) {
         let html = [];
@@ -473,7 +473,7 @@ class DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {void}
-     * @private
+     * @access private
      */
     _addParametersCallback(id, info) {
         let parameters = info.drawManager.instance.parameters;
@@ -491,10 +491,10 @@ class DrawManager {
 
     /**
      * Callback for the parameters input. Change the parameter value in the options of the layer.
-     * @param {list} myargs - List with the name of the parameter and the info dictiornary, with the layer and the Draw Manager.
-     * @param {list} inputs - List with a dict with the name of the input and the value.
+     * @param {array} myargs - List with the name of the parameter and the info dictiornary, with the layer and the Draw Manager.
+     * @param {array} inputs - List with a dict with the name of the input and the value.
      * @returns {void}
-     * @private
+     * @access private
      */
     _parametersNumberCallback(myargs, inputs) {
         let name = myargs[0];
@@ -505,9 +505,9 @@ class DrawManager {
     /**
      * Callback for the parameter list input. Change the parameter value in the options of the layer, and change the button text to the selected value.
      * @param {Event} e - Event of the button clicked.
-     * @param {list} myargs - List with the base id of the HTML dropdown menu and the info dictionary, with the layer and the Draw Manager.
+     * @param {array} myargs - List with the base id of the HTML dropdown menu and the info dictionary, with the layer and the Draw Manager.
      * @returns {void}
-     * @private
+     * @access private
      */
     _parametersListCallback(e, args) {
         let id = args[0];
@@ -527,7 +527,7 @@ class DrawManager {
      * @param {string} id - Base id of the HTML element to add.
      * @param {dict} info - Dict with the layer and the Draw Manager options.
      * @returns {dict} - HTML dict of parameters for the layer.
-     * @private
+     * @access private
      */
     _drawInfoGetUavPicker(id, info, uavPickerType = 'checkbox') {
         let list = [['auto', true]];
@@ -541,7 +541,7 @@ class DrawManager {
      * @param {*} value - Value of the UAV picker selected (True or False).
      * @param {*} userargs - List with the type of the UAV picker (checkbox or radio) and the info dictionary, with the layer and the Draw Manager.
      * @returns {void}
-     * @private
+     * @access private
      */
     _uavPickerCallback(uavName, value, userargs) {
 

@@ -12,35 +12,35 @@ class Config
         /**
          * The base path of all config files.
          * @type {string}
-         * @private
+         * @access private
          */
         this._basePath = '/static/scripts/map/Config/';
         
         /**
          * Counter of config files loaded.
          * @type {number}
-         * @private
+         * @access private
          */
         this._cont = 0;
 
         /**
          * Number of config files to be loaded.
          * @type {number}
-         * @private
+         * @access private
          */
         this._dataLenght = null;
 
         /**
          * Counter of config SVG loaded.
          * @type {number}
-         * @private
+         * @access private
          */
          this._contSvg = 0;
 
         /**
          * Number of SVG files to be loaded.
          * @type {number}
-         * @private
+         * @access private
          */
         this._dataSVGLenght = null;
 
@@ -52,7 +52,7 @@ class Config
      * For each config file in the main file, load it and store it in the Config object.
      * @param {JSON} data - JSON object with all config files, been the key the name of the member in the Config object and the value the path to the config file.
      * @param {function} callback - The callback function to be called when all config files are loaded.
-     * @private
+     * @access private
      * @return {void}
      */
     _intialize(data, callback) {
@@ -72,7 +72,7 @@ class Config
     /**
      * Store the config file in the Config object.
      * @param {JSON} data - JSON object with the config file content.
-     * @param {list} args - List with the callback function to be called when all config files are loaded.
+     * @param {array} args - List with the callback function to be called when all config files are loaded.
      */
     _onLoadConfigFile(data, args) {
         this[args[0]] = data;

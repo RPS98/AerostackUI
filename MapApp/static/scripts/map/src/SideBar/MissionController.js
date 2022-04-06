@@ -1,20 +1,47 @@
-class MissionController
-{
-    constructor()
-    {
+/**
+ * Class that manage Mission Controller Left Side Bar.
+ */
+class MissionController {
+    /**
+     * Creates a new MissionController instance.
+     */
+    constructor() {
+        /**
+         * Id of the div that contains the mission controller content.
+         * @type {string}
+         * @access private
+         */
         this.htmlId = 'sideBar-left-missionController-content';
-        this.initialized = false;
+
+        /**
+         * Flag to know if the side bar is initialized.
+         * @type {boolean}
+         * @access private
+         */
+        this._initialized = false;
+
+        // Add callback to a new mission added
         M.MISSION_MANAGER.addInfoAddCallback(this.updateMissionListCallback.bind(this));
 
-        this.initializedLoad();
+        this._initializedLoad();
     }
 
-    initializedLoad() {
+    /**
+     * Initialize the mission controller with a file input, to load missions.
+     * @returns {void}
+     * @access private
+     */
+    _initializedLoad() {
         HTMLUtils.addToExistingElement(`${this.htmlId}`, [HTMLUtils.addDict('fileInput', `${this.htmlId}-missionFile`, {}, 'Choose Mission File', '')]);
         Utils.addFileCallback(`${this.htmlId}-missionFile`, this.loadMissionCallback.bind(this));
     }
 
-    addHTML() {
+    /**
+     * Add HTML content to the home side bar.
+     * @returns {void}
+     * @access private
+     */
+    _addHTML() {
         this.selectedMissionId = M.MISSION_MANAGER.getList()[0];
 
         let missionControllerHtmlList = [];
@@ -51,9 +78,9 @@ class MissionController
     }
 
     _checkInitalize() {
-        if (!this.initialized) {
-            this.addHTML();
-            this.initialized = true;
+        if (!this._initialized) {
+            this._addHTML();
+            this._initialized = true;
         }
     }
 

@@ -7,7 +7,7 @@ class CircleMarker extends DrawManager
      * Creates a new Circle Marker Draw Manager.
      * @param {string} status - Status of the layer, for example: 'draw', 'confirmed', 'uav'.
      * @param {string} layerName - Name of the layer, for example: 'PointOfAction'.
-     * @param {list} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
+     * @param {array} parameters - List of parameters to add to options. Each parameter is a list of [type, name, value, text to add in input button]. Optional.
      * @param {dict} options - Options of the Draw Manager. Optional.
      * @param {dict} layerOptions - Options of the layer with Leaflet and PM options. Optional.
      */
@@ -21,7 +21,7 @@ class CircleMarker extends DrawManager
      * @param {dict} options - Extra options to add to the Draw Manager.
      * @param {dict} layerOptions - Options of the layer with Leaflet and PM options.
      * @returns {object} - Instance of the layer created.
-     * @public
+     * @access public
      */
     codeDraw(values, options = {}, layerOptions = {}) {
         let drawOption = this._mergeOptions(options, layerOptions);
