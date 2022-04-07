@@ -25,14 +25,14 @@ class Home {
          * @type {array}
          * @access private
          */
-        this._configFile = _configFile.goTo;
+        this._defaultGoTo = _configFile.goTo;
 
         /**
          * Default value of Go To Zoom loaded from config file.
          * @type {array}
          * @access private
          */
-        this._configFileZoom = _configFile.goToZoom;
+        this._defaultZoom = _configFile.goToZoom;
 
         /**
          * Default value of virtual UAV name loaded from config file.
@@ -62,8 +62,8 @@ class Home {
         let homeHtmlList = [];
 
         // Go to
-        let goToLat = HTMLUtils.addDict('input', `${this._htmlId}-goToLat`, { 'class': 'form-control', 'required': 'required', 'value': this._configFile[0] }, 'number', 'Latitude');
-        let goToLng = HTMLUtils.addDict('input', `${this._htmlId}-goToLng`, { 'class': 'form-control', 'required': 'required', 'value': this._configFile[1] }, 'number', 'Longitude');
+        let goToLat = HTMLUtils.addDict('input', `${this._htmlId}-goToLat`, { 'class': 'form-control', 'required': 'required', 'value': this._defaultGoTo[0] }, 'number', 'Latitude');
+        let goToLng = HTMLUtils.addDict('input', `${this._htmlId}-goToLng`, { 'class': 'form-control', 'required': 'required', 'value': this._defaultGoTo[1] }, 'number', 'Longitude');
         let goToBtn = HTMLUtils.addDict('button', `${this._htmlId}-goToBtn`, { 'class': 'btn btn-primary' }, 'Go to');
         let goToRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [goToLat, goToLng, goToBtn], { 'class': 'col-md-4' });
         let gotoCollapse = HTMLUtils.addDict('collapse', `${this._htmlId}-gotoCollapse`, {}, 'Go to', true, [goToRow]);
@@ -99,7 +99,7 @@ class Home {
             [`${this._htmlId}-goToLat`, `${this._htmlId}-goToLng`],
             ['map_center_lat', 'map_center_lng'],
             this._goToCallback.bind(this),
-            this._configFileZoom // zoom
+            this._defaultZoom // zoom
         );
 
         // Add virtual UAV callback

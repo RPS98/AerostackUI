@@ -79,7 +79,7 @@ class MissionDrawer {
     }
 
     /**
-     * Callback to a new mission added.
+     * Callback to a new mission added. Read the mission and draw 
      * @param {array} myargs - List of arguments passed to the callback.
      * @param {dict} args - Dictionary with key 'oldId' with the id of the mission draw layers to be removed.
      * @returns {void}
@@ -121,10 +121,6 @@ class MissionDrawer {
                     break;
             }
         }
-
         ConsoleSideBar.addMessage("Mission " + missionId + " added");
-
-        console.log("Mission loaded");
-        console.log(M.MISSION_LAYERS);
     }
 }

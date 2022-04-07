@@ -395,6 +395,24 @@ class Utils {
     }
 
     /**
+     * Convert a radian angle in ENU to a degree angle in NEU.
+     * @param {number} angle - Angle in radian
+     * @access public
+     * @static
+     */
+    static _angleENU2NEU(angle) {
+        angle = angle * 180 / Math.PI ;
+
+        // reduce the angle  
+        angle =  angle % 360; 
+
+        // force it to be the positive remainder, so that 0 <= angle < 360  
+        angle = - (angle + 360) % 360;  
+        
+        return angle;
+    }
+
+    /**
      * Create a deep copy of an object
      * @param {Object} object - Object to be copied
      * @returns {Object} - Copy of the object
