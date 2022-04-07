@@ -1,5 +1,7 @@
 /**
  * List of key and its corresponding class, to be used to generate HTML elements
+ * @type {array}
+ * @access private
  */
 blocksClassList = [
     ['button', Button],
@@ -20,8 +22,17 @@ blocksClassList = [
 
 window.onload = function () {
 
+    /**
+     * Config object, that contains all the configuration variables.
+     * @type {Config}
+     * @access private
+     */
     config = new Config('config.json', initialize);
 
+    /**
+     * Start the map when all config files are loaded.
+     * @returns {void}
+     */
     function initialize() {
 
         /**
