@@ -51,11 +51,12 @@ class Polyline extends DrawManager {
 
         let values = info.layer._latlngs;
         for (let i = 0; i < values.length; i++) {
-            let lat = values[i].lat;
-            let lng = values[i].lng;
+            // let lat = values[i].lat;
+            // let lng = values[i].lng;
+            let utm = M.UTM.getLocalUTM(values[i]);
 
-            let latDict = HTMLUtils.addDict('input', `${id}-${i}-lat`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lat, 6) }, 'number', 'Latitude');
-            let lngDict = HTMLUtils.addDict('input', `${id}-${i}-lng`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lng, 6) }, 'number', 'Longitude');
+            let latDict = HTMLUtils.addDict('input', `${id}-${i}-x`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(utm.x, 3) }, 'number', 'Easting');
+            let lngDict = HTMLUtils.addDict('input', `${id}-${i}-y`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(utm.y, 3) }, 'number', 'Northing');
             let row = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], { 'class': 'col-6' });
 
             initialHtml.push(row);
@@ -80,11 +81,11 @@ class Polyline extends DrawManager {
         let nameId = [];
         let values = info.layer._latlngs;
         for (let i = 0; i < values.length; i++) {
-            htmlId.push(`${id}-${i}-lat`);
-            htmlId.push(`${id}-${i}-lng`);
+            htmlId.push(`${id}-${i}-x`);
+            htmlId.push(`${id}-${i}-y`);
 
-            nameId.push(`${i}-lat`);
-            nameId.push(`${i}-lng`);
+            nameId.push(`${i}-x`);
+            nameId.push(`${i}-y`);
         }
         Utils.addFormCallback(`${id}-change`, htmlId, nameId, this._changeCallback.bind(this), info);
     }
@@ -108,13 +109,18 @@ class Polyline extends DrawManager {
             let value = args[key];
             let keyParse = key.split('-');
             let index1 = parseInt(keyParse[0]);
-            if (keyParse[1] == 'lat') {
+            if (keyParse[1] == 'x') {
                 values[index1][0] = value;
-            } else if (keyParse[1] == 'lng') {
+            } else if (keyParse[1] == 'y') {
                 values[index1][1] = value;
             }
         }
-        layer.setLatLngs(values);
+
+        // let latlongList = [];
+        // for (let i = 0; i < values.length; i++) {
+        //     latlongList.push(M.UTM.getLatLng(values[i][0], values[i][1]));
+        // }
+        layer.setLatLngs(M.UTM.getLatLngs(values));
     }
 
     // #endregion

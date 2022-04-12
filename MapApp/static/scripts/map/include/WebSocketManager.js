@@ -313,8 +313,8 @@ class WebSocketManager {
         }
         this._webSocket.send(JSON.stringify({ 'message': msg }));
 
-        //console.log("Message sent");
-        //console.log(msg);
+        // console.log("Message sent");
+        // console.log(msg);
     }
 
     // #region WebSocket callbacks

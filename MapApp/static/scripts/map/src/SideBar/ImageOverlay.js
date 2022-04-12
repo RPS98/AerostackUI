@@ -49,9 +49,13 @@ class ImageOVerlay {
          * @access private
          */
         this._point_list = [];
-        this._point_list.push(L.latLng(_configFile.topLeftCorner));
-        this._point_list.push(L.latLng(_configFile.topRightCorner));
-        this._point_list.push(L.latLng(_configFile.bottomLeftCorner));
+        this.topLeftCorner = _configFile.topLeftCorner;
+        this.topRightCorner = _configFile.topRightCorner;
+        this.bottomLeftCorner = _configFile.bottomLeftCorner;
+
+        this._point_list.push(M.UTM.getLatLng(this.topLeftCorner[0], this.topLeftCorner[1]));
+        this._point_list.push(M.UTM.getLatLng(this.topRightCorner[0], this.topRightCorner[1]));
+        this._point_list.push(M.UTM.getLatLng(this.bottomLeftCorner[0], this.bottomLeftCorner[1]));
 
         this.markerTL = L.marker(this._point_list[0], { draggable: true, pmIgnore: true, icon: imageOverlay })
         this.markerTR = L.marker(this._point_list[1], { draggable: true, pmIgnore: true, icon: imageOverlay })
@@ -85,18 +89,18 @@ class ImageOVerlay {
         let fileRow = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [fileInput, fileBtn], { 'class': 'col-md-6' });
 
         // Top left corner input
-        let topLeftLat = HTMLUtils.addDict('input', `${this._htmlId}-topLeftLat`, { 'class': 'form-control', 'required': 'required', 'value': this._point_list[0].lat }, 'text', 'Latitude');
-        let topLeftLng = HTMLUtils.addDict('input', `${this._htmlId}-topLeftLng`, { 'class': 'form-control', 'required': 'required', 'value': this._point_list[0].lng }, 'text', 'Latitude');
+        let topLeftLat = HTMLUtils.addDict('input', `${this._htmlId}-topLeftLat`, { 'class': 'form-control', 'required': 'required', 'value': this.topLeftCorner[0] }, 'text', 'Latitude');
+        let topLeftLng = HTMLUtils.addDict('input', `${this._htmlId}-topLeftLng`, { 'class': 'form-control', 'required': 'required', 'value': this.topLeftCorner[1] }, 'text', 'Latitude');
         let row1 = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [topLeftLat, topLeftLng], { 'class': 'col-6' });
 
         // Top right corner input
-        let toprightLat = HTMLUtils.addDict('input', `${this._htmlId}-toprightLat`, { 'class': 'form-control', 'required': 'required', 'value': this._point_list[1].lat }, 'text', 'Latitude');
-        let toprightLng = HTMLUtils.addDict('input', `${this._htmlId}-toprightLng`, { 'class': 'form-control', 'required': 'required', 'value': this._point_list[1].lng }, 'text', 'Latitude');
+        let toprightLat = HTMLUtils.addDict('input', `${this._htmlId}-toprightLat`, { 'class': 'form-control', 'required': 'required', 'value': this.topRightCorner[0] }, 'text', 'Latitude');
+        let toprightLng = HTMLUtils.addDict('input', `${this._htmlId}-toprightLng`, { 'class': 'form-control', 'required': 'required', 'value': this.topRightCorner[1] }, 'text', 'Latitude');
         let row2 = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [toprightLat, toprightLng], { 'class': 'col-6' });
 
         // Bottom left corner input
-        let bottomLeftLat = HTMLUtils.addDict('input', `${this._htmlId}-bottomLeftLat`, { 'class': 'form-control', 'required': 'required', 'value': this._point_list[2].lat }, 'text', 'Latitude');
-        let bottomLeftLng = HTMLUtils.addDict('input', `${this._htmlId}-bottomLeftLng`, { 'class': 'form-control', 'required': 'required', 'value': this._point_list[2].lng }, 'text', 'Latitude');
+        let bottomLeftLat = HTMLUtils.addDict('input', `${this._htmlId}-bottomLeftLat`, { 'class': 'form-control', 'required': 'required', 'value': this.bottomLeftCorner[0] }, 'text', 'Latitude');
+        let bottomLeftLng = HTMLUtils.addDict('input', `${this._htmlId}-bottomLeftLng`, { 'class': 'form-control', 'required': 'required', 'value': this.bottomLeftCorner[1] }, 'text', 'Latitude');
         let row3 = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [bottomLeftLat, bottomLeftLng], { 'class': 'col-6' });
 
         // Add and remove overlay buttons
@@ -180,9 +184,33 @@ class ImageOVerlay {
         this.markerTR.addTo(M.MAP);
         this.markerBL.addTo(M.MAP);
 
-        this.markerTL.setLatLng(L.latLng(inputs['topLeftLat'], inputs['topLeftLng']));
-        this.markerTR.setLatLng(L.latLng(inputs['toprightLat'], inputs['toprightLng']));
-        this.markerBL.setLatLng(L.latLng(inputs['bottomLeftLat'], inputs['bottomLeftLng']));
+        // this.markerTL.setLatLng(L.latLng(inputs['topLeftLat'], inputs['topLeftLng']));
+        // this.markerTR.setLatLng(L.latLng(inputs['toprightLat'], inputs['toprightLng']));
+        // this.markerBL.setLatLng(L.latLng(inputs['bottomLeftLat'], inputs['bottomLeftLng']));
+
+        console.log("Adding image overlay");
+        console.log(inputs)
+
+        let topLeftCornerX = inputs['topLeftLat'];
+        let topLeftCornerY = inputs['topLeftLng'];
+        let topRightCornerX = inputs['toprightLat'];
+        let topRightCornerY = inputs['toprightLng'];
+        let bottomLeftCornerX = inputs['bottomLeftLat'];
+        let bottomLeftCornerY = inputs['bottomLeftLng'];
+
+        console.log(topLeftCornerX, topLeftCornerY, topRightCornerX, topRightCornerY, bottomLeftCornerX, bottomLeftCornerY);
+
+        this.topLeftCorner    = M.UTM.getLatLng(topLeftCornerX, topLeftCornerY);
+        this.topRightCorner   = M.UTM.getLatLng(topRightCornerX, topRightCornerY);
+        this.bottomLeftCorner = M.UTM.getLatLng(bottomLeftCornerX, bottomLeftCornerY);
+
+        console.log(this.topLeftCorner);
+        console.log(this.topRightCorner);
+        console.log(this.bottomLeftCorner);
+
+        this.markerTL.setLatLng(this.topLeftCorner);
+        this.markerTR.setLatLng(this.topRightCorner);
+        this.markerBL.setLatLng(this.bottomLeftCorner);
 
         if (this._overlay == null) {
             this._overlay = L.imageOverlay.rotated(this._imgUrl, this._point_list[0], this._point_list[1], this._point_list[2], {

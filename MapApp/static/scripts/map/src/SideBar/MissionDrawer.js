@@ -66,14 +66,18 @@ class MissionDrawer {
      * @access private
      */
     _missionConfirmCallback(myargs, args) {
-        let missionId = args['oldId'];
+        console.log("Mission confirmed");
+        console.log(myargs);
+        console.log(args);
+
+        let missionId = args[0]['oldId'];
         let layers = M.DRAW_LAYERS.getList();
 
         for (let i = 0; i < layers.length; i++) {
             let layer = M.DRAW_LAYERS.getDictById(layers[i]);
 
             if (layer.drawManager.options.missionId == missionId && layer.drawManager.options.status == 'draw') {
-                M.DRAW_LAYERS.removeLayerById(id);
+                M.DRAW_LAYERS.removeLayerById(missionId);
             }
         }
     }

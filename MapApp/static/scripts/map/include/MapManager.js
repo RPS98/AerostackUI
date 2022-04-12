@@ -117,6 +117,8 @@ class DrawLayers extends SmartListCallbacks {
      * @access public
      */
     removeLayerById(id) {
+        console.log("Removing layer")
+        console.log(id)
         let layer = super.getDictById(id).layer;
         if (layer != null) {
             layer.remove();
@@ -182,6 +184,7 @@ class DrawLayers extends SmartListCallbacks {
         if (flag) {
             value.drawManager.id = this._id;
             value.id = this._id;
+            
             super.addObject(value.drawManager.id, value);
             this._id++;
 
@@ -373,6 +376,10 @@ class MapManager {
         zoom = config.Global.zoom,
         host = config.WebSocket.host) {
 
+        let latlng = L.latLng(mapCenter[0], mapCenter[1]);
+        console.log(latlng);
+        console.log(latlng.utm());
+
         /**
          * Smart list with the information recived from server.
          * @type {L.Map} - Map of the library Leaflet (Reference: https://leafletjs.com/).
@@ -383,7 +390,8 @@ class MapManager {
             {
                 center: mapCenter,
                 zoom: zoom,
-                doubleClickZoom: false
+                doubleClickZoom: false,
+                // crs: L.CRS.Simple
             }
         );
 

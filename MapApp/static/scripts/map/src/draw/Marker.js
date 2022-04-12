@@ -122,12 +122,14 @@ class Marker extends DrawManager {
     */
    drawInfoAdd(htmlId, info, name = info.drawManager.options.name, initialHtml = [], endHtml = undefined, uavPickerType = 'radio') {
 
-      let lat = info.layer._latlng.lat;
-      let lng = info.layer._latlng.lng;
+      // let lat = info.layer._latlng.lat;
+      // let lng = info.layer._latlng.lng;
+
+      let utm = M.UTM.getLocalUTM(info.layer._latlng);
 
       let id = htmlId + '-' + info.id;
-      let latDict = HTMLUtils.addDict('input', `${id}-lat`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lat, 6) }, 'number', 'Latitude');
-      let lngDict = HTMLUtils.addDict('input', `${id}-lng`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lng, 6) }, 'number', 'Longitude');
+      let latDict = HTMLUtils.addDict('input', `${id}-x`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(utm.x, 3) }, 'number', 'Easting');
+      let lngDict = HTMLUtils.addDict('input', `${id}-y`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(utm.y, 3) }, 'number', 'Northing');
       initialHtml.push(HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], { 'class': 'col-6' }));
 
       return super.drawInfoAdd(htmlId, info, name, initialHtml, endHtml, uavPickerType);
@@ -145,7 +147,7 @@ class Marker extends DrawManager {
     * @access private
     */
    _addChangeCallback(id, info) {
-      Utils.addFormCallback(`${id}-change`, [`${id}-lat`, `${id}-lng`], ['lat', 'lng'], this._changeCallback.bind(this), info);
+      Utils.addFormCallback(`${id}-change`, [`${id}-x`, `${id}-y`], ['x', 'y'], this._changeCallback.bind(this), info);
    }
 
    /**
@@ -157,7 +159,7 @@ class Marker extends DrawManager {
     */
    _changeCallback(myargs, inputs) {
       let layer = myargs[0].layer;
-      layer.setLatLng(L.latLng(inputs.lat, inputs.lng));
+      layer.setLatLng(M.UTM.getLatLng(inputs.x, inputs.y));
    }
 
    // #endregion

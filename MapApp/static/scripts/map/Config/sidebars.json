@@ -1,17 +1,17 @@
 {
     "Home": {
-        "goTo": [28.14376, -16.50235],
+        "goTo": [40.441055, -3.688814],
         "goToZoom": 20,
         "UAVname": "UAV1",
-        "UAVvalue": [28.1439717, -16.5032634]
+        "UAVvalue": [0, 0]
     },
     "ImageOverlay": {
         "opacity": 0.7,
-        "url": "https://raw.githubusercontent.com/cvar-upm/cvar-upm.github.io/main/logoHorizontal.png",
+        "url": "/static/scripts/map/img/base10x10.png",
         "icon": "/static/scripts/map/img/arrows-alt-solid.svg",
-        "topLeftCorner": [28.14422, -16.50366],
-        "topRightCorner": [28.14418, -16.50050],
-        "bottomLeftCorner": [28.14287, -16.50366]
+        "topLeftCorner": [-10, 10],
+        "topRightCorner": [10, 10],
+        "bottomLeftCorner": [-10, -10]
 
     },
     "MissionPlanner": {

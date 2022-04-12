@@ -215,7 +215,7 @@ class MissionPlanner {
         // Utils.addButtonCallback(`${this.htmlId}-PoI`, this.userDrawCallbacks.bind(this), [this.pointOfInterest]);
         Utils.addButtonCallback(`${this.htmlId}-WP`, this.userDrawCallbacks.bind(this), [this._wayPoint]);
         Utils.addButtonCallback(`${this.htmlId}-path`, this.userDrawCallbacks.bind(this), [this._path]);
-        Utils.addButtonCallback(`${this.htmlId}-area`, this.userDrawCallbacks.bind(this), [this._area]);
+        // Utils.addButtonCallback(`${this.htmlId}-area`, this.userDrawCallbacks.bind(this), [this._area]);
         // Utils.addButtonCallback(`${this.htmlId}-cArea`, this.userDrawCallbacks.bind(this), [this.carea]);
         Utils.addButtonCallback(`${this.htmlId}-land`, this.userDrawCallbacks.bind(this), [this._landPoint]);
 
@@ -470,9 +470,6 @@ class MissionPlanner {
                 case 'Marker':
                     switch (options.name) {
                         case 'TakeOffPoint':
-                            console.log("TakeOffPoint");
-                            console.log(values);
-                            console.log(options)
                             this._takeOffPoint.codeDraw(values, options);
                             break;
                         case 'LandPoint':
@@ -522,7 +519,8 @@ class MissionPlanner {
 
         let takeOffPosition = layerInfo.layer.getLatLng();
         for (let j = 0; j < selectedUavListTakeOff.length; j++) {
-            let pose = M.UAV_MANAGER.getDictById(selectedUavListTakeOff[j]).pose;
+            let utm = M.UAV_MANAGER.getDictById(selectedUavListTakeOff[j]).pose;
+            let pose = M.UTM.getLatLng(utm.x, utm.y);
             let distance = Utils.distance(
                 takeOffPosition.lat,
                 takeOffPosition.lng,
@@ -574,8 +572,6 @@ class MissionPlanner {
     }
 
     missionInterpreterArea(layerInfo, missionLayer, selectedUavList, validation, info) {
-        console.log("LayerInfo");
-        console.log(layerInfo);
         let uavList = Object.keys(layerInfo.drawManager.options.uavList);
 
         if (uavList.length > 2 && uavList.includes('auto')) {
@@ -601,9 +597,6 @@ class MissionPlanner {
                 }
             }
         }
-
-        console.log("missionInterpreterArea");
-        console.log(layerInfo.drawManager.options);
 
         for (let j = 0; j < config.Layers.Polygon.Area.sendParameters.length; j++) {
             let key = config.Layers.Polygon.Area.sendParameters[j];
@@ -676,15 +669,18 @@ class MissionPlanner {
             switch (drawManagerInfo.type) {
                 case 'Marker':
                     missionLayer['values'] = layer._latlng;
+                    missionLayer['local'] = M.UTM.getLocalUTM(layer._latlng);
                     break;
                 case 'Circle':
                 case 'CircleMarker':
                     missionLayer['values'] = [layer._latlng, layer._mRadius];
+                    missionLayer['local'] = [M.UTM.getLocalUTM(layer._latlng), layer._mRadius];
                     break;
                 case 'Line':
                 case 'Polygon':
                 case 'Rectangle':
                     missionLayer['values'] = layer._latlngs;
+                    missionLayer['local'] = M.UTM.getLocalUTMs(layer._latlngs);
                     break;
             }
 

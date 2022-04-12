@@ -33,11 +33,12 @@ class Polygon extends DrawManager {
 
         let values = info.layer._latlngs[0];
         for (let i = 0; i < values.length; i++) {
-            let lat = values[i].lat;
-            let lng = values[i].lng;
+            // let lat = values[i].lat;
+            // let lng = values[i].lng;
+            let utm = M.UTM.getLocalUTM(values[i]);
 
-            let latDict = HTMLUtils.addDict('input', `${id}-${i}-lat`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lat, 6) }, 'number', 'Latitude');
-            let lngDict = HTMLUtils.addDict('input', `${id}-${i}-lng`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(lng, 6) }, 'number', 'Longitude');
+            let latDict = HTMLUtils.addDict('input', `${id}-${i}-lat`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(utm.x, 3) }, 'number', 'Latitude');
+            let lngDict = HTMLUtils.addDict('input', `${id}-${i}-lng`, { 'class': 'form-control', 'required': 'required', 'value': Utils.round(utm.y, 3) }, 'number', 'Longitude');
             let row = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [latDict, lngDict], { 'class': 'col-6' });
 
             initialHtml.push(row);
@@ -97,7 +98,8 @@ class Polygon extends DrawManager {
             }
         }
 
-        layer.setLatLngs(values);
+        // layer.setLatLngs(values);
+        layer.setLatLngs(M.UTM.getLatLngs(values));
     }
 
     // #endregion

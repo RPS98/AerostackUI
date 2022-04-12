@@ -49,6 +49,13 @@ window.onload = function () {
 
         M.initialize();
 
+        M.UTM = new LocalCoordinates(
+            {
+                'lat': config.Global.mapCenter[0],
+                'lng': config.Global.mapCenter[1]
+            }
+        );
+
         /**
          * List of classes to be instantiated before the map is loaded
          */

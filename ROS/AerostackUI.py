@@ -35,13 +35,13 @@ class UavInterface(DroneInterface):
 
     @info_lock_decor
     def get_info(self):
-        pose = self.drone_interface.get_gps_pose()
+        pose = self.drone_interface.get_position()
         orientation = self.drone_interface.get_orientation()
 
         info_collection = {
             'id': self.drone_interface.get_drone_id(),
             'state': {},  # self.drone_interface.get_info(),
-            'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
+            'pose': {'x': pose[0], 'y': pose[1], 'height': pose[2], 'yaw': orientation[2]},
         }
         return info_collection
 
@@ -71,7 +71,7 @@ class UavInterface(DroneInterface):
                 print(f"{uav} - Takeoff done")
                 
                 print(f"{uav} - Send takeoff waypoint")
-                drone_interface.follow_gps_path(waypoint, speed)
+                drone_interface.follow_path(waypoint, speed)
                 print(f"{uav} - Takeoff waypoint done")
 
             elif element['name'] == 'LandPoint':
@@ -82,7 +82,7 @@ class UavInterface(DroneInterface):
                 ]
 
                 print(f"{uav} - Send land point")
-                drone_interface.follow_gps_path([waypoint])
+                drone_interface.follow_path([waypoint])
                 print(f"{uav} - Land point done")
 
                 print(f"{uav} - Send land")
@@ -94,7 +94,7 @@ class UavInterface(DroneInterface):
 
                 print(f"{uav} - Send path")
                 # print(f"{uav} - Send path"): {waypoint}")
-                drone_interface.follow_gps_path(waypoint, speed)
+                drone_interface.follow_path(waypoint, speed)
                 print(f"{uav} - Path done")
 
             elif element['name'] == 'WayPoint':
@@ -104,7 +104,7 @@ class UavInterface(DroneInterface):
                     element['values'][0][2]
                 ]
                 print(f"Send waypoint: {waypoint}")
-                drone_interface.follow_gps_wp([waypoint], speed)
+                drone_interface.follow_path([waypoint], speed)
                 print(f"{uav} - Waypoint done")
 
             elif element['name'] == 'Area':
@@ -329,6 +329,8 @@ class MissionManager():
         height = layer['height']
         values = layer['values']
         speed = layer['speed']
+        local = layer['local']
+        
         send_layer = {
             'name': name,
             'uavList': uavList,
@@ -344,7 +346,7 @@ class MissionManager():
             if uav == 'auto':
                 uav = first_uav
 
-            marker_position = [values['lat'], values['lng'], height[1]]
+            marker_position = [local['x'], local['y'], height[1]]
             new_last_position[uav] = marker_position
 
             mission[uav].append({
@@ -360,9 +362,9 @@ class MissionManager():
                 uav = first_uav
 
             waypoints = []
-            for point in layer['values']:
+            for point in local:
                 waypoints.append(
-                    [point['lat'], point['lng'], layer['height'][1]])
+                    [point['x'], point['y'], layer['height'][1]])
 
             new_last_position[uav] = waypoints[len(waypoints)-1]
 
@@ -441,7 +443,7 @@ class AerostackUI():
         self.drone_interface = {}
         for uav_id in self.uav_id_list:
             # self.drone_interface[uav_id] = DroneInterface(uav_id)
-            if uav_id == 'M300_0':
+            if uav_id == 'M200_0':
                 self.drone_interface[uav_id] = None
             else:
                 drone_node = UavInterface(uav_id, self.speed)
@@ -457,7 +459,7 @@ class AerostackUI():
         # executor_thread.start()
 
         self.uav_id_list_pos = [
-            [28.1439717, -16.5032634, 0.0],
+            [0.0, 0.0, 0.0],
             [28.1438840, -16.5032570, 0.0],
         ]
 
@@ -515,12 +517,15 @@ class AerostackUI():
         for uav in mission_list:
             drone_interface = self.drone_interface[uav]
 
-            if drone_interface == None:
-                continue
-
             print("Starting mission for uav ", uav)
             self.thread_uav[uav] = None
             mission_for_uav = mission_list[uav]
+            
+            if drone_interface == None:
+                print("- UAV ", uav, " is not connected")
+                print("Mission")
+                print(mission_for_uav)
+                continue
 
             self.thread_uav[uav] = threading.Thread(target=drone_interface.run_uav_mission, args=[
                                                     mission_for_uav, self.thread_uav[uav]])
@@ -555,25 +560,23 @@ class AerostackUI():
                     send_info = {
                         'id': str(uav),
                         'state': info,
-                        'pose': {'lat': pose[0], 'lng': pose[1], 'height': pose[2], 'yaw': orientation[2]},
+                        'pose': {'x': pose[0], 'y': pose[1], 'height': pose[2], 'yaw': orientation[2]},
                         'odom': odom[uav]
                     }
 
                 else:
 
                     send_info = drone_interface_i.get_info()
-                    print(f"Send info for {uav}")
-                    print(send_info)
+                    # print(f"Send info for {uav}")
+                    # print(send_info)
 
                 odom[uav].append(
-                    [send_info['pose']['lat'], send_info['pose']['lng']])
+                    [send_info['pose']['x'], send_info['pose']['y']])
                 send_info['odom'] = odom[uav]
 
-                pose_fail1 = {'lat': 0.0, 'lng': 0.0}
-                pose_fail2 = {'lat': float('NaN'), 'lng': float('NaN')}
+                pose_fail1 = {'x': float('NaN'), 'y': float('NaN')}
 
-                if send_info['pose']['lat'] != pose_fail1['lat'] or send_info['pose']['lng'] != pose_fail1['lng'] or \
-                   send_info['pose']['lat'] != pose_fail2['lat'] or send_info['pose']['lng'] != pose_fail2['lng']:
+                if send_info['pose']['x'] != pose_fail1['y'] or send_info['pose']['x'] != pose_fail1['y']:
                     # print("Sending info for ", uav)
                     # print(send_info)
                     self.client.send_uav_info(send_info)

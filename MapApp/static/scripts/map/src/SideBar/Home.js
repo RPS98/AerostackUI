@@ -70,8 +70,8 @@ class Home {
 
         // Add virtual UAV button
         let virtualUAVName = HTMLUtils.addDict('input', `${this._htmlId}-virtualName`, { 'class': 'form-control', 'required': 'required', 'value': this._defaultUAVname}, 'text', 'Name');
-        let virtualUAVLat = HTMLUtils.addDict('input', `${this._htmlId}-virtualLat`, { 'class': 'form-control', 'required': 'required', 'value': this._defaultUAV[0] }, 'number', 'Latitude');
-        let virtualUAVLon = HTMLUtils.addDict('input', `${this._htmlId}-virtualLng`, { 'class': 'form-control', 'required': 'required', 'value': this._defaultUAV[1] }, 'number', 'Longitude');
+        let virtualUAVLat = HTMLUtils.addDict('input', `${this._htmlId}-virtualX`, { 'class': 'form-control', 'required': 'required', 'value': this._defaultUAV[0] }, 'number', 'Easting');
+        let virtualUAVLon = HTMLUtils.addDict('input', `${this._htmlId}-virtualY`, { 'class': 'form-control', 'required': 'required', 'value': this._defaultUAV[1] }, 'number', 'Northing');
         let virtualUAVPose = HTMLUtils.addDict('splitDivs', 'none', { 'class': 'row my-1 mx-1' }, [virtualUAVLat, virtualUAVLon], { 'class': 'col-md-6' });
 
         let virtualBtnContent = HTMLUtils.addDict('button', `${this._htmlId}-virtualBtn`, { 'class': 'btn btn-primary' }, 'Add virtual UAV');
@@ -105,8 +105,8 @@ class Home {
         // Add virtual UAV callback
         Utils.addFormCallback(
             `${this._htmlId}-virtualBtn`,
-            [`${this._htmlId}-virtualName`, `${this._htmlId}-virtualLat`, `${this._htmlId}-virtualLng`],
-            ['name', 'lat', 'lng'],
+            [`${this._htmlId}-virtualName`, `${this._htmlId}-virtualX`, `${this._htmlId}-virtualY`],
+            ['name', 'x', 'y'],
             this._addUAVCallback.bind(this)
         );
     }
@@ -134,7 +134,7 @@ class Home {
         let uavInfo = {
             'id': input.name,
             'state': {},
-            'pose': {'lat': parseFloat(input.lat), 'lng': parseFloat(input.lng), 'height': 0, 'yaw': 0}
+            'pose': {'x': parseFloat(input.x), 'y': parseFloat(input.y), 'height': 0, 'yaw': 0}
         }
 
         M.WS.sendUavInfo(uavInfo);

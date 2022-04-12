@@ -335,5 +335,7 @@ ros2 service call /M300_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
 ros2 service call /M300_0/set_arming_state std_srvs/srv/SetBool data:\ true\
 
 
+
+
 // 28.143849, -16.503213
 // 28.143973, -16.503262
