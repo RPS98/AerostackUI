@@ -311,6 +311,9 @@ cd ~/aerostack2_ws/src/aerostack2/projects/project_copilot
 cd ~/aerostack2_ws/src/aerostack2/projects/project_copilot
 ./main_launcher.bash
 
+cd ~/aerostack2_ws/src/aerostack2/stack/user_interface/python_interface/python_interface
+python drone_interface.py
+
 cd ~/AerostackUI
 conda activate ROSinterface
 python manage.py runserver
@@ -330,12 +333,37 @@ ros2 service call /M300_0/set_arming_state std_srvs/srv/SetBool data:\ true\
 
 
 
-ros2 service call /M300_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\
+ros2 service call /M300/set_offboard_mode std_srvs/srv/SetBool data:\ true\
 
-ros2 service call /M300_0/set_arming_state std_srvs/srv/SetBool data:\ true\
+ros2 service call /M300/set_arming_state std_srvs/srv/SetBool data:\ true\
 
+
+
+
+ros2 service call /M300/set_offboard_mode std_srvs/srv/SetBool data:\ true\ && ros2 service call /M300/set_arming_state std_srvs/srv/SetBool data:\ true\
+
+ros2 service call /dron_sim_0/set_offboard_mode std_srvs/srv/SetBool data:\ true\ && ros2 service call /dron_sim_0/set_arming_state std_srvs/srv/SetBool data:\ true\
 
 
 
 // 28.143849, -16.503213
 // 28.143973, -16.503262
+
+
+
+
+
+
+ros2 pkg create --build-type ament_cmake keyboard_teleoperation
+
+
+cd ~/aerostack2_ws/src/aerostack2/stack
+clear
+
+
+ros2 run controller_manager controller_manager_node --ros-args -r __node:=controller_manager_node -r __ns:=/M300 
+
+git checkout -b your-new-branch
+git add <files>
+git commit -m <message>
+git push origin your-new-branch

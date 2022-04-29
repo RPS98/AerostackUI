@@ -4,7 +4,7 @@
     "mapUrl": "http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}",
     "subdomains": ["mt0", "mt1", "mt2", "mt3"],
     "subdomainsLabels": ["Hybrid", "Streets", "Satellite", "Terrain"],
-    "subdomainsMaxZoom": [24, 24, 24, 24],
+    "subdomainsMaxZoom": [26, 26, 26, 26],
     "useCache": false,
     "saveToCache": false,
     "useOnlyCache": false,

@@ -600,7 +600,7 @@ if __name__ == '__main__':
     #     'drone_sim_8',
     # ]
     uav_list = [
-        # 'M200_0',
-        'M300_0',
+        'M200_0',
+        # 'M300_0',
     ]
     aerostackUI = AerostackUI(uav_list)
