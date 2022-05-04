@@ -361,7 +361,9 @@ cd ~/aerostack2_ws/src/aerostack2/stack
 clear
 
 
-ros2 run controller_manager controller_manager_node --ros-args -r __node:=controller_manager_node -r __ns:=/M300 
+ros2 run controller_manager controller_manager_node --ros-args -r __node:=controller_manager_node -r __ns:=/dron_sim_0 --params-file /home/rafa/aerostack2_ws/src/aerostack2/stack/motion_control/controller_manager/controller_manager/config/controller_manager.yaml
+
+
 
 git checkout -b your-new-branch
 git add <files>
